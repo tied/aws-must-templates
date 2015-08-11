@@ -1,0 +1,33 @@
+{{!
+
+
++++start+++
+
+
+## <a id="initializeInstallAwsCli.mustache"></a>initializeInstallAwsCli.mustache<a class='navigator' href='#top'> [top]</a>
+
+UserData -script to install AwsCli 
+
+**Attributes**: context=  `./resources/Instance/InstallChef`
+
+* `Install`: Defined if should install aws-cli
+* `Version`: Chef version to install
+
+
++++close+++
+
+}}
+
+
+{{! +++fold-on+++ }}
+
+                   , "TMP_ZIP=awscli-bundle.zip\n"
+                   , "curl https://s3.amazonaws.com/aws-cli/awscli-bundle.zip -o $TMP_ZIP\n"
+                   , "sudo apt-get install unzip\n"
+                   , "unzip $TMP_ZIP -d /tmp\n"
+                   , "cd /tmp\n"
+                   , "sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws >>$LOG 2>&1\n"
+                   , "echo $(date): awscli installed successfully >> $LOG\n"
+
+
+{{! +++fold-off+++ }}

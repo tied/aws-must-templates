@@ -1,0 +1,35 @@
+{{!
+
+
++++start+++
+
+## <a id="parameter.mustache"></a>parameter.mustache <a class='navigator' href='#top'>[top]</a>
+
+Create one parameter entry to CloudFormation JSON parameter section
+
+**Attributes**: context= `./parameters`
+
+* `Name` : of the ouput entry
+* `Description`: of the parameter entry
+*  One of 
+   * `Value`: value of the parameter
+   * `NestedValue`: 
+      * `Stack` : resource name of the nested stack
+      * `Output`: name of output variable in nested stack
+
+
++++close+++
+
+}}
+
+
+
+{{! +++fold-on+++ }}
+
+    "{{Name}}": {
+      "Description" : "{{Description}}{{^Description}}No description given{{/Description}}"
+      , "Type": "{{Type}}"
+      {{#Value}}, "Default" : "{{Value}}"{{/Value}}
+    }{{_comma}}
+
+{{! +++fold-off+++ }}

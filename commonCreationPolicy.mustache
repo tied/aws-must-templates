@@ -1,0 +1,33 @@
+{{!
+
+
++++start+++
+
+## <a id="commonCreationPolicy.mustache"></a>commonCreationPolicy.mustache<a class='navigator' href='#top'>[top]</a>
+
+You associate the CreationPolicy attribute with a resource to prevent its status from reaching create complete until AWS CloudFormation receives a specified number of success signals or the timeout period is exceeded. 
+
+
+**Attributes**: 
+
+* `CreationPolicy` : sub document defining creation policy
+  * `Timeout`: The value must be in ISO8601 duration format, in the
+    form: "PT#H#M#S", where each # is the number of hours, minutes,
+    and seconds, respectively.
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+{{# CreationPolicy }}
+   , "CreationPolicy" : {
+             "ResourceSignal": {
+                   "Timeout": "{{Timeout}}"
+             }
+   }
+{{/ CreationPolicy }} 
+
+
+{{! +++fold-off+++ }}

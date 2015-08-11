@@ -1,0 +1,39 @@
+{{!
+
+
++++start+++
+
+
+## <a id="resourceWait.mustache"></a>resourceWait.mustache<a class='navigator' href='#top'> [top]</a>
+
+Creates a WaitHandle, and a WaitCondition on a resource `DependsOn`.
+
+**Attributes**: 
+
+* `Name`: 
+* `DependsOn`: Resource on which depents
+* `Timeout`: The length of time (in seconds) to wait for the number of
+  signals that the Count property specifies.
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+
+ "{{Name}}" : {
+      "Type" : "AWS::CloudFormation::WaitConditionHandle"
+  },
+
+ "{{Name}}Condition" : {
+      "Type" : "AWS::CloudFormation::WaitCondition"
+      {{> commonDependsOn }}
+      , "Properties" : {
+            "Handle"  : { "Ref" : "{{Name}}" }
+          , "Timeout" : "{{Timeout}}"
+      }
+    }{{_comma}}
+
+
+{{! +++fold-off+++ }}

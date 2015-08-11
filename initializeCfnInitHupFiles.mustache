@@ -1,0 +1,85 @@
+
+{{!
+
+
++++start+++
+
+## <a id="initializeCfnInitHupFiles.mustache"></a>initializeCfnInitHupFiles.mustache <a class='navigator' href='#top'>[top]</a>
+
+Cfn-init configuration to create files needed by
+cfn-hup. Confiugration defines polling interval, CloudFormation path
+to monitor, action to take, and the credentials needed for the
+operation.
+
+
+**Attributes**: 
+
+* `CfnUserKey`: reference name to user to retrieve `AWSAccessKeyId`
+  and `AWSSecretKey` in `/etc/cfn/cfn-credentials`
+* `CfnResource` : resource which cfn-hup monitors for changes in `Metadata.cfn-hup`
+* `CfnAction` : actions to trigger, when cfn-hup triggered, possibly starting `CfScript`
+* `CfnScript` : script code for CfnAction (optional)
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+
+"/etc/cfn/cfn-hup.conf":{
+    "content":{
+        "Fn::Join":["", [
+            "[main]\n",
+            "stack=", {"Ref":"AWS::StackName"}, "\n",
+            "credential-file=/etc/cfn/cfn-credentials\n",
+            "interval=1\n",
+            "region=", {"Ref":"AWS::Region"}, "\n"
+        ]]
+    },
+    "mode":"000400",
+    "owner":"root",
+    "group":"root"
+}
+
+,  "/etc/cfn/cfn-credentials":{
+    "content":{
+        "Fn::Join":["", [
+            "AWSAccessKeyId=", {"Ref":"{{CfnUserKey}}"}, "\n",
+            "AWSSecretKey=", {"Fn::GetAtt":["{{CfnUserKey}}", "SecretAccessKey"]}, "\n"
+        ]]
+    },
+    "mode":"000400",
+    "owner":"root",
+    "group":"root"
+}
+
+, "/etc/cfn/hooks.d/cfn-auto-reloader.conf":{
+    "content":{
+        "Fn::Join":["", [
+            "[cfn-auto-reloader-hook]\n",
+            "triggers=post.update\n",
+            "path=Resources.{{CfnResource}}.Metadata.CfnHup\n",
+            "action={{CfnAction}}\n",
+            "runas=root\n"
+        ]]
+    }
+}
+
+{{# CfnScript.length }}
+, "{{CfnAction}}":{
+    "content":{
+        "Fn::Join":["", [ {{# CfnScript }}"{{{.}}}\n",
+                          {{/ CfnScript }}
+                          "\n"
+                    ]]
+    },
+    "mode":"000555",
+    "owner":"root",
+    "group":"root"
+
+}
+{{/ CfnScript.length }}
+
+
+{{! +++fold-off+++ }}

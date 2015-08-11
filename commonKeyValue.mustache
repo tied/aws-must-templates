@@ -1,0 +1,28 @@
+{{!
+
+
++++start+++
+
+## <a id="commonKeyValue.mustache"></a>commonKeyValue.mustache<a class='navigator' href='#top'>[top]</a>
+
+Common template to output key-value pair
+
+**Attributes**: 
+
+* `Key`: 
+*  value given as as commonValue, [commonValue.mustache](#commonValue.mustache)
+
++++close+++
+
+}}
+
+
+{{! +++fold-on+++ }}
+
+{
+   "Key" : "{{Key}}"
+   , "Value" : {{> commonValue }}
+}
+
+
+{{! +++fold-off+++ }}

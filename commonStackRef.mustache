@@ -1,0 +1,23 @@
+{{!
+
+
++++start+++
+
+## <a id="commonStackRef.mustache"></a>commonStackRef.mustache<a class='navigator' href='#top'>[top]</a>
+
+Common template to output nested stack reference
+
+**Attributes**: 
+
+* `Stack` : name of the nested stack resource
+* `Output`: name of output variable in nested stack
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+{ "Fn::GetAtt": [ "{{Stack}}", "Outputs.{{Output}}"] }
+
+{{! +++fold-off+++ }}

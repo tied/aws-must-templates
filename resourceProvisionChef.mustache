@@ -1,0 +1,38 @@
+{{!
+
+
++++start+++
+
+
+## <a id="initializeProvisionChef.mustache"></a>initializeProvisionChef.mustache<a class='navigator' href='#top'> [top]</a>
+
+UserData -script to provision Chef
+
+**Attributes**: context=  `./resources/Instance/InstallChef`
+
+* `Node`: Chef node to provision
+* `ChefZeroHost` : host where ChefZero can be accessed
+
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+   
+           	 ,  "NODE={{Node}}\n"
+                     {{#ChefZeroHost}}
+           	 ,  "CHEF_ZERO_HOST='", {{> commonValue }}, "'\n"
+                     {{/ChefZeroHost}}
+                 ,  "CHEF_ZERO_HOST=$(echo $CHEF_ZERO_HOST)\n" {{! Removes new-line, which Ref -contruct creates }}
+                 ,  "echo $(date): Create directory /etc/chef - to store client.pem >> $LOG\n"
+                 ,  "[ -d /etc/chef ] || sudo mkdir /etc/chef \n"
+                 ,  "echo $(date): Generating /tmp/fake.pem >> $LOG\n"
+                 ,  "openssl genrsa -passout pass:'' -out /tmp/fake.pem 2048\n"
+                 ,  "echo $(date): start chef provision on node  $NODE >> $LOG\n"
+                 ,  "sudo chef-client --validation_key /tmp/fake.pem  --server http://$CHEF_ZERO_HOST:8889 --node-name $NODE --log_level info\n"
+                 ,  "echo $(date): chef provisioned node $NODE successfully >> $LOG\n"
+
+
+{{! +++fold-off+++ }}

@@ -1,0 +1,87 @@
+{{!
+
+
++++start+++
+
+
+## <a id="resourceInternetGateway.mustache"></a>resourceInternetGateway.mustache <a class='navigator' href='#top'>[top]</a>
+
+Creates a new Internet gateway in your AWS account. After creating the
+Internet gateway, attach it to a VPC, and create/attach a routetable
+to `Vpc`, and add a routetable entry entry to enable internet
+access on `Vpc` && `Subnet`
+
+**Attributes**: context=  `./resources/InstanceSecurityGroup`
+
+* `Name` : of the Internet Gateway
+   * `Vpc`: reference to VPC where to atttace
+   * `Subnet`: reference to VPC where to attach route to InternetGateway
+   * `Tags`: (optional) as [commonKeyValue.mustache](#commonKeyValue.mustache)
+
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+
+{{! Create internet gateway }}
+"{{Name}}" : {
+    "Type" : "AWS::EC2::InternetGateway",
+    "Properties" : {
+       "Tags" : [ {{# Tags }}{{> commonKeyValue }}{{_comma}}{{/ Tags }}]
+    }
+ },
+
+{{! Attache the internet gateway created to VPC }}
+"Attach{{Vpc}}" : {
+      "Type" : "AWS::EC2::VPCGatewayAttachment",
+      "Properties" : {
+        "VpcId" : { "Ref" : "{{Vpc}}" },
+        "InternetGatewayId" : { "Ref" : "{{Name}}" }
+    }
+}, 
+
+
+{{! Create a route table for VPC }}
+
+"RouteTable{{Vpc}}" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : { "Ref" : "{{ Vpc }}" },
+        "Tags" : [ 
+		           {"Key": "Name", "Value" : "RouteTable{{Vpc}}" }
+		         , {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } 
+				 ]
+      }
+    },
+
+
+{{! Add a route to internet gateway created }}
+
+"Route{{Vpc}}" : {
+    "Type" : "AWS::EC2::Route",
+     "DependsOn" : "Attach{{Vpc}}",
+      "Properties" : {
+          "RouteTableId" : { "Ref" : "RouteTable{{Vpc}}" }
+          , "DestinationCidrBlock" : "0.0.0.0/0"
+          , "GatewayId" : { "Ref" : "{{Name}}" }
+     }
+},
+
+{{! Associates a subnet with a route table. }}
+
+"RouteTableAssociation{{Subnet}}" : {
+    "Type" : "AWS::EC2::SubnetRouteTableAssociation"
+   , "Properties" : {
+         "SubnetId" : { "Ref" : "{{Subnet}}" }
+       , "RouteTableId" : { "Ref" : "RouteTable{{Vpc}}" }
+     }
+}
+
+{{_comma}}
+	
+
+
+{{! +++fold-off+++ }}

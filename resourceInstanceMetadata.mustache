@@ -1,0 +1,64 @@
+{{!
+
+
++++start+++
+
+## <a id="resourceInstanceMetadata.mustache"></a>resourceInstanceMetadata.mustache <a class='navigator' href='#top'>[top]</a>
+
+The Metadata attribute enables you to associate structured data with a
+resource. By adding a Metadata attribute to a resource, you can add
+data in JSON format to the resource declaration.
+
+**Attributes**: 
+
+* `Initialize`: array of
+  * `StartCfnHup`: see [initializeCfnInitHupFiles](#initializeCfnInitHupFiles.mustache)
+  
++++close+++
+
+}}
+{{! +++fold-on+++ }}
+
+{{! NOTICE: check for 'resourceInstanceInitialize.mustache' for using
+  '#Initialize' array to setup `UserData` -script }}
+
+
+"AWS::CloudFormation::Init":{
+   "config" : {
+     "packages" : {
+     },
+     "groups" : {
+     },
+     "users" : {
+     },
+     "sources" : {
+     },
+     "files" : {
+        "/tmp/cfn-init.txt": {
+               "content":{
+                   "Fn::Join":["", [ "Installed in cfn-init", "\n" ]]
+                }
+               , "mode":"000444"
+               , "owner":"root"
+               , "group":"root"
+        }
+        {{# Initialize }}{{# StartCfnHup }}, {{> initializeCfnInitHupFiles }}{{/ StartCfnHup }}{{/ Initialize }}
+     },
+     "commands" : {
+     },
+     "services" : {
+     }
+  }
+
+} {{! AWS::CloudFormation::Init" }}
+
+{{! Add a metadata field, which, when updated, triggers cfn-hup. c.f. initializeCfnInitHupFiles }}
+{{# Initialize }}{{# StartCfnHup }}
+,    "CfnHup": "updating this field causes cfn-hup to trigger"
+{{/ StartCfnHup }}{{/ Initialize }}
+
+
+
+
+
+{{! +++fold-off+++ }}

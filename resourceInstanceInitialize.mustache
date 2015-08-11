@@ -1,0 +1,116 @@
+{{!
+
+
++++start+++
+
+## <a id="resourceInstanceInitialize.mustache"></a>resourceInstanceInitialize.mustache <a class='navigator' href='#top'>[top]</a>
+
+user-data script
+
+**Attributes**: 
+
+* `CreationPolicy`: in the end send cfn-signal to `../Name` -resource in current stack 
+* `InitializeWait`: name of wait resource (for successfull script)
+* `Initialize` : array of 
+  * `InstallCFtools`: 
+  * `ProvisionChef`: 
+  * `InstallChef`: add UserData to install Chef
+  * `InstallAwsCli`: add UserData to install awscli
+  * `LaunchChefZero`: 
+  * `StartCfnInit`: [Launch cfn-init](#initializeCFinit.mustache)
+  * `StartCfnHup`: [launch cfn-hup helper](#initializeStartCfnHup.mustache)
+
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+
+{ "Fn::Base64": { "Fn::Join": [ "\n",
+                  [
+                    "#!/bin/bash\n"
+                  , "set -x\n"
+                  , "set -e\n"
+                  , "set -o pipefail\n"
+		  , "LOG=/tmp/install.log\n"
+                  , "echo $(date): starting to install chef  > $LOG\n"
+                  , "function finish() {\n"
+		  ,        "    echo \"$(date): installation finished\" >>$LOG 2>&1\n"
+                           {{# CreationPolicy}}
+                  ,        "    STACK='", { "Ref" : "AWS::StackName" }, "'\n"
+                  ,        "    REGION='", { "Ref" : "AWS::Region" }, "'\n"
+                  ,        "    RESOURCE='{{Name}}'\n"
+                  ,        "    type cfn-signal && sudo cfn-signal --success true  --reason \"UserData script success\" --stack $STACK --resource $RESOURCE --region $REGION>>$LOG 2>&1\n"
+                           {{/ CreationPolicy}}
+                           {{# InitializeWait}}
+                  ,        "    HANDLE='", { "Ref" : "{{InitializeWait}}" }, "'\n"
+                  ,        "    type cfn-signal && sudo cfn-signal --success true  --reason \"UserData script success\" $HANDLE >>$LOG 2>&1\n"
+                           {{/ InitializeWait}}
+                  ,  "}\n" 
+                  , "function error() {\n"
+                  ,        "    local lineno=$1\n"
+                  ,        "    local error=1\n"
+                           {{# CreationPolicy}}
+                  ,        "    STACK='", { "Ref" : "AWS::StackName" }, "'\n"
+                  ,        "    REGION='", { "Ref" : "AWS::Region" }, "'\n"
+                  ,        "    RESOURCE='{{Name}}'\n"
+                  ,        "    type cfn-signal && sudo cfn-signal --exit-code $error  --reason \"installation finished in ERROR on line $lineno\" --stack $STACK --resource $RESOURCE --region $REGION>>$LOG 2>&1\n"
+                           {{/ CreationPolicy}}
+                           {{# InitializeWait}}
+                  ,        "    HANDLE='", { "Ref" : "{{InitializeWait}}" }, "'\n"
+                  ,        "    type cfn-signal && sudo cfn-signal --exit-code $error  --reason \"installation finished in ERROR on line $lineno\" $HANDLE >>$LOG 2>&1\n"
+                           {{/ InitializeWait}}
+		  ,        "    echo \"$(date): installation finished in ERROR $error on line $lineno\" >>$LOG 2>&1\n"
+                  ,        "    exit 1\n"
+                  ,  "}\n" 
+                  , "trap finish EXIT\n"
+                  , "trap 'error ${LINENO}' ERR\n"
+
+{{! NOTICE:  check for resourceInstanceMetadata.mustache   }}
+
+
+                {{# Initialize}}
+	            {{# InstallCFtools }}
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
+                    ,      "echo Install Cloudformation tools  >>$LOG 2>&1\n"
+                           {{> initializeCFtools }} 
+                    {{/ InstallCFtools }}
+	            {{#ProvisionChef }}
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
+                    ,      "echo Provision chef  >>$LOG 2>&1\n"
+                           {{> initializeProvisionChef }} 
+                    {{/ ProvisionChef }}
+	            {{#InstallAwsCli }}
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
+                    ,      "echo Install AWS client tools  >>$LOG 2>&1\n"
+                          {{> initializeInstallAwsCli }}
+                    {{/ InstallAwsCli }}
+	            {{#InstallChef }}
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
+                    ,      "echo Install chef  >>$LOG 2>&1\n"
+                           {{> initializeInstallChef }} 
+                    {{/ InstallChef }}
+	            {{#LaunchChefZero }}
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
+                    ,      "echo Lauch ChefZero  >>$LOG 2>&1\n"
+                           {{> initializeProvisionChefZero }} 
+                    {{/ LaunchChefZero }}
+	            {{# StartCfnInit }}
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
+                    ,      "echo Start cfn-init  >>$LOG 2>&1\n"
+                           {{> initializeCFinit }} 
+                    {{/ StartCfnInit }}
+	            {{# StartCfnHup }}
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
+                    ,      "echo Start cfn-hup  >>$LOG 2>&1\n"
+                           {{> initializeStartCfnHup }} 
+                    {{/ StartCfnHup }}
+                {{/ Initialize}}
+                ]
+
+           ]}
+       } 
+
+{{! +++fold-off+++ }}

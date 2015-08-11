@@ -1,0 +1,27 @@
+{{!
+
++++start+++
+
+
+## <a id="mappingSubnetConfig.mustache"></a>mappingSubnetConfig.mustache <a class='navigator' href='#top'>[top]</a>
+
+Creates a subnet config mapping
+
+**Attributes**: 
+
+* `Name`: name of the S3 bucket to create
+
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+"{{Name}}" : {
+      "VPC"     : { "CIDR" : "10.44.0.0/16" },
+      "Public"  : { "CIDR" : "10.44.0.0/24" },
+      "Private" : { "CIDR" : "10.44.1.0/24" }
+ }{{_comma}}
+
+{{! +++fold-off+++ }}

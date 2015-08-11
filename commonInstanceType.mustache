@@ -1,0 +1,27 @@
+{{!
+
+
++++start+++
+
+## <a id="commonInstanceType.mustache"></a>commonInstanceType.mustache <a class='navigator' href='#top'>[top]</a>
+
+Output value for `InstanceType` -attribute
+
+**Attributes**:
+
+* `InstanceType`: value of instance type
+* `InstanceTypeRef`: reference to instance type
+
+
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+
+{{# InstanceType }}"{{ InstanceType }}"{{/ InstanceType }}
+{{# InstanceTypeRef }}{ "Ref": "{{ InstanceTypeRef }}" }{{/ InstanceTypeRef }}
+
+{{! +++fold-off+++ }}

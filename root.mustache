@@ -1,0 +1,257 @@
+{{!
+
+     root.mustache: root level template, 
+
+==================================================================
+STYLE section
+==================================================================
+
++++start+++
+<style>
+h1 {
+    color:blue; 
+    font-size: 2.5em;
+   }
+h2 {
+      color:blue;
+      font-size: 1.5em;
+   }
+h3 {
+      color:blue;
+      font-size: 1.5em;
+   }
+.navigator {
+      font-size: 0.5em;
+   }
+body {
+    background-color: #b0c4de;
+} 
+/* Support fold-on/fold-off toggle */
+div.fold { 
+    width: 90%; padding: .42rem; border-radius: 5px;  margin: 1rem; 
+
+}
+div.fold div { 
+       height: 0px; margin: .2rem; overflow: hidden; 
+}
+div.toggle ~ div { height: 0px; margin: .2rem; overflow: hidden; }
+input.toggle:checked ~ div { 
+     height: auto;      
+     color: white; 
+     background: #c6a24b;
+     font-family: monospace;
+     white-space: pre; 
+}
+</style>
+
++++close+++
+
+
+==================================================================
+CONTENT section
+==================================================================
+
++++start+++
+
+# <a id="top">aws-must demo 7 template</a>
+
+Creates 
+
+* **EC2 SecurityGroup** allowing ssh via port 22 from a location
+    given as `SSHLocation` parameter
+
+* **S3Bucket**: S3 bucket with 
+
+* **Role**: AWS Identity and Access Management (IAM) role
+
+* **EC2 instances** using YAML parameter `InstanceType`
+  (e.g. t2.micro).
+
+  * `ImageId` of the AMI is determined using CloudFormation mapping on
+    `InstanceType` and region. Supported regions are ap-northeast-1,
+    ap-southeast-1, ap-southeast-2, cn-north-1, eu-central-1,
+    eu-west-1, sa-east-1, us-east-1, us-gov-west-1, us-west-1,
+    us-west-2.  
+
+  * output section contains references to InstanceId and PublicId of
+    the newly created EC2 instance.
+
+  * UserData script can be configured to install
+     * Chef configuration management tool
+     * AwsCli (Amazon command line interface)
+
+
+**Parameters**:
+
+* `InstanceType`: EC2 resource instance type, (default: t2.micro)
+* `KeyName` : Name of an existing EC2 KeyPair to enable SSH access to the instance, (default: demo-key)
+* `SSHLocation`: The IP address range that can be used to SSH to the EC2 instances default: 0.0.0.0/0)
+* `ChefVersion`: Chef version to install, (default: 11.18)
+
+
+
+## Table of contents
+
+<ul>
+
+    <li><a href="#root.mustache">root.mustache</a>: root template = starting point of template rendering</li>
+
+    <li><a href="#parameter.mustache">parameter.mustache</a>: create one parameter entry to CloudFormation JSON parameter section</li>
+
+    <li><a href="#mappings.mustache">mappings.mustache</a>: matches a key to a corresponding set of named values</li>
+
+    <li><a href="#resource.mustache">resource.mustache</a>: dispatch resource based on resource type</li>
+
+    <ul> 
+
+        <li><a href="#resourceSecurityGroup.mustache">resourceSecurityGroup.mustache</a>: create an security group for accessing EC2 instances</li>
+
+        <li><a href="#resourceS3Bucket.mustache">resourceS3Bucket.mustache</a>: create an S3 Bucket</li>
+
+        <li><a href="#resourceRole.mustache">resourceRole.mustache</a>: AWS Identity and Access Management (IAM) role.</li>
+
+        <li><a href="#resourceStack.mustache">resourceStack.mustache</a>: Nests a stack as a resource in a top-level template.</li>
+
+
+
+        <li><a href="#resourceInstanceProfile.mustache">resourceInstanceProfile.mustache</a>: a container for an IAM role and enables you to pass role information to an Amazon EC2 instance when the instance starts</li>
+
+        <li><a href="#resourceInstance.mustache">resourceInstance.mustache</a>: create an EC2 instance</li>
+
+        <ul>
+
+            <li><a href="#tag.mustache">tag.mustache</a>: add key-value tag property to an</li>
+
+            <li><a href="#resourceInstanceInitialize.mustache">resourceInstanceInitialize.mustache</a>: user-data script</li>
+
+            <li><a href="#initializeInstallChef.mustache">initializeInstallChef.mustache</a>: UserData -script to install Chef</li>
+
+            <li><a href="#initializeInstallAwsCli.mustache">initializeInstallAwsCli.mustache</a>: UserData -script to install AwsCli</li>
+
+            <li><a href="#initializeProvisionChef.mustache">initializeProvisionChef.mustache</a>: UserData -script to provision Chef</li>
+
+            <li><a href="#initializeCFtools.mustache">initializeCFtools.mustache</a>: Ubuntu CloudFormation Tools installation snippet</li>
+
+        </ul> <!-- resoureceInstance sub-templates -->
+
+    </ul> <!-- resource.mustache -->
+
+    <li><a href="#output.mustache">output.mustache</a>: values in response to describe stack calls </li> 
+
+    <li>Common templates</li> 
+
+    <ul> 
+
+        <li><a href="#commonInstanceType.mustache">commonInstanceType.mustache</a>: Output value for `InstanceType` -attribute</li> 
+
+        <li><a href="#commonValue.mustache">commonValue.mustache</a>: Common template to output value (Value/Ref/Attr/StackRef)</li> 
+
+        <li><a href="#commonKeyValue.mustache">commonKeyValue.mustache</a>: Common template output key value pairs</li> 
+
+    </ul> 
+
+</ul>
+
+## <a id="root.mustache"></a>root.mustache <a class='navigator' href='#top'>[top]</a>
+
+Starting point of template rendering.
+
+**Attributes**: context= `.`
+
+* `description`: description for the CF template
+* `parameters`: array of parameter sub-documents for CloudFormation Parameters -section
+* `resources`: array of resource sub-documents for CloudFormation Resources -section
+* `outputs`: array of output sub-documents for CloudFormation Outputs -section
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "{{description}}",
+
+  "Parameters" : {
+    {{# parameters }}{{> parameter }}{{/ parameters }}
+  },
+
+  "Mappings" : {
+    {{> mappings }}
+    {{# mappings.length }},{{/ mappings.length }}
+    {{# mappings }}{{> mapping }}{{/ mappings }}
+   },
+
+  "Resources" : {
+
+    {{> resources }}
+    {{# resources }}{{> resource }}{{/ resources }}
+
+  },
+
+  "Outputs" : {
+
+    {{# outputs }}{{> output }}{{/ outputs }}
+
+  }
+
+}
+
+{{! +++fold-off+++ }}
+
+
+
+{{! 
+
+==================================================================
+INCLUDED templates
+==================================================================
+
++++start+++
+
+> parameter
+> mappings
+> mapping
+> mappingSubnetConfig
+
+> resources
+> resource
+> resourceInstance
+
+> tag
+> resourceInstanceMetadata
+> resourceInstanceInitialize
+> initializeInstallChef
+> initializeInstallAwsCli
+> initializeProvisionChefZero
+> initializeCFtools
+
+> resourceSecurityGroup
+> resourceS3Bucket
+> resourceRole
+> resourceInstanceProfile
+> resourcePolicy
+> resourceStack
+> resourceWait
+> resourceVPC
+> resourceSubnet
+> resourceInternetGateway
+> resourceUser
+
+> output
+
+> commonDependsOn
+> commonInstanceType
+> commonStackRef
+> commonCreationPolicy
+> commonValue
+> commonKeyValue
+
+
++++close+++
+
+}}
+
+

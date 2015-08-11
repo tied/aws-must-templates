@@ -1,0 +1,51 @@
+{{!
+
+    resource.mustache
+
++++start+++
+
+## <a id="resource.mustache"></a>resource.mustache <a class='navigator' href='#top'>[top]</a>
+
+
+Dispatches resource sub-type templates based resource Type propertys
+
+**Attributes**: context=  `./resources`
+
+* `Instance`: sub-document defining an EC instance
+* `SecurityGroup`: sub-document defining an <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group.html">AWS::EC2::SecurityGroup</a>
+* `S3Bucket`: 
+* `Role`: 
+* `Policy`: 
+* `InstanceProfile`: 
+* `Stack`: 
+* `Wait`: 
+* `VPC`: 
+* `InternetGateway`: 
+* `Subnet`: 
+* `User`: creates [User](#resourceUser.mustache)
+
+
++++close+++
+
+
+}}
+
+
+{{! +++fold-on+++ }}
+
+{{# Instance }}{{> resourceInstance}}{{/ Instance }}
+{{# SecurityGroup }}{{> resourceSecurityGroup}}{{/ SecurityGroup }}
+{{# S3Bucket }}{{> resourceS3Bucket }}{{/ S3Bucket }}
+{{# Role }}{{> resourceRole }}{{/ Role }}
+{{# Policy }}{{> resourcePolicy }}{{/ Policy }}
+{{# InstanceProfile }}{{> resourceInstanceProfile }}{{/ InstanceProfile }}
+{{# Stack }}{{> resourceStack }}{{/ Stack }}
+{{# Wait }}{{> resourceWait }}{{/ Wait }}
+{{# VPC }}{{> resourceVPC }}{{/ VPC }}
+{{# Subnet }}{{> resourceSubnet }}{{/ Subnet }}
+{{# InternetGateway }}{{> resourceInternetGateway }}{{/ InternetGateway }}
+{{# User }}{{> resourceUser  }}{{/ User }}
+
+
+
+{{! +++fold-off+++ }}

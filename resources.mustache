@@ -1,0 +1,65 @@
+{{! 
+
++++start+++
+
+## <a id="resources.mustache"></a>resources.mustache <a class='navigator' href='#top'>[top]</a>
+
+Empty template.
+
+**Attributes**: context=  `.`
+
+* none
+
+
+
++++close+++
+
+
+}}
+{{! +++fold-on+++ }}
+
+{{!
+
+"S3AccessRole" : {
+    "Type"  : "AWS::IAM::Role",
+    "Properties" : {
+        "AssumeRolePolicyDocument" : {
+            "Statement" : [ {
+                "Effect" : "Allow",
+                "Principal" : {
+                    "Service" : [ "ec2.amazonaws.com" ]
+                },
+                "Action" : [ "sts:AssumeRole" ]
+            } ]
+        },
+        "Path" : "/"
+    }
+},
+
+
+"S3RolePolicies" : {
+    "Type" : "AWS::IAM::Policy",
+    "Properties" : {
+        "PolicyName" : "s3access",
+        "PolicyDocument" : {
+            "Statement" : [ {
+                "Effect" : "Allow",
+                "Action" : "s3:*",
+                "Resource" : "*"
+            }]
+        },
+        "Roles" : [ { "Ref" : "S3AccessRole" } ]
+    }
+},
+
+"S3InstanceProfile" : {
+    "Type" : "AWS::IAM::InstanceProfile",
+    "Properties" : {
+        "Path" : "/",
+        "Roles" : [ { "Ref" : "S3AccessRole" } ]
+    }
+},
+
+}}
+
+{{! +++fold-off+++ }}

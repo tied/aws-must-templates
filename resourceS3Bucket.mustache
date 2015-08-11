@@ -1,0 +1,32 @@
+{{!
+
++++start+++
+
+
+## <a id="resourceS3Bucket.mustache"></a>resourceS3Bucket.mustache <a class='navigator' href='#top'>[top]</a>
+
+Create an S3 Bucket - with default 'PublicRead'
+
+**Attributes**: context=  `./resources/Instance`
+
+* `Name`: name of the S3 bucket to create
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+
+    "{{Name}}" : {
+      "Type" : "AWS::S3::Bucket"
+      , "DeletionPolicy" : "Retain"
+      , "Properties" : {
+          "BucketName" : "{{Name}}"
+         ,"LifecycleConfiguration": {
+              "Rules" : [ ]
+         }
+      }
+    }{{_comma}}
+
+{{! +++fold-off+++ }}

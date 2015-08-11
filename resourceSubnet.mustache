@@ -1,0 +1,41 @@
+{{!
+
+
++++start+++
+
+
+## <a id="resourceSubnet.mustache"></a>resourceSubnet.mustache <a class='navigator' href='#top'>[top]</a>
+
+Creates a subnet in an existing VPC.
+
+**Attributes**: 
+
+* `Name` : of the VPC resource
+   * `CidrBlock` or as [commonKeyValue.mustache](#commonKeyValue.mustache)
+   * `VpcId`: resource name of VPC
+   * `MapPublicIpOnLaunch`: Indicates whether instances that are
+     launched in this subnet receive a public IP address. By default,
+     the value is `false`.
+   * `Tags`: (optional) as [commonKeyValue.mustache](#commonKeyValue.mustache)
+
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+
+  "{{Name}}" : {
+   "Type" : "AWS::EC2::Subnet"
+	{{> commonDependsOn }}
+   , "Properties" : {
+         "CidrBlock" : "{{CidrBlock}}"
+       , "Tags" : [ {{# Tags }}{{> commonKeyValue }}{{_comma}}{{/ Tags }}]
+       , "MapPublicIpOnLaunch" : {{^MapPublicIpOnLaunch}}false{{/ MapPublicIpOnLaunch}}{{# MapPublicIpOnLaunch}}{{MapPublicIpOnLaunch}}{{/ MapPublicIpOnLaunch}}
+       , "VpcId" : { "Ref" : "{{VpcId}}" }
+   }
+}{{_comma}}
+
+
+{{! +++fold-off+++ }}

@@ -1,0 +1,52 @@
+{{!
+
+
++++start+++
+
+
+## <a id="resourceInstance.mustache"></a>resourceInstance.mustache <a class='navigator' href='#top'>[top]</a>
+
+Create an EC2 instance
+
+**Attributes**: context=  `./resources/Instance`
+
+* `Name`: name of the EC2 instance to create
+* Instance type
+  * `InstanceType` : The instance type, such as t2.micro. 
+  * `InstanceTyperef` : Reference to instance type
+* `tags` : array of tag sub-documents for EC2 instance
+* `SecurityGroupIds`: array of [commonValue.mustache](#commonValue.mustache)
+
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+    "{{Name}}" : {
+      "Type" : "AWS::EC2::Instance"
+      {{> commonCreationPolicy }}
+	  , "Metadata": {
+	        {{> resourceInstanceMetadata }}
+
+	  } {{! metadata }}
+      , "Properties" : {
+          "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                      { "Fn::FindInMap" : [ "AWSInstanceType2Arch", {{> commonInstanceType }}, "Arch" ] } ] }
+          , "InstanceType" : {{> commonInstanceType}} {{! InstanceType OR InstanceTypeRef }}
+          , "Tags" : [ {{#tags}}{{>tag}}{{/tags}} ]
+          , "SecurityGroupIds" : [ 
+                {{# SecurityGroupIds }}
+                    {{> commonValue }}{{_comma}}
+                {{/ SecurityGroupIds }}
+          ]
+          {{#IamInstanceProfile}}, "IamInstanceProfile" : { "Ref" : "{{IamInstanceProfile}}" }{{/ IamInstanceProfile}}
+          {{# SubnetId }}, "SubnetId": {{> commonValue }} {{/ SubnetId }}
+          {{#KeyName}}, "KeyName" : { "Ref" : "{{KeyName}}" }{{/KeyName}}
+          , "UserData": {{> resourceInstanceInitialize }}
+      }
+    }{{_comma}}
+
+
+{{! +++fold-off+++ }}

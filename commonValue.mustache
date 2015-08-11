@@ -1,0 +1,34 @@
+{{!
+
+
++++start+++
+
+## <a id="commonValue.mustache"></a>commonValue.mustache<a class='navigator' href='#top'>[top]</a>
+
+Common template to output value (Value/Ref/Attr/StackRef)
+
+**Attributes**: 
+
+* `Value` : output value
+* `Ref`: output Ref
+* `StackRef`: 
+   * `Stack`
+   * `Output`
+* `Attr`: 
+   * `Ref`
+   * `Name`
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+
+{{#Value}}"{{Value}}"{{/Value}}
+{{#Ref}}{ "Ref": "{{Ref}}" }{{/Ref}}
+{{#Attr}}{ "Fn::GetAtt" : [ "{{Ref}}", "{{Name}}" ] }{{/Attr}}
+{{#StackRef}}{ "Fn::GetAtt": [ "{{Stack}}", "Outputs.{{Output}}"] }{{/StackRef}}
+
+
+{{! +++fold-off+++ }}

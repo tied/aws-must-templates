@@ -1,0 +1,37 @@
+{{!
+
+
++++start+++
+
+
+## <a id="initializeInstallChef.mustache"></a>initializeInstallChef.mustache<a class='navigator' href='#top'> [top]</a>
+
+UserData -script to install Chef
+
+**Attributes**: 
+
+* `Version`: Chef version to install
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+                 {{# Version}}
+                    {{# Ref}}
+           	 ,  "CHEF_VERSION='", { "Ref": "{{Ref}}" }, "'\n"
+                    {{/ Ref}}
+                    {{^ Ref}}
+           	 ,  "CHEF_VERSION={{Version}}\n"
+                    {{/ Ref}}
+                 {{/ Version}}
+                 ,  "echo $(date): starting to install chef  >> $LOG\n"
+		 ,  "curl -L https://www.chef.io/chef/install.sh | sudo bash -s -- -v $CHEF_VERSION  >>$LOG 2>&1\n"
+                 ,  "echo $(date): chef installed successfully >> $LOG\n"
+
+
+
+
+
+{{! +++fold-off+++ }}

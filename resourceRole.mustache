@@ -1,0 +1,40 @@
+{{!
+
++++start+++
+
+
+## <a id="resourceRole.mustache"></a>resourceRole.mustache <a class='navigator' href='#top'>[top]</a>
+
+AWS Identity and Access Management (IAM) role.
+
+**Attributes**: context=  `./resources/Instance`
+
+* `Name`: name of the Role to create
+* `Resource`: resources you allow the action on
+
+
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+
+    "{{Name}}" : {
+      "Type" : "AWS::IAM::Role"
+      , "Properties" : {
+        "Path" : "/",
+        "AssumeRolePolicyDocument" : {
+            "Statement" : [ {
+                "Effect" : "Allow",
+                "Principal" : {
+                    "Service" : [ "ec2.amazonaws.com" ]
+                },
+                "Action" : [ "sts:AssumeRole" ]
+            } ]
+        }
+      }
+    }{{_comma}}
+
+{{! +++fold-off+++ }}

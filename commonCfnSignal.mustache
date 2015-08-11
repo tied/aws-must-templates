@@ -1,0 +1,30 @@
+{{!
+
+
++++start+++
+
+## <a id="commonCfnSignal.mustache"></a>commonCfnSignal.mustache<a class='navigator' href='#top'>[top]</a>
+
+
+Common template to send a signlan
+
+**Attributes**: 
+
+* `WaitHandle` : to signal
+* `Message`    : text message for the signal
+
++++close+++
+
+}}
+
+
+{{! +++fold-on+++ }}
+
+{{# WaitHandle}}  
+   ,    "HANDLE='", { "Ref" : "{{WaitHandle}}" }, "'\n"
+   ,   "echo \"Signal success '{{WaitHandle}}' -handle with message '{{Message}}'\"  >> $LOG\n"
+   ,   "type cfn-signal && sudo cfn-signal --success true --reason \"{{Message}}\" $HANDLE >> $LOG\n"
+{{/ WaitHandle}}  
+
+
+{{! +++fold-off+++ }}

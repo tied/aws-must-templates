@@ -1,0 +1,46 @@
+{{!
+
+
++++start+++
+
+
+## <a id="resourceSecurityGroup.mustache"></a>resourceSecurityGroup.mustache <a class='navigator' href='#top'>[top]</a>
+
+Create an EC2 Security Group
+
+**Attributes**: context=  `./resources/SecurityGroup`
+
+* `Name` : of the security group
+* `VpcId`: The Reference name physical ID of the VPC.  given as commonValue, [commonValue.mustache](#commonValue.mustache)
+* `SecurityGroupIngress`: Arrays in a SecurityGroupIngr
+   * `IpProtocol`: default tcp
+   * `FromPort`: default to `Port`
+   * `ToPort`: defaults to `Port`
+   * CidrIp given as commonValue, [commonValue.mustache](#commonValue.mustache)
+
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+    "{{Name}}" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable SSH access via port 22"
+        {{# VpcId }}, "VpcId": {{> commonValue }} {{/ VpcId }}
+        , "SecurityGroupIngress" : [ 
+                {{# SecurityGroupIngress }}
+                     {
+                         "IpProtocol" : {{#IpProtocol}}"{{IpProtocol}}"{{/IpProtocol}}{{^IpProtocol}}"tcp"{{/IpProtocol}},
+                         "FromPort" : "{{#FromPort}}{{FromPort}}{{/FromPort}}{{^FromPort}}{{Port}}{{/FromPort}}",
+                         "ToPort" : "{{#ToPort}}{{ToPort}}{{/ToPort}}{{^ToPort}}{{Port}}{{/ToPort}}",
+                         "CidrIp" : {{> commonValue }}
+                    } {{_comma}}
+                {{/ SecurityGroupIngress }}
+        ]
+      }
+    }{{_comma}}
+
+{{! +++fold-off+++ }}

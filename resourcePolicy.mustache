@@ -1,0 +1,41 @@
+{{!
+
++++start+++
+
+
+## <a id="resourcePolicy.mustache"></a>resourcePolicy.mustache <a class='navigator' href='#top'>[top]</a>
+
+To assign permissions to a user, group, role, or resource, you create
+a policy, which is a document that explicitly lists permissions.
+
+**Attributes**: context=  `./resources/Policy`
+
+* `Name`: name of the Role to create
+* `Effect`: Allow/Deny
+* `Action`: list of actions for the policy
+* `Resource`: arn of the resource for the policy
+
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+"{{Name}}" : {
+    "Type" : "AWS::IAM::Policy",
+    "Properties" : {
+        "PolicyName" : "s3access",
+        "Roles" : [ { "Ref" : "{{RoleRef}}" } ],
+        "PolicyDocument" : {
+            "Statement" : [ {
+                "Effect" : "{{Effect}}",
+                "Action" : [ {{{Actions}}} ],
+                "Resource" : "{{Resource}}"
+            }]
+        }
+    }
+}{{_comma}}
+
+
+{{! +++fold-off+++ }}

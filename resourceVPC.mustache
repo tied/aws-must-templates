@@ -1,0 +1,44 @@
+{{!
+
+
++++start+++
+
+
+## <a id="resourceVPC.mustache"></a>resourceVPC.mustache <a class='navigator' href='#top'>[top]</a>
+
+Creates a Virtual Private Cloud (VPC) with the CIDR block that you specify.
+
+**Attributes**: context=  `./resources/InstanceSecurityGroup`
+
+* `Name` : of the VPC resource
+   * `CidrBlock` or as [commonKeyValue.mustache](#commonKeyValue.mustache)
+   * `EnableDnsSupport`: (= **true**) Specifies whether DNS resolution
+     is supported for the VPC. If this attribute is true, the Amazon
+     DNS server resolves DNS hostnames for your instances to their
+     corresponding IP addresses; otherwise, it does not.
+   * `EnableDnsHostnames`: (= **true**) Specifies whether the
+     instances launched in the VPC get DNS hostnames. If this
+     attribute is true, instances in the VPC get DNS hostnames;
+     otherwise, they do not. You can only set EnableDnsHostnames to
+     true if you also set the EnableDnsSupport attribute to true.
+   * `Tags`: (optional) as [commonKeyValue.mustache](#commonKeyValue.mustache)
+
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+
+  "{{Name}}" : {
+      "Type" : "AWS::EC2::VPC",
+      "Properties" : {
+        "CidrBlock" : "{{ CidrBlock }}"
+        , "EnableDnsSupport": true
+        , "EnableDnsHostnames": true
+        , "Tags" : [ {{# Tags }}{{> commonKeyValue }}{{_comma}}{{/ Tags }}]
+      }
+    }{{_comma}}
+
+{{! +++fold-off+++ }}

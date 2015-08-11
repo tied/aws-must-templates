@@ -1,0 +1,45 @@
+{{!
+
++++start+++
+
+
+## <a id="resourceStack.mustache"></a>resourceStack.mustache<a class='navigator' href='#top'>[top]</a>
+
+Nests a stack as a resource in a top-level template.
+
+**Attributes**: context=  `./resources/Policy`
+
+* `Name`: resource name given to the nested stack
+* `TemplateFile`: local path used to create `TemplateUrl` for AWS::CloudFormation::Stack
+* `DependsOn`: With the DependsOn attribute you can specify that the
+  creation of a specific resource follows another
+* `Parameters` Array of  sub documents
+   `Key`
+   `Value` 
+  
+
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+"{{Name}}" : {
+    "Type" : "AWS::CloudFormation::Stack"
+	{{> commonDependsOn }}
+    , "Properties" : {
+            "TemplateURL": "{{TemplateURL}}"
+          , "Parameters" : { 
+                  {{# Parameters }}
+				     "{{Key}}" : {{> commonValue }}{{_comma}}
+                  {{/ Parameters }} 
+             }
+    }
+}{{_comma}}
+
+
+{{! +++fold-off+++ }}
+
+
+

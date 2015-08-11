@@ -1,0 +1,58 @@
+{{!
+
+
++++start+++
+
+## <a id="resourceUser.mustache"></a>resourceUser.mustache <a class='navigator' href='#top'>[top]</a>
+
+Creates User and AccessKey resources. User resource is associated with a fixed policy.
+
+
+**Attributes**: 
+
+* `Name`: of the user resource, derives 
+* `KeyName`: also AccessKey resource for `Name` user
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+
+
+"{{Name}}":{
+    "Type":"AWS::IAM::User",
+    "Properties":{
+        "Path":"/",
+        "Policies":[
+            {
+                "PolicyName":"root",
+                "PolicyDocument":{
+                    "Statement":[
+                        {
+                            "Effect":"Allow",
+                            "Action":"cloudformation:DescribeStackResource",
+                            "Resource":"*"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
+
+{{# KeyName }}
+,  "{{KeyName}}":{
+      "Type":"AWS::IAM::AccessKey",
+       "Properties":{
+             "UserName":{
+                  "Ref":"{{Name}}"
+             }
+         }
+}
+{{/ KeyName }}
+
+{{_comma}}
+
+{{! +++fold-off+++ }}

@@ -1,0 +1,27 @@
+{{!
+
+
++++start+++
+
+
+## <a id="initializeCFinit.mustache"></a>initializeCFinit.mustache<a class='navigator' href='#top'> [top]</a>
+
+Launch cfn-init to install the files and packages from the metadata 
+
+**Attributes**: 
+
+* `Resource`: The logical resource ID of the resource that contains the metadata.
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+  ,  "# Install the files and packages from the metadata\n"
+  ,  "STACK='", { "Ref": "AWS::StackName"  }, "'\n"
+  ,  "REGION='", { "Ref": "AWS::Region" }, "'\n"
+  ,  "cfn-init -v --stack $STACK --region $REGION --resource {{Resource}} >> $LOG 2>&1 \n "
+
+
+{{! +++fold-off+++ }}

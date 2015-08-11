@@ -1,0 +1,38 @@
+{{!
+
+
++++start+++
+
+
+## <a id="initializeProvisionChefZero.mustache"></a>initializeProvisionChefZero.mustache<a class='navigator' href='#top'> [top]</a>
+
+Read Chef kithen from S3 bucket && launch chef zero
+
+**Attributes**: context=  `./resources/Instance/LaunchChefZero`
+
+* `BucketName`: S3 bucket containing kitchen to provision
+* `WaitHandle`: to inform once ChefZero booted
+
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+		 ,  "KITCHEN=/tmp/setup\n"
+                 ,  "echo $(date): copy s3 bucket {{BucketName}} to $KITCHEN >> $LOG\n"
+                 ,  "aws s3 cp --recursive  --region $(aws s3api get-bucket-location --bucket {{BucketName}} --output text) s3://{{BucketName}}/setup/  $KITCHEN\n"
+                 ,  "echo $(date): install chef-zero >> $LOG\n"
+                 ,  "sudo apt-get install -y chef-zero >> $LOG 2>&1\n"
+                 ,  "echo $(date): start ChefZero in the background>> $LOG\n"
+                 ,  "chef-zero --host 0.0.0.0 -d\n"
+                 ,  "echo $(date): upload kithchen >> $LOG\n"
+                 ,  "cd $KITCHEN && knife upload .\n"
+                 ,  "echo $(date): kitchen uploaded >> $LOG\n"
+                 {{> commonCfnSignal }}
+
+
+
+
+{{! +++fold-off+++ }}
