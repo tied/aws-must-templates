@@ -1,0 +1,4 @@
+2015-08-11  jj  <jj@horsti>
+
+	* resourceInstanceMetadata.mustache: guard Initialize.length
+

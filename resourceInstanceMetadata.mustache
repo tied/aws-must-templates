@@ -22,7 +22,7 @@ data in JSON format to the resource declaration.
 {{! NOTICE: check for 'resourceInstanceInitialize.mustache' for using
   '#Initialize' array to setup `UserData` -script }}
 
-
+{{# Initialize.length }}
 "AWS::CloudFormation::Init":{
    "config" : {
      "packages" : {
@@ -51,6 +51,7 @@ data in JSON format to the resource declaration.
   }
 
 } {{! AWS::CloudFormation::Init" }}
+{{/ Initialize.length }}
 
 {{! Add a metadata field, which, when updated, triggers cfn-hup. c.f. initializeCfnInitHupFiles }}
 {{# Initialize }}{{# StartCfnHup }}
