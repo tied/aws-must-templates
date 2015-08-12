@@ -1,3 +1,13 @@
+2015-08-12  jj  <jj@horsti>
+
+	* initializeProvisionChefZero.mustache: removed {{>
+	commonCfnSignal }} (reason use CreationPolicy attribute instead)
+
+	* initializeCFtools.mustache: documentation enhancement: no attributes used,
+	removed {{> commonCfnSignal }} (reason use CreationPolicy attribute instead)
+
+
+
 2015-08-11  jj  <jj@horsti>
 
 	* resourceInstanceMetadata.mustache: guard Initialize.length

@@ -11,7 +11,7 @@ CloudFormation Tools installation snippet.
 
 **Attributes**: 
 
-* `WaitHandle`: WaitHandle resource to signal
+* none
 
 +++close+++
 
@@ -23,7 +23,5 @@ CloudFormation Tools installation snippet.
   ,    "[ -d aws-cfn-bootstrap-latest  ] || mkdir aws-cfn-bootstrap-latest  >> $LOG\n"
   ,    "curl https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz | tar xz -C aws-cfn-bootstrap-latest --strip-components 1  >> $LOG\n"
   ,    "sudo easy_install aws-cfn-bootstrap-latest  >> $LOG\n"
-       {{> commonCfnSignal }}
-
 
 {{! +++fold-off+++ }}
