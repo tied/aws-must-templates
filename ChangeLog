@@ -1,5 +1,7 @@
 2015-08-12  jj  <jj@horsti>
 
+	* initializeInstallAwsCli.mustache: No attributes
+
 	* initializeProvisionChefZero.mustache: removed {{>
 	commonCfnSignal }} (reason use CreationPolicy attribute instead)
 
