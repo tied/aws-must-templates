@@ -11,9 +11,10 @@ a policy, which is a document that explicitly lists permissions.
 **Attributes**: context=  `./resources/Policy`
 
 * `Name`: name of the Role to create
-* `Effect`: Allow/Deny
-* `Action`: list of actions for the policy
-* `Resource`: arn of the resource for the policy
+* `Statements` array of
+   * `Effect`: Allow/Deny
+   * `Action`: list of actions for the policy
+   * `Resource`: arn of the resource for the policy
 
 
 +++close+++
@@ -25,14 +26,18 @@ a policy, which is a document that explicitly lists permissions.
 "{{Name}}" : {
     "Type" : "AWS::IAM::Policy",
     "Properties" : {
-        "PolicyName" : "s3access",
+        "PolicyName" : "{{Name}}",
         "Roles" : [ { "Ref" : "{{RoleRef}}" } ],
         "PolicyDocument" : {
-            "Statement" : [ {
-                "Effect" : "{{Effect}}",
-                "Action" : [ {{{Actions}}} ],
-                "Resource" : "{{Resource}}"
-            }]
+            "Statement" : [ 
+                 {{# Statements }} 
+                 {
+                    "Effect" : "{{Effect}}",
+                    "Action" : [ {{{Actions}}} ],
+                    "Resource" : "{{Resource}}"
+                 }{{_comma}}
+                 {{/ Statements }}
+            ]
         }
     }
 }{{_comma}}
