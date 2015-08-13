@@ -1,5 +1,7 @@
 2015-08-13  jj  <jj@horsti>
 
+	* root.mustache: table of content upto data
+
 	* resourcePolicy.mustache: * `Resource`: arn of the resource for
 	the policy. Attribute value is either a single string or the
 	concatenation of an array of strings.

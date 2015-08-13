@@ -55,40 +55,7 @@ CONTENT section
 
 # <a id="top">aws-must-templates</a>
 
-Creates 
-
-* **EC2 SecurityGroup** allowing ssh via port 22 from a location
-    given as `SSHLocation` parameter
-
-* **S3Bucket**: S3 bucket with 
-
-* **Role**: AWS Identity and Access Management (IAM) role
-
-* **EC2 instances** using YAML parameter `InstanceType`
-  (e.g. t2.micro).
-
-  * `ImageId` of the AMI is determined using CloudFormation mapping on
-    `InstanceType` and region. Supported regions are ap-northeast-1,
-    ap-southeast-1, ap-southeast-2, cn-north-1, eu-central-1,
-    eu-west-1, sa-east-1, us-east-1, us-gov-west-1, us-west-1,
-    us-west-2.  
-
-  * output section contains references to InstanceId and PublicId of
-    the newly created EC2 instance.
-
-  * UserData script can be configured to install
-     * Chef configuration management tool
-     * AwsCli (Amazon command line interface)
-
-
-**Parameters**:
-
-* `InstanceType`: EC2 resource instance type, (default: t2.micro)
-* `KeyName` : Name of an existing EC2 KeyPair to enable SSH access to the instance, (default: demo-key)
-* `SSHLocation`: The IP address range that can be used to SSH to the EC2 instances default: 0.0.0.0/0)
-* `ChefVersion`: Chef version to install, (default: 11.18)
-
-
+Templates for `aws-must` tool.
 
 ## Table of contents
 
@@ -100,6 +67,8 @@ Creates
 
     <li><a href="#mappings.mustache">mappings.mustache</a>: matches a key to a corresponding set of named values</li>
 
+    <li><a href="#mappingSubnetConfig.mustache">mappingSubnetConfig.mustache</a>: subnet config mapping to map VPC/Public/Private key to CIDR subnet block.</li>
+
     <li><a href="#resource.mustache">resource.mustache</a>: dispatch resource based on resource type</li>
 
     <ul> 
@@ -110,9 +79,19 @@ Creates
 
         <li><a href="#resourceRole.mustache">resourceRole.mustache</a>: AWS Identity and Access Management (IAM) role.</li>
 
+        <li><a href="#resourcePolicy.mustache">resourcePolicy.mustache</a>: lists permissions to be assigned to a user, group, role, or resource</li>
+
+        <li><a href="#resourceWait.mustache">resourceWait.mustache</a>: Creates a WaitHandle, and a WaitCondition on a resource `DependsOn`</li>
+
+        <li><a href="#resourceVPC.mustache">resourceVPC.mustache</a>: Creates a Virtual Private Cloud (VPC) with a CIDR block</li>
+
+        <li><a href="#resourceSubnet.mustache">resourceSubnet.mustache</a>: Creates a subnet in an existing VPC</li>
+
+        <li><a href="#resourceInternetGateway.mustache">resourceInternetGateway.mustache</a>: a new Internet gateway in your AWS account</li>
+
+        <li><a href="#resourceUser.mustache">resourceUser.mustache</a>: Creates User and AccessKey resources. User resource is associated with a fixed policy</li>
+
         <li><a href="#resourceStack.mustache">resourceStack.mustache</a>: Nests a stack as a resource in a top-level template.</li>
-
-
 
         <li><a href="#resourceInstanceProfile.mustache">resourceInstanceProfile.mustache</a>: a container for an IAM role and enables you to pass role information to an Amazon EC2 instance when the instance starts</li>
 
