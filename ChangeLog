@@ -1,5 +1,9 @@
 2015-08-13  jj  <jj@horsti>
 
+	* resourceS3Bucket.mustache: added attribyte `DeletionPolicy` with
+	default `Retain`, "LifecycleConfiguration" commented out
+	
+
 	* root.mustache: table of content upto data
 
 	* resourcePolicy.mustache: * `Resource`: arn of the resource for

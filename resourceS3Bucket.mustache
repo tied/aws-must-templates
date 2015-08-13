@@ -10,6 +10,9 @@ Create an S3 Bucket - with default 'PublicRead'
 **Attributes**: context=  `./resources/Instance`
 
 * `Name`: name of the S3 bucket to create
+* `DeletionPolicy`: attribute you can preserve or (in some cases) backup
+  a resource when its stack is deleted. Valid values `Delete`,
+  `Retain` (default), `Snapshot`
 
 +++close+++
 
@@ -20,12 +23,12 @@ Create an S3 Bucket - with default 'PublicRead'
 
     "{{Name}}" : {
       "Type" : "AWS::S3::Bucket"
-      , "DeletionPolicy" : "Retain"
+      , "DeletionPolicy" : "{{# DeletionPolicy }}{{DeletionPolicy}}{{/ DeletionPolicy}}{{^ DeletionPolicy }}Retain{{/ DeletionPolicy}}"
       , "Properties" : {
           "BucketName" : "{{Name}}"
-         ,"LifecycleConfiguration": {
-              "Rules" : [ ]
-         }
+          {{! 
+              ,"LifecycleConfiguration": {  "Rules" : [ ] }
+	      }}
       }
     }{{_comma}}
 
