@@ -14,7 +14,9 @@ a policy, which is a document that explicitly lists permissions.
 * `Statements` array of
    * `Effect`: Allow/Deny
    * `Action`: list of actions for the policy
-   * `Resource`: arn of the resource for the policy
+   * `Resource`: arn of the resource for the policy. Attribute value
+     is either a single string or the concatenation of an array of
+     strings.
 
 
 +++close+++
@@ -34,7 +36,7 @@ a policy, which is a document that explicitly lists permissions.
                  {
                     "Effect" : "{{Effect}}",
                     "Action" : [ {{{Actions}}} ],
-                    "Resource" : "{{Resource}}"
+                    "Resource" : "{{# Resource}}{{.}}{{/ Resource}}"
                  }{{_comma}}
                  {{/ Statements }}
             ]

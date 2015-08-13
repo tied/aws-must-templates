@@ -1,3 +1,10 @@
+2015-08-13  jj  <jj@horsti>
+
+	* resourcePolicy.mustache: * `Resource`: arn of the resource for
+	the policy. Attribute value is either a single string or the
+	concatenation of an array of strings.
+
+
 2015-08-12  jj  <jj@horsti>
 
 	* resourcePolicy.mustache: Attribute `Statements` added
