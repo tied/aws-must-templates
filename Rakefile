@@ -2,6 +2,8 @@
 
 # require "stringio"
 
+Rake.application.options.trace_rules = true
+
 # ------------------------------------------------------------------
 # default
 
@@ -34,6 +36,7 @@ end
 # ------------------------------------------------------------------
 # test suites && serverspec 
 require 'yaml'
+require 'rake'
 
 suite_configs = 'test-suites.yaml'
 
@@ -42,37 +45,51 @@ suite_configs = 'test-suites.yaml'
 
 suite_properties = YAML.load_file( suite_configs )
 
+stacks = Rake::FileList.new( suite_properties.map { |s| s.keys.first + '.yaml'} )
+puts "stacks=#{stacks}"
+
 # ------------------------------------------------------------------
 # Namespace test:suite:
 
 require 'rspec/core/rake_task'
+
+# ------------------------------------------------------------------
+# configs
+
+aws_must="aws-must.rb"
+
+
+
+# ------------------------------------------------------------------
+# rules
+
+rule ".json" => ".yaml" do |t|
+  sh "#{aws_must} gen #{t.source} > #{t.name}"
+end
+
+
+desc "Create stack json files #{stacks.ext( '.json' )}"
+task :json => stacks.ext( ".json" )
+
 
 namespace :suite do
 
   # suite_properties.each{  |a| a.keys.first }
 
   desc "All suites"
-  task :all => suite_properties.select{  |a| a[a.keys.first].has_key?( "instances" ) }.map{ |a| "suite:" + a.keys.first }
+  task :all => suite_properties.map{ |s| "suite:" + s.keys.first }
+
+
 
   # task :all => ["suite:smoke"]
   suite_properties.each do |suite_map|
+
     suite_id = suite_map.keys.first
     suite = suite_map[suite_id]
 
-    # define suite tasks
     desc "Suite #{suite_id} - #{suite['desc']}"
-    task suite_id do
-
-      # exec all instances under suite
-      suite["instances"].each do |instance_map|
-        instance_id = instance_map.keys.first
-        instance = suite[instance_id]
-        Rake::Task["suite:#{suite_id}:#{instance_id}"].execute
-      end
-
-    end
-
-
+    # execute instance tasks if any instances defined
+    task suite_id => suite["instances"] ? suite["instances"].each.map{ |a| "suite:#{suite_id}:" + a.keys.first } : []
 
     # define instance tasks under suite namespace
     namespace suite_id do

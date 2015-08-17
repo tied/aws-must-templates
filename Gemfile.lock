@@ -1,0 +1,64 @@
+GIT
+  remote: git://github.com/stelligent/serverspec-aws-resources.git
+  revision: ccb8a62b71d904cb5be177d92d164d67fabeb2c7
+  specs:
+    serverspec-aws-resources (0.0.5)
+      aws-sdk (>= 1.61.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    aws-must (0.0.10)
+      mustache (~> 1.0.1)
+      thor (~> 0.18.1)
+    aws-sdk (2.1.14)
+      aws-sdk-resources (= 2.1.14)
+    aws-sdk-core (2.1.14)
+      jmespath (~> 1.0)
+    aws-sdk-resources (2.1.14)
+      aws-sdk-core (= 2.1.14)
+    diff-lcs (1.2.5)
+    jmespath (1.0.2)
+      multi_json (~> 1.0)
+    multi_json (1.11.2)
+    mustache (1.0.2)
+    net-scp (1.2.1)
+      net-ssh (>= 2.6.5)
+    net-ssh (2.9.2)
+    net-telnet (0.1.1)
+    rspec (3.3.0)
+      rspec-core (~> 3.3.0)
+      rspec-expectations (~> 3.3.0)
+      rspec-mocks (~> 3.3.0)
+    rspec-core (3.3.2)
+      rspec-support (~> 3.3.0)
+    rspec-expectations (3.3.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.3.0)
+    rspec-its (1.2.0)
+      rspec-core (>= 3.0.0)
+      rspec-expectations (>= 3.0.0)
+    rspec-mocks (3.3.2)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.3.0)
+    rspec-support (3.3.0)
+    serverspec (2.21.0)
+      multi_json
+      rspec (~> 3.0)
+      rspec-its
+      specinfra (~> 2.38)
+    sfl (2.2)
+    specinfra (2.41.1)
+      net-scp
+      net-ssh (~> 2.7)
+      net-telnet
+      sfl
+    thor (0.18.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  aws-must (~> 0.0.10)
+  serverspec
+  serverspec-aws-resources!

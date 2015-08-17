@@ -1,0 +1,9 @@
+myInstance:
+  :roles:
+    - demo_stack
+    - s3reader
+
+
+myInstance2:
+  :roles:
+    - demo_stack

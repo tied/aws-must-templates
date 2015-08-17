@@ -1,0 +1,114 @@
+description: "Example configuration with S3 bucket and EC2 instance"
+
+parameters:
+
+        -  Name: &Param_InstanceTypeName InstanceType
+           Type: String
+           Description: EC2 reousrce instance type
+           Value: t2.micro
+
+        -  Name: &Param_KeyName KeyName
+           Type: "AWS::EC2::KeyPair::KeyName"
+           Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+           Value: demo-key
+
+        -  Name: &Param_SSHLocation  SSHLocation
+           Type: String
+           Description: The IP address range that can be used to SSH to the EC2 instances
+           Value: "0.0.0.0/0"
+
+        -  Name: &Param_BucketName  BucketName
+           Type: String
+           Description: Name of the bucket which is granted access to
+           Value: &Param_BucketValue "munpuketti"
+
+
+resources:
+
+        - S3Bucket:
+                 Name: *Param_BucketValue
+                 DeletionPolicy: Delete
+
+        - SecurityGroup:
+                 Name: &DefaultSG MyDefaultSecurityGroup
+                 SecurityGroupIngress:
+
+                      # ssh
+                    - Ref: *Param_SSHLocation
+                      Port: 22
+
+        - Role:
+                Name: &RecipeBucketRole S3AccessRole
+
+        - Policy:
+                Name: S3AllowReadPolicy
+                RoleRef: *RecipeBucketRole
+                Statements: 
+                    - Effect: Allow
+                      Actions:  '"s3:List*", "s3:Get*"'
+                      Resource: 
+                        - "arn:aws:s3:::"
+                        - *Param_BucketValue
+                    - Effect: Allow
+                      Actions:  '"s3:List*", "s3:Get*"'
+                      Resource: 
+                        - "arn:aws:s3:::"
+                        - *Param_BucketValue
+                        - "/*"
+                    - Effect: Allow
+                      Actions:  '"s3:ListAllMyBuckets"'
+                      Resource: arn:aws:s3:::*
+
+        - InstanceProfile:
+                Name: &S3InstanceProfile S3InstanceProfile
+                Roles:
+                - Ref: *RecipeBucketRole
+
+
+        -  Instance: 
+                 Name: &Instance1 myInstance
+                 CreationPolicy: 
+                     Timeout: PT3M
+
+                 InstanceTypeRef: *Param_InstanceTypeName
+
+                 KeyName: *Param_KeyName
+
+                 SecurityGroupIds: 
+                       - Ref: *DefaultSG
+
+                 IamInstanceProfile: *S3InstanceProfile
+
+                 Initialize: 
+                   - InstallAwsCli: true
+                   - InstallCFtools: true
+
+        -  Instance: 
+                 Name: &Instance2 myInstance2
+
+                 InstanceTypeRef: *Param_InstanceTypeName
+
+                 KeyName: *Param_KeyName
+
+                 SecurityGroupIds: 
+                       - Ref: *DefaultSG
+
+                 Initialize: 
+                   - InstallAwsCli: true
+
+
+outputs:
+
+        -  Name: *Instance1
+           Description: Ip of the newly created EC2 instance
+           Attr: 
+                 Ref: *Instance1
+                 Name: PublicIp
+
+        -  Name: *Instance2
+           Description: Ip of the newly created EC2 instance
+           Attr: 
+                 Ref: *Instance2
+                 Name: PublicIp
+
+
