@@ -18,7 +18,8 @@ else
   set :sudo_password, ENV['SUDO_PASSWORD']
 end
 
-host = ENV['TARGET_HOST']
+host                = ENV['TARGET_HOST']    # Host to test
+stack               = ENV['TARGET_STACK']   # Stack context for the host
 
 puts "------------------------------------------------------------------"
 puts "host #{host}"
@@ -26,7 +27,6 @@ puts "host #{host}"
 # ------------------------------------------------------------------
 # Constants used in stack
 
-stack                    = 'demo'         # Name of stack being tested
 
 output_key_for_hostname  = host           # Output variable with
                                           # keyvalue 'host' holds the
@@ -61,6 +61,7 @@ properties = {
   "Outputs" =>  stack_json["Outputs"].inject( {} ) { |r,e| r[e["OutputKey"]] = e["OutputValue"] ; r  },
   "Parameters" => stack_json["Parameters"].inject( {} ) { |r,e| r[e["ParameterKey"]] = e["ParameterValue"] ; r  },
   :host => host,
+  :stack => stack,
 }
 
 # puts properties

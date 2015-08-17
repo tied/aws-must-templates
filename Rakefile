@@ -56,8 +56,8 @@ require 'rspec/core/rake_task'
 # ------------------------------------------------------------------
 # configs
 
-aws_must="aws-must.rb"
-
+aws_must="aws-must.rb"                # command to conver yaml-configs to cf-templates
+cf_templates = "cf-templates"         # directory for CloudFormation json templates
 
 
 # ------------------------------------------------------------------
@@ -74,32 +74,55 @@ def source_for_json( json_file )
 end
 
 
-desc "Create stack json files #{stacks.ext( '.json' )}"
-# task :json => stacks.ext( ".json" )
-task :json => stacks.pathmap( "cf-templates/%X.json" )
-# task :json => stacks.pathmap( "cf-templates/%X.json" )
-
-
 namespace :suite do
+
+
+
 
   # suite_properties.each{  |a| a.keys.first }
 
+  # **********
   desc "All suites"
   task :all => suite_properties.map{ |s| "suite:" + s.keys.first }
 
+  # **********
+  desc "Create CloudFormation json templates into #{cf_templates}"
+  task :json => stacks.pathmap( "#{cf_templates}/%X.json" )
 
-
-  # task :all => ["suite:smoke"]
   suite_properties.each do |suite_map|
 
     suite_id = suite_map.keys.first
     suite = suite_map[suite_id]
+    
+    # use suite_is as stack name
+    stack = suite_id
 
+    # **********
+    # Run suite suite_id
     desc "Suite #{suite_id} - #{suite['desc']}"
-    # execute instance tasks if any instances defined
     task suite_id => suite["instances"] ? suite["instances"].each.map{ |a| "suite:#{suite_id}:" + a.keys.first } : []
 
-    # define instance tasks under suite namespace
+    # **********
+    # Create stack for a suite
+    desc "Create stack #{stack} for suite #{suite_id}"
+    task "#{suite_id}-stack-create" do
+      sh "aws cloudformation create-stack --stack-name #{stack} --capabilities CAPABILITY_IAM  --template-body \"$(cat #{cf_templates}/#{suite_id}.json)\"  --disable-rollback"
+    end
+
+    # **********
+    # delete stack for a suite
+    desc "Delete stack #{stack} for suite #{suite_id}"
+    task "#{suite_id}-stack-delete" do
+      sh "aws cloudformation delete-stack --stack-name #{stack}"
+    end
+
+    # **********
+    desc "Show status for stack #{stack}"
+    task "#{suite_id}-stack-status" do
+      sh "aws cloudformation describe-stacks --stack-name #{stack}"
+    end
+
+    # instance tasks (within suite)
     namespace suite_id do
 
       suite["instances"].each do |instance_map|
@@ -107,18 +130,21 @@ namespace :suite do
         instance_id = instance_map.keys.first
         instance = instance_map[instance_id]
 
-
+        # **********
         desc "Suite #{suite_id} - instance #{instance_id}"
         RSpec::Core::RakeTask.new( instance_id ) do |t|
 
           puts "------------------------------------------------------------------"
           puts "suite=#{suite_id }, instance=#{instance_id}"
 
-
+          # see spec/spec_helper.rb
+          ENV['TARGET_STACK'] = stack
           ENV['TARGET_HOST'] = instance_id
-          pattern = 'spec/{' + instance["roles"].join(',') + '}/*_spec.rb'
-          # puts "pattern=#{pattern}"
-          t.pattern = pattern
+
+          # test all roles for the instance
+          t.rspec_opts = "--format documentation"
+          t.pattern = 'spec/{' + instance["roles"].join(',') + '}/*_spec.rb'
+
         end
       end if suite.has_key?("instances")
     end # ns suite_id

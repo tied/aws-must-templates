@@ -1,0 +1,8 @@
+host myInstance
+     user ubuntu
+     IdentityFile ~/.ssh/demo-key/demo-key
+
+host myInstance2
+     user ubuntu
+     IdentityFile ~/.ssh/demo-key/demo-key
+
