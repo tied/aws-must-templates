@@ -1,0 +1,14 @@
+- smoke:
+   desc: Fails fast if problems with AWS installation
+
+- suite1:
+   desc: EC2 instance with s3 acess
+   instances:
+     - myInstance:
+         roles:
+           - demo_stack
+           - s3reader
+
+     - myInstance2:
+         roles:
+          - demo_stack
