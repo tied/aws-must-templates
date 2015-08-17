@@ -36,6 +36,7 @@ end
 # ------------------------------------------------------------------
 # test suites && serverspec 
 require 'yaml'
+require 'json'
 require 'rake'
 require 'rspec/core/rake_task'
 
@@ -46,6 +47,14 @@ require 'rspec/core/rake_task'
 suite_configs = 'test-suites.yaml'    # YAML configuration file for suites/instances
 aws_must="aws-must.rb"                # command to conver yaml-configs to cf-templates
 cf_templates = "cf-templates"         # directory for CloudFormation json templates
+
+describe_stacks_command  =  "aws cloudformation describe-stacks"    # read json using aws cli
+
+# stack states
+SUCESS_STATES  = ["CREATE_COMPLETE", "UPDATE_COMPLETE"]
+FAILURE_STATES = ["CREATE_FAILED", "DELETE_FAILED", "UPDATE_ROLLBACK_FAILED", "ROLLBACK_FAILED", "ROLLBACK_COMPLETE","ROLLBACK_FAILED","UPDATE_ROLLBACK_COMPLETE","UPDATE_ROLLBACK_FAILED"]
+END_STATES     = SUCESS_STATES + FAILURE_STATES
+
 
 # ------------------------------------------------------------------
 # Init
@@ -94,9 +103,12 @@ namespace :suite do
     # Run suite suite_id
     desc "Suite #{suite_id} - #{suite['desc']}"
     suite_tasks = 
-      [ "suite:#{suite_id}-stack-create" ] +  
-      [ "suite:#{suite_id}-common" ] +  
-      ( suite["instances"] ? suite["instances"].each.map{ |a| "suite:#{suite_id}:" + a.keys.first } : [] ) + 
+      [ 
+       "suite:#{suite_id}-stack-create",
+        "suite:#{suite_id}-stack-wait", 
+        "suite:#{suite_id}-common" 
+      ] +  
+      ( suite["instances"] ? suite["instances"].each.map{ |a| "suite:#{suite_id}:" + a.keys.first } : []  ) + 
       [ "suite:#{suite_id}-stack-delete" ] 
 
     task suite_id do
@@ -107,6 +119,7 @@ namespace :suite do
           # sh "rake #{t}; true"
         rescue => e
           puts "#{e.class}: #{e.message}"
+          # puts e.backtrace
           puts "continue with next task"
         end
       end
@@ -118,6 +131,27 @@ namespace :suite do
     task "#{suite_id}-stack-create" => [ "#{cf_templates}/#{stack}.json"] do
       sh "aws cloudformation create-stack --stack-name #{stack} --capabilities CAPABILITY_IAM  --template-body \"$(cat #{cf_templates}/#{stack}.json)\"  --disable-rollback"
     end
+
+    desc "Create stack #{stack} for suite #{suite_id}"
+    task "#{suite_id}-stack-wait" do
+
+      while true
+
+        stack_json = JSON.parse( %x{ #{describe_stacks_command} } )
+        stack_json = stack_json["Stacks"].select{ |a| a["StackName"] == stack }.first
+        raise "Could not find stack '#{stack}'" unless stack_json
+
+        break if END_STATES.include?( stack_json["StackStatus"] ) 
+
+        print "."
+        $stdout.flush
+
+        sleep 10
+
+      end
+
+    end
+
 
     # **********
     # delete stack for a suite
@@ -133,8 +167,8 @@ namespace :suite do
     end
 
     # **********
-    # test common roles for suite
-    desc "Suite #{suite_id} - common"
+    # Test common roles for suite
+    desc "Suite #{suite_id} - common roles"
     RSpec::Core::RakeTask.new( "#{suite_id}-common" ) do |t|
       puts "------------------------------------------------------------------"
       puts "suite=#{suite_id }"
@@ -144,10 +178,9 @@ namespace :suite do
 
       # test all roles for the instance
       t.rspec_opts = "--format documentation"
-      t.pattern = 'spec/{' + suite["roles"].join(',') + '}/*_spec.rb'
+      t.pattern = 'spec/{' + suite["roles"].join(',') + '}/*_spec.rb' 
 
-    end
-
+    end if suite.has_key?( "roles" )
 
 
     # instance tasks (within suite)
@@ -157,8 +190,9 @@ namespace :suite do
 
         instance_id = instance_map.keys.first
         instance = instance_map[instance_id]
+
         # **********
-        desc "Suite #{suite_id} - instance #{instance_id}"
+        desc "Test roles for instance '#{instance_id}' in suite '#{suite_id}'"
         RSpec::Core::RakeTask.new( instance_id ) do |t|
 
           puts "------------------------------------------------------------------"
@@ -179,7 +213,6 @@ namespace :suite do
   end # suite_properties.each
   
 end # ns suite
-
 
 import "./lib/tasks/serverspec.rake"
 

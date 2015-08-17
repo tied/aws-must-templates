@@ -22,7 +22,7 @@ host                = ENV['TARGET_HOST']    # Host to test
 stack               = ENV['TARGET_STACK']   # Stack context for the host
 
 puts "------------------------------------------------------------------"
-puts "host #{host}"
+puts "host #{host}" if host
 
 # ------------------------------------------------------------------
 # Constants used in stack
@@ -41,7 +41,11 @@ ssh_config_file =
             File.dirname(__FILE__), 
             "../ssh/config" )             # SSH client configuration
                                           # file to use
+# stack states
 
+SUCESS_STATES  = ["CREATE_COMPLETE", "UPDATE_COMPLETE"]
+FAILURE_STATES = ["CREATE_FAILED", "DELETE_FAILED", "UPDATE_ROLLBACK_FAILED", "ROLLBACK_FAILED", "ROLLBACK_COMPLETE","ROLLBACK_FAILED","UPDATE_ROLLBACK_COMPLETE","UPDATE_ROLLBACK_FAILED"]
+END_STATES     = SUCESS_STATES + FAILURE_STATES
 
 # ------------------------------------------------------------------
 # access cloudformation stacks using aws cli
@@ -51,6 +55,8 @@ stack_json = JSON.parse( %x{ #{describe_stacks_command} } )
 # extract json -subdocument for stack of interest
 stack_json = stack_json["Stacks"].select{ |a| a["StackName"] == stack }.first
 raise "Could not find stack '#{stack}'" unless stack_json
+
+raise "Stack '#{stack}' status='#{stack_json["StackStatus"]} is not ready (=#{SUCESS_STATES}) '" unless SUCESS_STATES.include?( stack_json["StackStatus"] )
 
 if host then
   # find output parameter defining hostname (or ip address)
