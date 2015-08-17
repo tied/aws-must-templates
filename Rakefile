@@ -2,7 +2,7 @@
 
 # require "stringio"
 
-Rake.application.options.trace_rules = true
+# Rake.application.options.trace_rules = true
 
 # ------------------------------------------------------------------
 # default
@@ -63,13 +63,21 @@ aws_must="aws-must.rb"
 # ------------------------------------------------------------------
 # rules
 
-rule ".json" => ".yaml" do |t|
+# this rule 'source_for_json' to find yaml file to convert to json
+rule ".json" => ->(f){ source_for_json(f)} do |t|
   sh "#{aws_must} gen #{t.source} > #{t.name}"
+end
+
+# source_for_json is the yaml file in working directory
+def source_for_json( json_file )
+  json_file.pathmap( "%n.yaml" )
 end
 
 
 desc "Create stack json files #{stacks.ext( '.json' )}"
-task :json => stacks.ext( ".json" )
+# task :json => stacks.ext( ".json" )
+task :json => stacks.pathmap( "cf-templates/%X.json" )
+# task :json => stacks.pathmap( "cf-templates/%X.json" )
 
 
 namespace :suite do
