@@ -27,6 +27,7 @@ resources:
 
         - S3Bucket:
                  Name: *Param_BucketValue
+                 BucketName: *Param_BucketValue
                  DeletionPolicy: Delete
 
         - SecurityGroup:

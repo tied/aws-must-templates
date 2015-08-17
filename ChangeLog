@@ -1,3 +1,7 @@
+2015-08-17  jj  <jj@horsti>
+
+	* mustache/resourceS3Bucket.mustache: Added `commonCreationPolicy`
+
 2015-08-13  jj  <jj@horsti>
 
 	* resourceS3Bucket.mustache: added attribyte `DeletionPolicy` with

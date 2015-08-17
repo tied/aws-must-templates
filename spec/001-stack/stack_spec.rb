@@ -2,22 +2,33 @@ require 'spec_helper'
 
 
 # ------------------------------------------------------------------
-# validate stack parameters 
+# validate stack property values
+# 
 
+
+# every suite should define these paramentes
 common_properties = [
-                     [:host ],
                      [:stack ],
+                     ["Outputs" ],
+                     ["Parameters" ],
                     ]
 
 suite_properties = {
 
   "suite1" => [
+             [:host ],
              ["Outputs", property[:host]],
              ["Parameters", "InstanceType" ],
              ["Parameters", "KeyName" ],
              ["Parameters", "SSHLocation" ],
              ["Parameters", "BucketName" ],
-            ]
+            ],
+
+  "smoke" => [
+             ["Outputs", "Bucket"],
+             ["Outputs", "BucketName"],
+            ],
+
 }
 
 # ------------------------------------------------------------------

@@ -37,27 +37,21 @@ end
 # test suites && serverspec 
 require 'yaml'
 require 'rake'
-
-suite_configs = 'test-suites.yaml'
-
-# ------------------------------------------------------------------
-# Init
-
-suite_properties = YAML.load_file( suite_configs )
-
-stacks = Rake::FileList.new( suite_properties.map { |s| s.keys.first + '.yaml'} )
-puts "stacks=#{stacks}"
-
-# ------------------------------------------------------------------
-# Namespace test:suite:
-
 require 'rspec/core/rake_task'
 
 # ------------------------------------------------------------------
 # configs
 
+
+suite_configs = 'test-suites.yaml'    # YAML configuration file for suites/instances
 aws_must="aws-must.rb"                # command to conver yaml-configs to cf-templates
 cf_templates = "cf-templates"         # directory for CloudFormation json templates
+
+# ------------------------------------------------------------------
+# Init
+
+suite_properties = YAML.load_file( suite_configs )
+stacks = Rake::FileList.new( suite_properties.map { |s| s.keys.first + '.yaml'} )
 
 
 # ------------------------------------------------------------------
@@ -73,11 +67,10 @@ def source_for_json( json_file )
   json_file.pathmap( "%n.yaml" )
 end
 
+# ------------------------------------------------------------------
+# namespace
 
 namespace :suite do
-
-
-
 
   # suite_properties.each{  |a| a.keys.first }
 
@@ -100,13 +93,30 @@ namespace :suite do
     # **********
     # Run suite suite_id
     desc "Suite #{suite_id} - #{suite['desc']}"
-    task suite_id => suite["instances"] ? suite["instances"].each.map{ |a| "suite:#{suite_id}:" + a.keys.first } : []
+    suite_tasks = 
+      [ "suite:#{suite_id}-stack-create" ] +  
+      [ "suite:#{suite_id}-common" ] +  
+      ( suite["instances"] ? suite["instances"].each.map{ |a| "suite:#{suite_id}:" + a.keys.first } : [] ) + 
+      [ "suite:#{suite_id}-stack-delete" ] 
+
+    task suite_id do
+      suite_tasks.each do |t|
+        begin
+          Rake::Task[t].invoke
+          # # Run in isolation && continue no matter what
+          # sh "rake #{t}; true"
+        rescue => e
+          puts "#{e.class}: #{e.message}"
+          puts "continue with next task"
+        end
+      end
+    end
 
     # **********
     # Create stack for a suite
     desc "Create stack #{stack} for suite #{suite_id}"
-    task "#{suite_id}-stack-create" do
-      sh "aws cloudformation create-stack --stack-name #{stack} --capabilities CAPABILITY_IAM  --template-body \"$(cat #{cf_templates}/#{suite_id}.json)\"  --disable-rollback"
+    task "#{suite_id}-stack-create" => [ "#{cf_templates}/#{stack}.json"] do
+      sh "aws cloudformation create-stack --stack-name #{stack} --capabilities CAPABILITY_IAM  --template-body \"$(cat #{cf_templates}/#{stack}.json)\"  --disable-rollback"
     end
 
     # **********
@@ -122,6 +132,24 @@ namespace :suite do
       sh "aws cloudformation describe-stacks --stack-name #{stack}"
     end
 
+    # **********
+    # test common roles for suite
+    desc "Suite #{suite_id} - common"
+    RSpec::Core::RakeTask.new( "#{suite_id}-common" ) do |t|
+      puts "------------------------------------------------------------------"
+      puts "suite=#{suite_id }"
+
+      # see spec/spec_helper.rb
+      ENV['TARGET_STACK'] = stack
+
+      # test all roles for the instance
+      t.rspec_opts = "--format documentation"
+      t.pattern = 'spec/{' + suite["roles"].join(',') + '}/*_spec.rb'
+
+    end
+
+
+
     # instance tasks (within suite)
     namespace suite_id do
 
@@ -129,7 +157,6 @@ namespace :suite do
 
         instance_id = instance_map.keys.first
         instance = instance_map[instance_id]
-
         # **********
         desc "Suite #{suite_id} - instance #{instance_id}"
         RSpec::Core::RakeTask.new( instance_id ) do |t|

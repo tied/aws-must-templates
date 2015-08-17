@@ -1,1 +1,26 @@
 #
+parameters:
+
+
+resources:
+
+        - S3Bucket:
+                 Name: &Bucket MyBucket
+                 DeletionPolicy: Delete
+                 CreationPolicy:
+                      Timeout: PT2M
+
+
+outputs:
+
+        -  Name: Bucket
+           Description: Ip of the newly created EC2 instance
+           Ref: *Bucket
+
+
+        -  Name: BucketName
+           Description: The DNS name of the specified bucket.
+           Attr: 
+                 Ref: *Bucket
+                 Name: DomainName
+

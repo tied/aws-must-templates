@@ -1,5 +1,8 @@
 - smoke:
    desc: Fails fast if problems with AWS installation
+   roles:
+     - 001-stack
+      
 
 - suite1:
    desc: EC2 instance with s3 acess

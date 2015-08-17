@@ -52,14 +52,16 @@ stack_json = JSON.parse( %x{ #{describe_stacks_command} } )
 stack_json = stack_json["Stacks"].select{ |a| a["StackName"] == stack }.first
 raise "Could not find stack '#{stack}'" unless stack_json
 
-# find output parameter defining hostname (or ip address)
-hostname_in_stack=stack_json["Outputs"].select {|a| a["OutputKey"] == output_key_for_hostname }.first["OutputValue"]
-raise "Could not find OutputKey '#{output_key_for_hostname}' in stack '#{stack}' for host '#{host}'" unless hostname_in_stack
+if host then
+  # find output parameter defining hostname (or ip address)
+  hostname_in_stack=stack_json["Outputs"].select {|a| a["OutputKey"] == output_key_for_hostname }.first["OutputValue"]
+  raise "Could not find OutputKey '#{output_key_for_hostname}' in stack '#{stack}' for host '#{host}'" unless hostname_in_stack
+end
 
-# extract Parameters and Output key (string) -value pairs  from cloudformation json 
+# create a hash, which is accessible in spec tests are 'property' 
 properties = {
-  "Outputs" =>  stack_json["Outputs"].inject( {} ) { |r,e| r[e["OutputKey"]] = e["OutputValue"] ; r  },
-  "Parameters" => stack_json["Parameters"].inject( {} ) { |r,e| r[e["ParameterKey"]] = e["ParameterValue"] ; r  },
+  "Outputs" =>  stack_json["Outputs"] ? stack_json["Outputs"].inject( {} ) { |r,e| r[e["OutputKey"]] = e["OutputValue"] ; r  } : {},
+  "Parameters" => stack_json["Parameters"] ? stack_json["Parameters"].inject( {} ) { |r,e| r[e["ParameterKey"]] = e["ParameterValue"] ; r  }: {},
   :host => host,
   :stack => stack,
 }
