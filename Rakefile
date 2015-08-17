@@ -85,7 +85,35 @@ namespace :suite do
 
   # **********
   desc "All suites"
-  task :all => suite_properties.map{ |s| "suite:" + s.keys.first }
+  all_suites = suite_properties.map{ |s| "suite:" + s.keys.first }
+  task :all do 
+
+    failed_suites = []
+
+    all_suites.each do |t|
+      begin
+        Rake::Task[t].invoke
+        failed_suites << t unless $?.success?
+        # # Run in isolation && continue no matter what
+        # sh "rake #{t}; true"
+      rescue => e
+        puts "#{e.class}: #{e.message}"
+        failed_suites << t
+        # puts e.backtrace
+        puts "continue with next suite"
+      end
+
+    end # all_suites.each
+
+    if failed_suites then
+      puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+      puts "Failed suites"
+      puts failed_suites
+      puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+      raise "failed_suites=#{failed_suites}"
+    end
+
+  end # task :all
 
   # **********
   desc "Create CloudFormation json templates into #{cf_templates}"
@@ -98,32 +126,6 @@ namespace :suite do
     
     # use suite_is as stack name
     stack = suite_id
-
-    # **********
-    # Run suite suite_id
-    desc "Suite #{suite_id} - #{suite['desc']}"
-    suite_tasks = 
-      [ 
-       "suite:#{suite_id}-stack-create",
-        "suite:#{suite_id}-stack-wait", 
-        "suite:#{suite_id}-common" 
-      ] +  
-      ( suite["instances"] ? suite["instances"].each.map{ |a| "suite:#{suite_id}:" + a.keys.first } : []  ) + 
-      [ "suite:#{suite_id}-stack-delete" ] 
-
-    task suite_id do
-      suite_tasks.each do |t|
-        begin
-          Rake::Task[t].invoke
-          # # Run in isolation && continue no matter what
-          # sh "rake #{t}; true"
-        rescue => e
-          puts "#{e.class}: #{e.message}"
-          # puts e.backtrace
-          puts "continue with next task"
-        end
-      end
-    end
 
     # **********
     # Create stack for a suite
@@ -178,9 +180,52 @@ namespace :suite do
 
       # test all roles for the instance
       t.rspec_opts = "--format documentation"
+      t.fail_on_error = false       
       t.pattern = 'spec/{' + suite["roles"].join(',') + '}/*_spec.rb' 
 
     end if suite.has_key?( "roles" )
+
+
+    # **********
+    # Run tasks for suite suite_id
+
+    desc "Run all takss for suite '#{suite_id}' - #{suite['desc']}"
+    suite_tasks = 
+      [ 
+       "suite:#{suite_id}-stack-create",
+        "suite:#{suite_id}-stack-wait", 
+      ] + 
+      ( Rake::Task.task_defined?(  "suite:#{suite_id}-common"  ) ? [  "suite:#{suite_id}-common"  ] : [] )  + 
+      ( suite["instances"] ? suite["instances"].each.map{ |a| "suite:#{suite_id}:" + a.keys.first } : []  ) + 
+      [ "suite:#{suite_id}-stack-delete" ] 
+
+    task suite_id do
+
+      failed_tasks = []
+
+      suite_tasks.each do |t|
+        begin
+          Rake::Task[t].invoke
+          failed_tasks << t unless $?.success?
+          # # Run in isolation && continue no matter what
+          # sh "rake #{t}; true"
+        rescue => e
+          puts "#{e.class}: #{e.message}"
+          failed_tasks << t
+          # puts e.backtrace
+          puts "continue with next task"
+        end
+      end
+
+      if ! failed_tasks.empty? then
+        puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        puts "Failed tasks"
+        puts failed_tasks 
+        puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        raise "failed_tasks = #{failed_tasks}"
+      end 
+        
+    end
 
 
     # instance tasks (within suite)
@@ -204,6 +249,7 @@ namespace :suite do
 
           # test all roles for the instance
           t.rspec_opts = "--format documentation"
+          t.fail_on_error = false       
           t.pattern = 'spec/{' + instance["roles"].join(',') + '}/*_spec.rb'
 
         end

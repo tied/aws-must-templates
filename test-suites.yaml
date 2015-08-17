@@ -5,7 +5,7 @@
       
 
 - suite1:
-   desc: EC2 instance with s3 acess
+   desc: EC2 instance with s3 access
    instances:
      - myInstance:
          roles:

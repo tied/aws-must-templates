@@ -86,6 +86,8 @@ resources:
 
         -  Instance: 
                  Name: &Instance2 myInstance2
+                 CreationPolicy: 
+                     Timeout: PT3M
 
                  InstanceTypeRef: *Param_InstanceTypeName
 
@@ -96,6 +98,7 @@ resources:
 
                  Initialize: 
                    - InstallAwsCli: true
+                   - InstallCFtools: true
 
 
 outputs:

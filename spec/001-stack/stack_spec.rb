@@ -13,6 +13,7 @@ common_properties = [
                      ["Parameters" ],
                     ]
 
+# each suite should configured here
 suite_properties = {
 
   "suite1" => [
