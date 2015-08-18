@@ -56,7 +56,7 @@ namespace :suite do
 
   # **********
   desc "All suites"
-  all_suites = suite_properties.map{ |s| "suite:" + s.keys.first }
+  all_suites = ["suite:json-clean"] +  suite_properties.map{ |s| "suite:" + s.keys.first }
   task :all do 
 
     failed_suites = []
@@ -85,6 +85,13 @@ namespace :suite do
     end
 
   end # task :all
+
+  # **********
+  desc "Clean generated json templates"
+  task "json-clean", :stack do |t,args|
+    args.with_defaults(:stack => "*")
+    sh "rm -f #{cf_templates}/#{args.stack}.json"; 
+  end
 
   # **********
   desc "Create CloudFormation json templates into #{cf_templates}"

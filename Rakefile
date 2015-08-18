@@ -39,11 +39,9 @@ aws_must          = "aws-must.rb"         # command to conver yaml-configs to cf
 generate_docs_dir = "generated-docs"      # html docmente generated here
 
 # ------------------------------------------------------------------
-# namespace
+# test suites
 
 import "./lib/tasks/suite.rake"
-
-#import "./lib/tasks/serverspec.rake"
 
 
 # ------------------------------------------------------------------
@@ -68,8 +66,11 @@ namespace "dev" do |ns|
   end
 
 
-  desc "To run when everything is in version control ok"
-  task "full-delivery" => [ "rt:release", "rt:push", "rt:snapshot" ]
+  desc "Finalize delivery"
+  task "fast-delivery" => [ "dev:docs", "rt:release", "rt:push", "rt:snapshot" ]
+
+  desc "Run all tests suites && create delivery"
+  task "full-delivery" => [ "suite:all", "dev:fast-delivery" ]
 
 end 
 
