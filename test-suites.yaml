@@ -3,7 +3,7 @@
 # Defines an array of test suite definitions with attributes
 # - desc: one liner summarizing the test suite
 # - roles: (optional) an array of test specs in the directory `spec`
-# - instance: an array of EC2 instance test specifications, which should be tested
+# - instance (optional): an array of EC2 instance test specifications, which should be tested
 # 
 # EC2 instance test specificiation:
 # - roles: an array of test spect in the directory `spec`, which the EC2 instance should pass
