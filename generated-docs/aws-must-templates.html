@@ -891,9 +891,9 @@ a policy, which is a document that explicitly lists permissions.</p>
                     "Action" : [ {{{Actions}}} ],
                     "Resource" : 
                       {{^ Resource.length }} "{{ Resource }}" {{/ Resource.length }} 
-                      {{# Resource.length }} {  "Fn::Join" : [ "" {{/ Resource.length }} 
-                         {{# Resource }}, {{> commonValue }}{{/ Resource}}
-                      {{# Resource.length }} ] } {{/ Resource.length }} 
+                      {{# Resource.length }} {  "Fn::Join" : [ "", [ {{/ Resource.length }} 
+                         {{# Resource }}{{> commonValue }}{{ _comma }} {{/ Resource}}
+                      {{# Resource.length }}] ] } {{/ Resource.length }} 
                  }{{_comma}}
                  {{/ Statements }}
             ]
