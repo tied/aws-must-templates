@@ -140,12 +140,18 @@ in file [suite1.yaml](suite1.yaml).
 the instance is defined `ssh/config` as
  
      host myInstance
+         StrictHostKeyChecking no
+         UserKnownHostsFile=/dev/null
          user ubuntu
          IdentityFile ~/.ssh/demo-key/demo-key
 
 
 In this example `demo-key` was defined in [suite1.yaml](suite1.yaml),
 allowing a ssh-connection to the instance.
+
+Parameters `UserKnownHostsFile` and `StrictHostKeyChecking` prevent
+ssh from updating your default `.ssh/known_hosts` file for the
+instance used in testing.
 
 
 ### Running Test suites
