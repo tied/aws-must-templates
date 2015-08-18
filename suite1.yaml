@@ -17,17 +17,17 @@ parameters:
            Description: The IP address range that can be used to SSH to the EC2 instances
            Value: "0.0.0.0/0"
 
-        -  Name: &Param_BucketName  BucketName
-           Type: String
-           Description: Name of the bucket which is granted access to
-           Value: &Param_BucketValue "munpuketti"
+        # -  Name: &Param_BucketName  BucketName
+        #    Type: String
+        #    Description: Name of the bucket which is granted access to
+        #    Value: &Param_BucketValue "test"
 
 
 resources:
 
         - S3Bucket:
-                 Name: *Param_BucketValue
-                 BucketName: *Param_BucketValue
+                 Name: &TheBucket MyBucket
+                 # BucketName: *Param_BucketValue
                  DeletionPolicy: Delete
 
         - SecurityGroup:
@@ -48,17 +48,18 @@ resources:
                     - Effect: Allow
                       Actions:  '"s3:List*", "s3:Get*"'
                       Resource: 
-                        - "arn:aws:s3:::"
-                        - *Param_BucketValue
+                        - Value: "arn:aws:s3:::"
+                        - Ref: *TheBucket
                     - Effect: Allow
                       Actions:  '"s3:List*", "s3:Get*"'
                       Resource: 
-                        - "arn:aws:s3:::"
-                        - *Param_BucketValue
-                        - "/*"
+                        - Value: "arn:aws:s3:::"
+                        - Ref: *TheBucket
+                        - Value: "/*"
                     - Effect: Allow
                       Actions:  '"s3:ListAllMyBuckets"'
-                      Resource: arn:aws:s3:::*
+                      Resource: 
+                         - Value: arn:aws:s3:::*
 
         - InstanceProfile:
                 Name: &S3InstanceProfile S3InstanceProfile
@@ -115,4 +116,6 @@ outputs:
                  Ref: *Instance2
                  Name: PublicIp
 
-
+        -  Name: Bucket
+           Description: Reference to S3 bucket
+           Ref: *TheBucket

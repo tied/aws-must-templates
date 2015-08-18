@@ -19,10 +19,10 @@ suite_properties = {
   "suite1" => [
              [:host ],
              ["Outputs", property[:host]],
+             ["Outputs", "Bucket" ],
              ["Parameters", "InstanceType" ],
              ["Parameters", "KeyName" ],
              ["Parameters", "SSHLocation" ],
-             ["Parameters", "BucketName" ],
             ],
 
   "smoke" => [

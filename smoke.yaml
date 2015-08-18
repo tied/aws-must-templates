@@ -14,7 +14,7 @@ resources:
 outputs:
 
         -  Name: Bucket
-           Description: Ip of the newly created EC2 instance
+           Description: Reference to S3 bucket
            Ref: *Bucket
 
 

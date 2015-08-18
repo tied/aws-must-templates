@@ -14,9 +14,7 @@ a policy, which is a document that explicitly lists permissions.
 * `Statements` array of
    * `Effect`: Allow/Deny
    * `Action`: list of actions for the policy
-   * `Resource`: arn of the resource for the policy. Attribute value
-     is either a single string or the concatenation of an array of
-     strings.
+   * `Resource`: array of [commonValues](#commonValue.mustache) concatenated to create resource reference
 
 
 +++close+++
@@ -36,7 +34,11 @@ a policy, which is a document that explicitly lists permissions.
                  {
                     "Effect" : "{{Effect}}",
                     "Action" : [ {{{Actions}}} ],
-                    "Resource" : "{{# Resource}}{{.}}{{/ Resource}}"
+                    "Resource" : 
+					  {{^ Resource.length }} "{{ Resource }}" {{/ Resource.length }} 
+					  {{# Resource.length }} {  "Fn::Join" : [ "", [ {{/ Resource.length }} 
+  						 {{# Resource }}{{> commonValue }}{{ _comma }} {{/ Resource}}
+             		  {{# Resource.length }}] ] } {{/ Resource.length }} 
                  }{{_comma}}
                  {{/ Statements }}
             ]

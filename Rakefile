@@ -62,7 +62,7 @@ namespace "dev" do |ns|
   desc "Generate html  documentaion into `{generate_docs_dir}` -subdirectory"
   task :docs do
     file = "#{generate_docs_dir}/aws-must-templates.html"
-      capture_stdout_to( file ) { sh "#{aws_must} doc" }
+      capture_stdout_to( file ) { sh "#{aws_must} doc | markdown" }
   end
 
 

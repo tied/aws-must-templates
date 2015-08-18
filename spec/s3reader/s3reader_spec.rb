@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 expected_properties = [
- ['Parameters', 'BucketName' ],
+ ['Outputs', 'Bucket' ],
 ]
 
 describe "Ensure that cloudformation stack parameters && outputs define mandatory value" do 
@@ -47,7 +47,7 @@ context "When read access to bucket granted" do
 
   describe "Can list S3 bucket keys" do 
     
-    describe command( "aws s3 ls s3://#{property['Parameters']['BucketName']} --region $(aws s3api get-bucket-location --bucket #{property['Parameters']['BucketName']} --output text)") do
+    describe command( "aws s3 ls s3://#{property['Outputs']['Bucket']} --region $(aws s3api get-bucket-location --bucket #{property['Outputs']['Bucket']} --output text)") do
       its( :exit_status ) { should eq 0 }
     end
 
@@ -55,17 +55,17 @@ context "When read access to bucket granted" do
 
   test_file="ttest.tmp"
 
-  context "and file 's3://#{property['Parameters']['BucketName']}/#{test_file}' exists" do 
+  context "and file 's3://#{property['Outputs']['Bucket']}/#{test_file}' exists" do 
 
 
     before(:all) do
-      cmd =  "echo tst | aws s3 cp - s3://#{property['Parameters']['BucketName']}/#{test_file}"
+      cmd =  "echo tst | aws s3 cp - s3://#{property['Outputs']['Bucket']}/#{test_file}"
       `#{cmd}`
       raise "Error in '#{cmd}' " unless $? == 0
     end
 
     after(:all) do
-      cmd = "aws s3 rm  s3://#{property['Parameters']['BucketName']}/#{test_file}"
+      cmd = "aws s3 rm  s3://#{property['Outputs']['Bucket']}/#{test_file}"
       `#{cmd}`
       raise "Error in '#{cmd}' " unless $? == 0
     end
@@ -73,7 +73,7 @@ context "When read access to bucket granted" do
 
     describe "Can cp S3 bucket object" do 
 
-      describe command("aws s3 cp s3://#{property['Parameters']['BucketName']}/#{test_file} /tmp/#{test_file} --region $(aws s3api get-bucket-location --bucket #{property['Parameters']['BucketName']} --output text)") do
+      describe command("aws s3 cp s3://#{property['Outputs']['Bucket']}/#{test_file} /tmp/#{test_file} --region $(aws s3api get-bucket-location --bucket #{property['Outputs']['Bucket']} --output text)") do
         its( :exit_status ) { should eq 0 }
       end
 
@@ -89,7 +89,7 @@ end
 context "When bucket does not exists" do 
 
   describe "Cannot list S3 bucket keys " do 
-    describe command( "aws s3 ls s3://#{property['Parameters']['BucketName']}2 --region $(aws s3api get-bucket-location --bucket #{property['Parameters']['BucketName']} --output text)") do
+    describe command( "aws s3 ls s3://#{property['Outputs']['Bucket']}2 --region $(aws s3api get-bucket-location --bucket #{property['Outputs']['Bucket']} --output text)") do
       its( :exit_status ) { should_not eq 0 }
     end
   end

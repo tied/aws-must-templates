@@ -1,4 +1,9 @@
 ## 0.0.3-SNAPSHOT/20150818-10:26:35
+
+* `Policy` (defined in template `mustache/resourcePolicy.mustache`),
+  attribute `Resource` is an Array of commonValues (previously array
+  of strings)
+
 ## 0.0.2/20150818-10:26:33
 
 

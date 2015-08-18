@@ -1,3 +1,12 @@
+2015-08-18  jj  <jj@horsti>
+
+	* suite1.yaml (outputs): S3 bucket reference uses commonValue
+	(prev. array of strings), do not use BucketName (let CF generate
+	bucket name, return bucket name in output parameter)
+
+	* mustache/resourcePolicy.mustache: Resource is a array of
+	commonValues
+
 2015-08-17  jj  <jj@horsti>
 
 	* mustache/resourceS3Bucket.mustache: Added `commonCreationPolicy`
