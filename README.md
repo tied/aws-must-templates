@@ -1,4 +1,4 @@
-# aws-must-templates - cloudformation templates for aws - $Release:0.0.5-SNAPSHOT$
+# aws-must-templates - cloudformation templates for aws-must - $Release:0.0.5-SNAPSHOT$
 
 CloudFormation
 [templates](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html)
@@ -136,8 +136,9 @@ in file [suite1.yaml](suite1.yaml).
 #### Configure instance credential in 'ssh/config'
 
 [test-suites.yaml](test-suites.yaml) names an EC2 instance
-`myInstance`, and the ssh-configuration needed by serverspec to access
-the instance is defined `ssh/config` as
+`myInstance`.  The ssh-configuration enabling serverspec to take a ssh
+connection to the instance is defined in configuration file
+`ssh/config` as
  
      host myInstance
          StrictHostKeyChecking no
@@ -146,12 +147,12 @@ the instance is defined `ssh/config` as
          IdentityFile ~/.ssh/demo-key/demo-key
 
 
-In this example `demo-key` was defined in [suite1.yaml](suite1.yaml),
-allowing a ssh-connection to the instance.
+In this example, [suite1.yaml](suite1.yaml) uses parameter value
+`demo-key` to name the key to use in ssh connection to the instance.
 
 Parameters `UserKnownHostsFile` and `StrictHostKeyChecking` prevent
-ssh from updating your default `.ssh/known_hosts` file for the
-instance used in testing.
+ssh from updating your default `.ssh/known_hosts` file with the
+fingerprint of the (temporary) instance used in testing.
 
 
 ### Running Test suites
@@ -168,17 +169,18 @@ iterates all test suites defined in
 
 For each test suite, the command generates a CloudFormation JSON
 template, uses it to provision the stack on Amazon platform, and, once
-the `StackStatus` is `CREATE_COMPLETE`, runs serverspec defined in the
-configuration. Finally, the stack is deleted from Amazon platform.
+the `StackStatus` is `CREATE_COMPLETE`, runs serverspec for the suite
+instances. Finally, after the test execution, the stack is deleted
+from Amazon platform.
 
-Please, refer the output of
+Command
 
 	rake -T suite 
 	
-for list of tasks executed by the `rake suite:all` -command.
+list of tasks `rake suite:all` uses for implementation.
 
-**WARNING** It advisable to check on AWS console that stack resources
-  are deleted successfully after tests.
+**NOTICE** It advisable to check on AWS console that all stack
+  resources are deleted successfully after the test suites.
 
 
 ## Changes

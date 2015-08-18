@@ -1,5 +1,7 @@
 2015-08-18  jj  <jj@horsti>
 
+	* mustache/root.mustache: added href to  https://github.com/jarjuk/aws-must-templates
+
 	* suite1.yaml (outputs): S3 bucket reference uses commonValue
 	(prev. array of strings), do not use BucketName (let CF generate
 	bucket name, return bucket name in output parameter)

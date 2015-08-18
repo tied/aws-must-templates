@@ -1,4 +1,7 @@
 ## 0.0.5-SNAPSHOT/20150818-16:22:50
+
+* Documentation enhancements
+
 ## 0.0.4/20150818-16:22:48
 
 * Documentation enhancement in README.md
