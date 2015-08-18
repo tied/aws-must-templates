@@ -1,0 +1,1326 @@
+<style>
+h1 {
+    color:blue; 
+    font-size: 2.5em;
+   }
+h2 {
+      color:blue;
+      font-size: 1.5em;
+   }
+h3 {
+      color:blue;
+      font-size: 1.5em;
+   }
+.navigator {
+      font-size: 0.5em;
+   }
+body {
+    background-color: #b0c4de;
+} 
+/* Support fold-on/fold-off toggle */
+div.fold { 
+    width: 90%; padding: .42rem; border-radius: 5px;  margin: 1rem; 
+
+}
+div.fold div { 
+       height: 0px; margin: .2rem; overflow: hidden; 
+}
+div.toggle ~ div { height: 0px; margin: .2rem; overflow: hidden; }
+input.toggle:checked ~ div { 
+     height: auto;      
+     color: white; 
+     background: #c6a24b;
+     font-family: monospace;
+     white-space: pre; 
+}
+</style>
+
+
+# <a id="top">aws-must-templates</a>
+
+Templates for `aws-must` tool.
+
+## Table of contents
+
+<ul>
+
+    <li><a href="#root.mustache">root.mustache</a>: root template = starting point of template rendering</li>
+
+    <li><a href="#parameter.mustache">parameter.mustache</a>: create one parameter entry to CloudFormation JSON parameter section</li>
+
+    <li><a href="#mappings.mustache">mappings.mustache</a>: matches a key to a corresponding set of named values</li>
+
+    <li><a href="#mappingSubnetConfig.mustache">mappingSubnetConfig.mustache</a>: subnet config mapping to map VPC/Public/Private key to CIDR subnet block.</li>
+
+    <li><a href="#resource.mustache">resource.mustache</a>: dispatch resource based on resource type</li>
+
+    <ul> 
+
+        <li><a href="#resourceSecurityGroup.mustache">resourceSecurityGroup.mustache</a>: create an security group for accessing EC2 instances</li>
+
+        <li><a href="#resourceS3Bucket.mustache">resourceS3Bucket.mustache</a>: create an S3 Bucket</li>
+
+        <li><a href="#resourceRole.mustache">resourceRole.mustache</a>: AWS Identity and Access Management (IAM) role.</li>
+
+        <li><a href="#resourcePolicy.mustache">resourcePolicy.mustache</a>: lists permissions to be assigned to a user, group, role, or resource</li>
+
+        <li><a href="#resourceWait.mustache">resourceWait.mustache</a>: Creates a WaitHandle, and a WaitCondition on a resource `DependsOn`</li>
+
+        <li><a href="#resourceVPC.mustache">resourceVPC.mustache</a>: Creates a Virtual Private Cloud (VPC) with a CIDR block</li>
+
+        <li><a href="#resourceSubnet.mustache">resourceSubnet.mustache</a>: Creates a subnet in an existing VPC</li>
+
+        <li><a href="#resourceInternetGateway.mustache">resourceInternetGateway.mustache</a>: a new Internet gateway in your AWS account</li>
+
+        <li><a href="#resourceUser.mustache">resourceUser.mustache</a>: Creates User and AccessKey resources. User resource is associated with a fixed policy</li>
+
+        <li><a href="#resourceStack.mustache">resourceStack.mustache</a>: Nests a stack as a resource in a top-level template.</li>
+
+        <li><a href="#resourceInstanceProfile.mustache">resourceInstanceProfile.mustache</a>: a container for an IAM role and enables you to pass role information to an Amazon EC2 instance when the instance starts</li>
+
+        <li><a href="#resourceInstance.mustache">resourceInstance.mustache</a>: create an EC2 instance</li>
+
+        <ul>
+
+            <li><a href="#tag.mustache">tag.mustache</a>: add key-value tag property to an</li>
+
+            <li><a href="#resourceInstanceInitialize.mustache">resourceInstanceInitialize.mustache</a>: user-data script</li>
+
+            <li><a href="#initializeInstallChef.mustache">initializeInstallChef.mustache</a>: UserData -script to install Chef</li>
+
+            <li><a href="#initializeInstallAwsCli.mustache">initializeInstallAwsCli.mustache</a>: UserData -script to install AwsCli</li>
+
+            <li><a href="#initializeProvisionChef.mustache">initializeProvisionChef.mustache</a>: UserData -script to provision Chef</li>
+
+            <li><a href="#initializeCFtools.mustache">initializeCFtools.mustache</a>: Ubuntu CloudFormation Tools installation snippet</li>
+
+        </ul> <!-- resoureceInstance sub-templates -->
+
+    </ul> <!-- resource.mustache -->
+
+    <li><a href="#output.mustache">output.mustache</a>: values in response to describe stack calls </li> 
+
+    <li>Common templates</li> 
+
+    <ul> 
+
+        <li><a href="#commonInstanceType.mustache">commonInstanceType.mustache</a>: Output value for `InstanceType` -attribute</li> 
+
+        <li><a href="#commonValue.mustache">commonValue.mustache</a>: Common template to output value (Value/Ref/Attr/StackRef)</li> 
+
+        <li><a href="#commonKeyValue.mustache">commonKeyValue.mustache</a>: Common template output key value pairs</li> 
+
+        <li> <a href="#commonDependsOn.mustache">commonDependsOn.mustache</a>: </li>
+
+        <li> <a href="#commonCreationPolicy.mustache">commonCreationPolicy.mustache</a>: </li>
+
+        <li> <a href="#commonCfnSignal.mustache">commonCfnSignal.mustache</a>: </li>
+
+        <li> <a href="#commonStackRef.mustache">commonStackRef.mustache</a>: </li>
+
+    </ul> 
+
+</ul>
+
+## <a id="root.mustache"></a>root.mustache <a class='navigator' href='#top'>[top]</a>
+
+Starting point of template rendering.
+
+**Attributes**: context= `.`
+
+* `description`: description for the CF template
+* `parameters`: array of parameter sub-documents for CloudFormation Parameters -section
+* `resources`: array of resource sub-documents for CloudFormation Resources -section
+* `outputs`: array of output sub-documents for CloudFormation Outputs -section
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "{{description}}",
+
+  "Parameters" : {
+    {{# parameters }}{{> parameter }}{{/ parameters }}
+  },
+
+  "Mappings" : {
+    {{> mappings }}
+    {{# mappings.length }},{{/ mappings.length }}
+    {{# mappings }}{{> mapping }}{{/ mappings }}
+   },
+
+  "Resources" : {
+
+    {{> resources }}
+    {{# resources }}{{> resource }}{{/ resources }}
+
+  },
+
+  "Outputs" : {
+
+    {{# outputs }}{{> output }}{{/ outputs }}
+
+  }
+
+}
+
+</div></div>
+
+
+## <a id="parameter.mustache"></a>parameter.mustache <a class='navigator' href='#top'>[top]</a>
+
+Create one parameter entry to CloudFormation JSON parameter section
+
+**Attributes**: context= `./parameters`
+
+* `Name` : of the ouput entry
+* `Description`: of the parameter entry
+*  One of 
+   * `Value`: value of the parameter
+   * `NestedValue`: 
+      * `Stack` : resource name of the nested stack
+      * `Output`: name of output variable in nested stack
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+    "{{Name}}": {
+      "Description" : "{{Description}}{{^Description}}No description given{{/Description}}"
+      , "Type": "{{Type}}"
+      {{#Value}}, "Default" : "{{Value}}"{{/Value}}
+    }{{_comma}}
+
+</div></div>
+
+## <a id="mappings.mustache"></a>mappings.mustache <a class='navigator' href='#top'>[top]</a>
+
+
+Create fixed lookup tables `AWSInstanceType2Arch` and
+`AWSRegionArch2AMI` implementing the table below
+
+<code><pre>
+ap-northeast-1    trusty    14.04 LTS    amd64    hvm:ebs-ssd    20150528    ami-90815290    hvm
+ap-southeast-1    trusty    14.04 LTS    amd64    hvm:ebs-ssd    20150528    ami-0accf458    hvm
+ap-southeast-2    trusty    14.04 LTS    amd64    hvm:ebs-ssd    20150528    ami-1dc8b127    hvm
+cn-north-1        trusty    14.04 LTS    amd64    hvm:ebs-ssd    20150528    ami-eae27fd3    hvm
+eu-central-1      trusty    14.04 LTS    amd64    hvm:ebs-ssd    20150528    ami-3248712f    hvm
+eu-west-1         trusty    14.04 LTS    amd64    hvm:ebs-ssd    20150528    ami-d74437a0    hvm
+sa-east-1         trusty    14.04 LTS    amd64    hvm:ebs-ssd    20150528    ami-0f6ced12    hvm
+us-east-1         trusty    14.04 LTS    amd64    hvm:ebs-ssd    20150528    ami-83c525e8    hvm
+us-gov-west-1     trusty    14.04 LTS    amd64    hvm:ebs-ssd    20150528    ami-51513172    hvm
+us-west-1         trusty    14.04 LTS    amd64    hvm:ebs-ssd    20150528    ami-61b25925    hvm
+us-west-2         trusty    14.04 LTS    amd64    hvm:ebs-ssd    20150528    ami-57e8d767    hvm
+</pre></code>
+
+
+**Attributes**: context=  `.`
+
+* none
+
+
+**Actions**:
+
+* **AWSInstanceType2Arch**: fixed key/value mapping, currently only
+    **t2.micro** --> **64bit**
+
+* **AWSRegionArch2AMI**: fixed key/value mapping created, currently
+    architectures only for **64bits**
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+      "AWSInstanceType2Arch" : {
+      "t2.micro"    : { "Arch" : "64" }
+      },
+      "AWSRegionArch2AMI" : {
+           "ap-northeast-1" : { "64" : "ami-90815290" },
+           "ap-southeast-1" : { "64" : "ami-0accf458" },
+           "ap-southeast-2" : { "64" : "ami-1dc8b127" },
+           "cn-north-1" : { "64" : "ami-eae27fd3" },
+           "eu-central-1" : { "64" : "ami-3248712f" },
+           "eu-west-1" : { "64" : "ami-d74437a0" },
+           "sa-east-1" : { "64" : "ami-0f6ced12" },
+           "us-east-1" : { "64" : "ami-83c525e8" },
+           "us-west-1" : { "64" : "ami-61b25925" },
+           "us-gov-west-1" : { "64" : "ami-51513172" },
+           "us-west-2" : { "64" : "ami-57e8d767" }
+      }
+
+
+
+</div></div>
+
+## <a id="mapping.mustache"></a>mapping.mustache <a class='navigator' href='#top'>[top]</a>
+
+
+Dispatches mapping sub-type templates based mapping Type propertys
+
+**Attributes**: context=  `./mappings`
+
+* `SubnetConfig`: 
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+{{# SubnetConfig }}{{> mappingSubnetConfig }}{{/ SubnetConfig }}
+
+
+</div></div>
+
+
+## <a id="mappingSubnetConfig.mustache"></a>mappingSubnetConfig.mustache <a class='navigator' href='#top'>[top]</a>
+
+Creates a subnet config mapping to map VPC/Public/Private key to CIDR
+subnet block.
+
+**Attributes**: 
+
+* `Name`: of the mapping
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+"{{Name}}" : {
+      "VPC"     : { "CIDR" : "10.44.0.0/16" },
+      "Public"  : { "CIDR" : "10.44.0.0/24" },
+      "Private" : { "CIDR" : "10.44.1.0/24" }
+ }{{_comma}}
+
+</div></div>
+
+
+## <a id="resources.mustache"></a>resources.mustache <a class='navigator' href='#top'>[top]</a>
+
+Empty template.
+
+**Attributes**: context=  `.`
+
+* none
+
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+{{!
+
+"S3AccessRole" : {
+    "Type"  : "AWS::IAM::Role",
+    "Properties" : {
+        "AssumeRolePolicyDocument" : {
+            "Statement" : [ {
+                "Effect" : "Allow",
+                "Principal" : {
+                    "Service" : [ "ec2.amazonaws.com" ]
+                },
+                "Action" : [ "sts:AssumeRole" ]
+            } ]
+        },
+        "Path" : "/"
+    }
+},
+
+
+"S3RolePolicies" : {
+    "Type" : "AWS::IAM::Policy",
+    "Properties" : {
+        "PolicyName" : "s3access",
+        "PolicyDocument" : {
+            "Statement" : [ {
+                "Effect" : "Allow",
+                "Action" : "s3:*",
+                "Resource" : "*"
+            }]
+        },
+        "Roles" : [ { "Ref" : "S3AccessRole" } ]
+    }
+},
+
+"S3InstanceProfile" : {
+    "Type" : "AWS::IAM::InstanceProfile",
+    "Properties" : {
+        "Path" : "/",
+        "Roles" : [ { "Ref" : "S3AccessRole" } ]
+    }
+},
+
+}}
+
+</div></div>
+
+## <a id="resource.mustache"></a>resource.mustache <a class='navigator' href='#top'>[top]</a>
+
+
+Dispatches resource sub-type templates based resource Type propertys
+
+**Attributes**: context=  `./resources`
+
+* `Instance`: sub-document defining an EC instance
+* `SecurityGroup`: sub-document defining an <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group.html">AWS::EC2::SecurityGroup</a>
+* `S3Bucket`: 
+* `Role`: 
+* `Policy`: 
+* `InstanceProfile`: 
+* `Stack`: 
+* `Wait`: 
+* `VPC`: 
+* `InternetGateway`: 
+* `Subnet`: 
+* `User`: creates [User](#resourceUser.mustache)
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+{{# Instance }}{{> resourceInstance}}{{/ Instance }}
+{{# SecurityGroup }}{{> resourceSecurityGroup}}{{/ SecurityGroup }}
+{{# S3Bucket }}{{> resourceS3Bucket }}{{/ S3Bucket }}
+{{# Role }}{{> resourceRole }}{{/ Role }}
+{{# Policy }}{{> resourcePolicy }}{{/ Policy }}
+{{# InstanceProfile }}{{> resourceInstanceProfile }}{{/ InstanceProfile }}
+{{# Stack }}{{> resourceStack }}{{/ Stack }}
+{{# Wait }}{{> resourceWait }}{{/ Wait }}
+{{# VPC }}{{> resourceVPC }}{{/ VPC }}
+{{# Subnet }}{{> resourceSubnet }}{{/ Subnet }}
+{{# InternetGateway }}{{> resourceInternetGateway }}{{/ InternetGateway }}
+{{# User }}{{> resourceUser  }}{{/ User }}
+
+
+
+</div></div>
+
+
+## <a id="resourceInstance.mustache"></a>resourceInstance.mustache <a class='navigator' href='#top'>[top]</a>
+
+Create an EC2 instance
+
+**Attributes**: context=  `./resources/Instance`
+
+* `Name`: name of the EC2 instance to create
+* Instance type
+  * `InstanceType` : The instance type, such as t2.micro. 
+  * `InstanceTyperef` : Reference to instance type
+* `tags` : array of tag sub-documents for EC2 instance
+* `SecurityGroupIds`: array of [commonValue.mustache](#commonValue.mustache)
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+    "{{Name}}" : {
+      "Type" : "AWS::EC2::Instance"
+      {{> commonCreationPolicy }}
+	  , "Metadata": {
+	        {{> resourceInstanceMetadata }}
+
+	  } {{! metadata }}
+      , "Properties" : {
+          "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                      { "Fn::FindInMap" : [ "AWSInstanceType2Arch", {{> commonInstanceType }}, "Arch" ] } ] }
+          , "InstanceType" : {{> commonInstanceType}} {{! InstanceType OR InstanceTypeRef }}
+          , "Tags" : [ {{#tags}}{{>tag}}{{/tags}} ]
+          , "SecurityGroupIds" : [ 
+                {{# SecurityGroupIds }}
+                    {{> commonValue }}{{_comma}}
+                {{/ SecurityGroupIds }}
+          ]
+          {{#IamInstanceProfile}}, "IamInstanceProfile" : { "Ref" : "{{IamInstanceProfile}}" }{{/ IamInstanceProfile}}
+          {{# SubnetId }}, "SubnetId": {{> commonValue }} {{/ SubnetId }}
+          {{#KeyName}}, "KeyName" : { "Ref" : "{{KeyName}}" }{{/KeyName}}
+          , "UserData": {{> resourceInstanceInitialize }}
+      }
+    }{{_comma}}
+
+
+</div></div>
+
+
+## <a id="tag.mustache"></a>tag.mustache <a class='navigator' href='#top'>[top]</a>
+
+One key-value pair in EC2 instance Tags -array
+
+**Attributes**: context= `./resources/Instance/tags`
+
+* `Key`: of the tag entry
+* `Value`: of the tag entry
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+{ "Key" : "{{Key}}",  "Value" : "{{Value}}"{{_comma}} }
+
+</div></div>
+
+## <a id="resourceInstanceMetadata.mustache"></a>resourceInstanceMetadata.mustache <a class='navigator' href='#top'>[top]</a>
+
+The Metadata attribute enables you to associate structured data with a
+resource. By adding a Metadata attribute to a resource, you can add
+data in JSON format to the resource declaration.
+
+**Attributes**: 
+
+* `Initialize`: array of
+  * `StartCfnHup`: see [initializeCfnInitHupFiles](#initializeCfnInitHupFiles.mustache)
+  
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+{{! NOTICE: check for 'resourceInstanceInitialize.mustache' for using
+  '#Initialize' array to setup `UserData` -script }}
+
+{{# Initialize.length }}
+"AWS::CloudFormation::Init":{
+   "config" : {
+     "packages" : {
+     },
+     "groups" : {
+     },
+     "users" : {
+     },
+     "sources" : {
+     },
+     "files" : {
+        "/tmp/cfn-init.txt": {
+               "content":{
+                   "Fn::Join":["", [ "Installed in cfn-init", "\n" ]]
+                }
+               , "mode":"000444"
+               , "owner":"root"
+               , "group":"root"
+        }
+        {{# Initialize }}{{# StartCfnHup }}, {{> initializeCfnInitHupFiles }}{{/ StartCfnHup }}{{/ Initialize }}
+     },
+     "commands" : {
+     },
+     "services" : {
+     }
+  }
+
+} {{! AWS::CloudFormation::Init" }}
+{{/ Initialize.length }}
+
+{{! Add a metadata field, which, when updated, triggers cfn-hup. c.f. initializeCfnInitHupFiles }}
+{{# Initialize }}{{# StartCfnHup }}
+,    "CfnHup": "updating this field causes cfn-hup to trigger"
+{{/ StartCfnHup }}{{/ Initialize }}
+
+
+
+
+
+</div></div>
+
+## <a id="resourceInstanceInitialize.mustache"></a>resourceInstanceInitialize.mustache <a class='navigator' href='#top'>[top]</a>
+
+user-data script
+
+**Attributes**: 
+
+* `CreationPolicy`: in the end send cfn-signal to `../Name` -resource in current stack 
+* `InitializeWait`: name of wait resource (for successfull script)
+* `Initialize` : array of 
+  * `InstallCFtools`: 
+  * `ProvisionChef`: 
+  * `InstallChef`: add UserData to install Chef
+  * `InstallAwsCli`: add UserData to install awscli
+  * `LaunchChefZero`: 
+  * `StartCfnInit`: [Launch cfn-init](#initializeCFinit.mustache)
+  * `StartCfnHup`: [launch cfn-hup helper](#initializeStartCfnHup.mustache)
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+
+{ "Fn::Base64": { "Fn::Join": [ "\n",
+                  [
+                    "#!/bin/bash\n"
+                  , "set -x\n"
+                  , "set -e\n"
+                  , "set -o pipefail\n"
+		  , "LOG=/tmp/install.log\n"
+                  , "echo $(date): starting to install chef  > $LOG\n"
+                  , "function finish() {\n"
+		  ,        "    echo \"$(date): installation finished\" >>$LOG 2>&1\n"
+                           {{# CreationPolicy}}
+                  ,        "    STACK='", { "Ref" : "AWS::StackName" }, "'\n"
+                  ,        "    REGION='", { "Ref" : "AWS::Region" }, "'\n"
+                  ,        "    RESOURCE='{{Name}}'\n"
+                  ,        "    type cfn-signal && sudo cfn-signal --success true  --reason \"UserData script success\" --stack $STACK --resource $RESOURCE --region $REGION>>$LOG 2>&1\n"
+                           {{/ CreationPolicy}}
+                           {{# InitializeWait}}
+                  ,        "    HANDLE='", { "Ref" : "{{InitializeWait}}" }, "'\n"
+                  ,        "    type cfn-signal && sudo cfn-signal --success true  --reason \"UserData script success\" $HANDLE >>$LOG 2>&1\n"
+                           {{/ InitializeWait}}
+                  ,  "}\n" 
+                  , "function error() {\n"
+                  ,        "    local lineno=$1\n"
+                  ,        "    local error=1\n"
+                           {{# CreationPolicy}}
+                  ,        "    STACK='", { "Ref" : "AWS::StackName" }, "'\n"
+                  ,        "    REGION='", { "Ref" : "AWS::Region" }, "'\n"
+                  ,        "    RESOURCE='{{Name}}'\n"
+                  ,        "    type cfn-signal && sudo cfn-signal --exit-code $error  --reason \"installation finished in ERROR on line $lineno\" --stack $STACK --resource $RESOURCE --region $REGION>>$LOG 2>&1\n"
+                           {{/ CreationPolicy}}
+                           {{# InitializeWait}}
+                  ,        "    HANDLE='", { "Ref" : "{{InitializeWait}}" }, "'\n"
+                  ,        "    type cfn-signal && sudo cfn-signal --exit-code $error  --reason \"installation finished in ERROR on line $lineno\" $HANDLE >>$LOG 2>&1\n"
+                           {{/ InitializeWait}}
+		  ,        "    echo \"$(date): installation finished in ERROR $error on line $lineno\" >>$LOG 2>&1\n"
+                  ,        "    exit 1\n"
+                  ,  "}\n" 
+                  , "trap finish EXIT\n"
+                  , "trap 'error ${LINENO}' ERR\n"
+
+{{! NOTICE:  check for resourceInstanceMetadata.mustache   }}
+
+
+                {{# Initialize}}
+	            {{# InstallCFtools }}
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
+                    ,      "echo Install Cloudformation tools  >>$LOG 2>&1\n"
+                           {{> initializeCFtools }} 
+                    {{/ InstallCFtools }}
+	            {{#ProvisionChef }}
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
+                    ,      "echo Provision chef  >>$LOG 2>&1\n"
+                           {{> initializeProvisionChef }} 
+                    {{/ ProvisionChef }}
+	            {{#InstallAwsCli }}
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
+                    ,      "echo Install AWS client tools  >>$LOG 2>&1\n"
+                          {{> initializeInstallAwsCli }}
+                    {{/ InstallAwsCli }}
+	            {{#InstallChef }}
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
+                    ,      "echo Install chef  >>$LOG 2>&1\n"
+                           {{> initializeInstallChef }} 
+                    {{/ InstallChef }}
+	            {{#LaunchChefZero }}
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
+                    ,      "echo Lauch ChefZero  >>$LOG 2>&1\n"
+                           {{> initializeProvisionChefZero }} 
+                    {{/ LaunchChefZero }}
+	            {{# StartCfnInit }}
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
+                    ,      "echo Start cfn-init  >>$LOG 2>&1\n"
+                           {{> initializeCFinit }} 
+                    {{/ StartCfnInit }}
+	            {{# StartCfnHup }}
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
+                    ,      "echo Start cfn-hup  >>$LOG 2>&1\n"
+                           {{> initializeStartCfnHup }} 
+                    {{/ StartCfnHup }}
+                {{/ Initialize}}
+                ]
+
+           ]}
+       } 
+
+</div></div>
+
+
+## <a id="initializeInstallChef.mustache"></a>initializeInstallChef.mustache<a class='navigator' href='#top'> [top]</a>
+
+UserData -script to install Chef
+
+**Attributes**: 
+
+* `Version`: Chef version to install
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+                 {{# Version}}
+                    {{# Ref}}
+           	 ,  "CHEF_VERSION='", { "Ref": "{{Ref}}" }, "'\n"
+                    {{/ Ref}}
+                    {{^ Ref}}
+           	 ,  "CHEF_VERSION={{Version}}\n"
+                    {{/ Ref}}
+                 {{/ Version}}
+                 ,  "echo $(date): starting to install chef  >> $LOG\n"
+		 ,  "curl -L https://www.chef.io/chef/install.sh | sudo bash -s -- -v $CHEF_VERSION  >>$LOG 2>&1\n"
+                 ,  "echo $(date): chef installed successfully >> $LOG\n"
+
+
+
+
+
+</div></div>
+
+
+## <a id="initializeInstallAwsCli.mustache"></a>initializeInstallAwsCli.mustache<a class='navigator' href='#top'> [top]</a>
+
+UserData -script to install AwsCli 
+
+**Attributes**: context=  `./resources/Instance/InstallChef`
+
+* None
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+                   , "TMP_ZIP=awscli-bundle.zip\n"
+                   , "curl https://s3.amazonaws.com/aws-cli/awscli-bundle.zip -o $TMP_ZIP\n"
+                   , "sudo apt-get install unzip\n"
+                   , "unzip $TMP_ZIP -d /tmp\n"
+                   , "cd /tmp\n"
+                   , "sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws >>$LOG 2>&1\n"
+                   , "echo $(date): awscli installed successfully >> $LOG\n"
+
+
+</div></div>
+
+
+## <a id="initializeProvisionChefZero.mustache"></a>initializeProvisionChefZero.mustache<a class='navigator' href='#top'> [top]</a>
+
+Read Chef kithen from S3 bucket && launch chef zero
+
+**Attributes**: context=  `./resources/Instance/LaunchChefZero`
+
+* `BucketName`: S3 bucket containing kitchen to provision
+* `WaitHandle`: to inform once ChefZero booted
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+		 ,  "KITCHEN=/tmp/setup\n"
+                 ,  "echo $(date): copy s3 bucket {{BucketName}} to $KITCHEN >> $LOG\n"
+                 ,  "aws s3 cp --recursive  --region $(aws s3api get-bucket-location --bucket {{BucketName}} --output text) s3://{{BucketName}}/setup/  $KITCHEN\n"
+                 ,  "echo $(date): install chef-zero >> $LOG\n"
+                 ,  "sudo apt-get install -y chef-zero >> $LOG 2>&1\n"
+                 ,  "echo $(date): start ChefZero in the background>> $LOG\n"
+                 ,  "chef-zero --host 0.0.0.0 -d\n"
+                 ,  "echo $(date): upload kithchen >> $LOG\n"
+                 ,  "cd $KITCHEN && knife upload .\n"
+                 ,  "echo $(date): kitchen uploaded >> $LOG\n"
+
+
+
+
+</div></div>
+
+
+## <a id="initializeCFtools.mustache"></a>initializeCFtools.mustache<a class='navigator' href='#top'> [top]</a>
+
+An [adapted](https://gist.github.com/kixorz/10194688) Ubuntu
+CloudFormation Tools installation snippet.
+
+**Attributes**: 
+
+* none
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+  ,    "sudo apt-get -y install python-setuptools  >> $LOG\n"
+  ,    "[ -d aws-cfn-bootstrap-latest  ] || mkdir aws-cfn-bootstrap-latest  >> $LOG\n"
+  ,    "curl https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz | tar xz -C aws-cfn-bootstrap-latest --strip-components 1  >> $LOG\n"
+  ,    "sudo easy_install aws-cfn-bootstrap-latest  >> $LOG\n"
+
+</div></div>
+
+
+
+## <a id="resourceSecurityGroup.mustache"></a>resourceSecurityGroup.mustache <a class='navigator' href='#top'>[top]</a>
+
+Create an EC2 Security Group
+
+**Attributes**: context=  `./resources/SecurityGroup`
+
+* `Name` : of the security group
+* `VpcId`: The Reference name physical ID of the VPC.  given as commonValue, [commonValue.mustache](#commonValue.mustache)
+* `SecurityGroupIngress`: Arrays in a SecurityGroupIngr
+   * `IpProtocol`: default tcp
+   * `FromPort`: default to `Port`
+   * `ToPort`: defaults to `Port`
+   * CidrIp given as commonValue, [commonValue.mustache](#commonValue.mustache)
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+    "{{Name}}" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable SSH access via port 22"
+        {{# VpcId }}, "VpcId": {{> commonValue }} {{/ VpcId }}
+        , "SecurityGroupIngress" : [ 
+                {{# SecurityGroupIngress }}
+                     {
+                         "IpProtocol" : {{#IpProtocol}}"{{IpProtocol}}"{{/IpProtocol}}{{^IpProtocol}}"tcp"{{/IpProtocol}},
+                         "FromPort" : "{{#FromPort}}{{FromPort}}{{/FromPort}}{{^FromPort}}{{Port}}{{/FromPort}}",
+                         "ToPort" : "{{#ToPort}}{{ToPort}}{{/ToPort}}{{^ToPort}}{{Port}}{{/ToPort}}",
+                         "CidrIp" : {{> commonValue }}
+                    } {{_comma}}
+                {{/ SecurityGroupIngress }}
+        ]
+      }
+    }{{_comma}}
+
+</div></div>
+
+
+## <a id="resourceS3Bucket.mustache"></a>resourceS3Bucket.mustache <a class='navigator' href='#top'>[top]</a>
+
+Create an S3 Bucket - with default 'PublicRead'
+
+**Attributes**: context=  `./resources/Instance`
+
+* `Name`: name of the S3 resource to create
+* `BucketName`: A name for the bucket. If you don't specify a name,
+  AWS CloudFormation generates a unique physical ID and uses that ID
+  for the bucket name.
+* `DeletionPolicy`: attribute you can preserve or (in some cases) backup
+  a resource when its stack is deleted. Valid values `Delete`,
+  `Retain` (default), `Snapshot`
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+
+    "{{Name}}" : {
+      "Type" : "AWS::S3::Bucket"
+      {{> commonCreationPolicy }}
+      , "DeletionPolicy" : "{{# DeletionPolicy }}{{DeletionPolicy}}{{/ DeletionPolicy}}{{^ DeletionPolicy }}Retain{{/ DeletionPolicy}}"
+      , "Properties" : {
+          {{# BucketName }} "BucketName" : "{{BucketName}}" {{/ BucketName }}
+          {{! 
+              ,"LifecycleConfiguration": {  "Rules" : [ ] }
+	      }}
+      }
+    }{{_comma}}
+
+</div></div>
+
+
+## <a id="resourceRole.mustache"></a>resourceRole.mustache <a class='navigator' href='#top'>[top]</a>
+
+AWS Identity and Access Management (IAM) role.
+
+**Attributes**: context=  `./resources/Instance`
+
+* `Name`: name of the Role to create
+* `Resource`: resources you allow the action on
+
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+
+    "{{Name}}" : {
+      "Type" : "AWS::IAM::Role"
+      , "Properties" : {
+        "Path" : "/",
+        "AssumeRolePolicyDocument" : {
+            "Statement" : [ {
+                "Effect" : "Allow",
+                "Principal" : {
+                    "Service" : [ "ec2.amazonaws.com" ]
+                },
+                "Action" : [ "sts:AssumeRole" ]
+            } ]
+        }
+      }
+    }{{_comma}}
+
+</div></div>
+
+
+## <a id="resourceInstanceProfile.mustache"></a>resourceInstanceProfile.mustache <a class='navigator' href='#top'>[top]</a>
+
+a container for an IAM role and enables you to pass role information to an Amazon EC2 instance when the instance starts
+
+**Attributes**: context=  `./resources/Instance`
+
+* `Name`: name of the InstanceProfile  to create
+
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+
+  "{{Name}}" : {
+    "Type" : "AWS::IAM::InstanceProfile",
+    "Properties" : {
+      "Path" : "/",
+      "Roles" : [{{# Roles}}{ "Ref": "{{Ref}}"}{{_comma}}{{/ Roles}} ]
+    }
+  },
+
+
+
+
+</div></div>
+
+
+## <a id="resourcePolicy.mustache"></a>resourcePolicy.mustache <a class='navigator' href='#top'>[top]</a>
+
+To assign permissions to a user, group, role, or resource, you create
+a policy, which is a document that explicitly lists permissions.
+
+**Attributes**: context=  `./resources/Policy`
+
+* `Name`: name of the Role to create
+* `Statements` array of
+   * `Effect`: Allow/Deny
+   * `Action`: list of actions for the policy
+   * `Resource`: arn of the resource for the policy. Attribute value
+     is either a single string or the concatenation of an array of
+     strings.
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+"{{Name}}" : {
+    "Type" : "AWS::IAM::Policy",
+    "Properties" : {
+        "PolicyName" : "{{Name}}",
+        "Roles" : [ { "Ref" : "{{RoleRef}}" } ],
+        "PolicyDocument" : {
+            "Statement" : [ 
+                 {{# Statements }} 
+                 {
+                    "Effect" : "{{Effect}}",
+                    "Action" : [ {{{Actions}}} ],
+                    "Resource" : "{{# Resource}}{{.}}{{/ Resource}}"
+                 }{{_comma}}
+                 {{/ Statements }}
+            ]
+        }
+    }
+}{{_comma}}
+
+
+</div></div>
+
+
+## <a id="resourceStack.mustache"></a>resourceStack.mustache<a class='navigator' href='#top'>[top]</a>
+
+Nests a stack as a resource in a top-level template.
+
+**Attributes**: context=  `./resources/Policy`
+
+* `Name`: resource name given to the nested stack
+* `TemplateFile`: local path used to create `TemplateUrl` for AWS::CloudFormation::Stack
+* `DependsOn`: With the DependsOn attribute you can specify that the
+  creation of a specific resource follows another
+* `Parameters` Array of  sub documents
+   `Key`
+   `Value` 
+  
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+"{{Name}}" : {
+    "Type" : "AWS::CloudFormation::Stack"
+	{{> commonDependsOn }}
+    , "Properties" : {
+            "TemplateURL": "{{TemplateURL}}"
+          , "Parameters" : { 
+                  {{# Parameters }}
+				     "{{Key}}" : {{> commonValue }}{{_comma}}
+                  {{/ Parameters }} 
+             }
+    }
+}{{_comma}}
+
+
+</div></div>
+
+
+## <a id="resourceWait.mustache"></a>resourceWait.mustache<a class='navigator' href='#top'> [top]</a>
+
+Creates a WaitHandle, and a WaitCondition on a resource `DependsOn`.
+
+**Attributes**: 
+
+* `Name`: 
+* `DependsOn`: Resource on which depents
+* `Timeout`: The length of time (in seconds) to wait for the number of
+  signals that the Count property specifies.
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+
+ "{{Name}}" : {
+      "Type" : "AWS::CloudFormation::WaitConditionHandle"
+  },
+
+ "{{Name}}Condition" : {
+      "Type" : "AWS::CloudFormation::WaitCondition"
+      {{> commonDependsOn }}
+      , "Properties" : {
+            "Handle"  : { "Ref" : "{{Name}}" }
+          , "Timeout" : "{{Timeout}}"
+      }
+    }{{_comma}}
+
+
+</div></div>
+
+
+## <a id="resourceVPC.mustache"></a>resourceVPC.mustache <a class='navigator' href='#top'>[top]</a>
+
+Creates a Virtual Private Cloud (VPC) with the CIDR block that you specify.
+
+**Attributes**: context=  `./resources/InstanceSecurityGroup`
+
+* `Name` : of the VPC resource
+   * `CidrBlock` or as [commonKeyValue.mustache](#commonKeyValue.mustache)
+   * `EnableDnsSupport`: (= **true**) Specifies whether DNS resolution
+     is supported for the VPC. If this attribute is true, the Amazon
+     DNS server resolves DNS hostnames for your instances to their
+     corresponding IP addresses; otherwise, it does not.
+   * `EnableDnsHostnames`: (= **true**) Specifies whether the
+     instances launched in the VPC get DNS hostnames. If this
+     attribute is true, instances in the VPC get DNS hostnames;
+     otherwise, they do not. You can only set EnableDnsHostnames to
+     true if you also set the EnableDnsSupport attribute to true.
+   * `Tags`: (optional) as [commonKeyValue.mustache](#commonKeyValue.mustache)
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+
+  "{{Name}}" : {
+      "Type" : "AWS::EC2::VPC",
+      "Properties" : {
+        "CidrBlock" : "{{ CidrBlock }}"
+        , "EnableDnsSupport": true
+        , "EnableDnsHostnames": true
+        , "Tags" : [ {{# Tags }}{{> commonKeyValue }}{{_comma}}{{/ Tags }}]
+      }
+    }{{_comma}}
+
+</div></div>
+
+
+## <a id="resourceSubnet.mustache"></a>resourceSubnet.mustache <a class='navigator' href='#top'>[top]</a>
+
+Creates a subnet in an existing VPC.
+
+**Attributes**: 
+
+* `Name` : of the VPC resource
+   * `CidrBlock` or as [commonKeyValue.mustache](#commonKeyValue.mustache)
+   * `VpcId`: resource name of VPC
+   * `MapPublicIpOnLaunch`: Indicates whether instances that are
+     launched in this subnet receive a public IP address. By default,
+     the value is `false`.
+   * `Tags`: (optional) as [commonKeyValue.mustache](#commonKeyValue.mustache)
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+
+  "{{Name}}" : {
+   "Type" : "AWS::EC2::Subnet"
+	{{> commonDependsOn }}
+   , "Properties" : {
+         "CidrBlock" : "{{CidrBlock}}"
+       , "Tags" : [ {{# Tags }}{{> commonKeyValue }}{{_comma}}{{/ Tags }}]
+       , "MapPublicIpOnLaunch" : {{^MapPublicIpOnLaunch}}false{{/ MapPublicIpOnLaunch}}{{# MapPublicIpOnLaunch}}{{MapPublicIpOnLaunch}}{{/ MapPublicIpOnLaunch}}
+       , "VpcId" : { "Ref" : "{{VpcId}}" }
+   }
+}{{_comma}}
+
+
+</div></div>
+
+
+## <a id="resourceInternetGateway.mustache"></a>resourceInternetGateway.mustache <a class='navigator' href='#top'>[top]</a>
+
+Creates a new Internet gateway in your AWS account. After creating the
+Internet gateway, attach it to a VPC, and create/attach a routetable
+to `Vpc`, and add a routetable entry entry to enable internet
+access on `Vpc` && `Subnet`
+
+**Attributes**: context=  `./resources/InstanceSecurityGroup`
+
+* `Name` : of the Internet Gateway
+   * `Vpc`: reference to VPC where to atttace
+   * `Subnet`: reference to VPC where to attach route to InternetGateway
+   * `Tags`: (optional) as [commonKeyValue.mustache](#commonKeyValue.mustache)
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+
+{{! Create internet gateway }}
+"{{Name}}" : {
+    "Type" : "AWS::EC2::InternetGateway",
+    "Properties" : {
+       "Tags" : [ {{# Tags }}{{> commonKeyValue }}{{_comma}}{{/ Tags }}]
+    }
+ },
+
+{{! Attache the internet gateway created to VPC }}
+"Attach{{Vpc}}" : {
+      "Type" : "AWS::EC2::VPCGatewayAttachment",
+      "Properties" : {
+        "VpcId" : { "Ref" : "{{Vpc}}" },
+        "InternetGatewayId" : { "Ref" : "{{Name}}" }
+    }
+}, 
+
+
+{{! Create a route table for VPC }}
+
+"RouteTable{{Vpc}}" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : { "Ref" : "{{ Vpc }}" },
+        "Tags" : [ 
+		           {"Key": "Name", "Value" : "RouteTable{{Vpc}}" }
+		         , {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } 
+				 ]
+      }
+    },
+
+
+{{! Add a route to internet gateway created }}
+
+"Route{{Vpc}}" : {
+    "Type" : "AWS::EC2::Route",
+     "DependsOn" : "Attach{{Vpc}}",
+      "Properties" : {
+          "RouteTableId" : { "Ref" : "RouteTable{{Vpc}}" }
+          , "DestinationCidrBlock" : "0.0.0.0/0"
+          , "GatewayId" : { "Ref" : "{{Name}}" }
+     }
+},
+
+{{! Associates a subnet with a route table. }}
+
+"RouteTableAssociation{{Subnet}}" : {
+    "Type" : "AWS::EC2::SubnetRouteTableAssociation"
+   , "Properties" : {
+         "SubnetId" : { "Ref" : "{{Subnet}}" }
+       , "RouteTableId" : { "Ref" : "RouteTable{{Vpc}}" }
+     }
+}
+
+{{_comma}}
+	
+
+
+</div></div>
+
+## <a id="resourceUser.mustache"></a>resourceUser.mustache <a class='navigator' href='#top'>[top]</a>
+
+Creates User and AccessKey resources. User resource is associated with a fixed policy.
+
+
+**Attributes**: 
+
+* `Name`: of the user resource, derives 
+* `KeyName`: also AccessKey resource for `Name` user
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+
+
+"{{Name}}":{
+    "Type":"AWS::IAM::User",
+    "Properties":{
+        "Path":"/",
+        "Policies":[
+            {
+                "PolicyName":"root",
+                "PolicyDocument":{
+                    "Statement":[
+                        {
+                            "Effect":"Allow",
+                            "Action":"cloudformation:DescribeStackResource",
+                            "Resource":"*"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
+
+{{# KeyName }}
+,  "{{KeyName}}":{
+      "Type":"AWS::IAM::AccessKey",
+       "Properties":{
+             "UserName":{
+                  "Ref":"{{Name}}"
+             }
+         }
+}
+{{/ KeyName }}
+
+{{_comma}}
+
+</div></div>
+
+
+## <a id="output.mustache"></a>output.mustache <a class='navigator' href='#top'>[top]</a>
+
+Create one output entry to CloudFormation JSON output section
+
+**Attributes**: context= `./outputs`
+
+* `Name` : of the ouput entry
+* `Description`: of the output entry
+* one of **Value**, **Ref**, **Attr**
+   * `Value`: of the output parameter
+   * `Ref`: name of refernece
+   * `Attr`
+      * `Ref`: name of attribute reference
+      * `Name`: name of the attribute
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+    "{{Name}}": {
+      "Description" : "{{Description}}"
+      {{#Value}}, "Value" : "{{Value}}"{{/Value}}
+      {{#Ref}}, "Value" : { "Ref" : "{{Ref}}" }{{/Ref}}
+      {{#Attr}}, "Value" : { "Fn::GetAtt" : [ "{{Ref}}", "{{Name}}" ] }{{/Attr}}
+    }{{_comma}}
+
+
+
+</div></div>
+
+
+## <a id="commonDependsOn.mustache"></a>commonDependsOn.mustache<a class='navigator' href='#top'>[top]</a>
+
+
+Common template to output key and value for `DependsOn`
+
+**Attributes**: 
+
+* `DependsOn` : resource name on which dependency defined
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+
+{{# DependsOn }}, "DependsOn" : "{{DependsOn}}"  {{/ DependsOn }} 
+
+
+</div></div>
+
+## <a id="commonInstanceType.mustache"></a>commonInstanceType.mustache <a class='navigator' href='#top'>[top]</a>
+
+Output value for `InstanceType` -attribute
+
+**Attributes**:
+
+* `InstanceType`: value of instance type
+* `InstanceTypeRef`: reference to instance type
+
+
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+
+{{# InstanceType }}"{{ InstanceType }}"{{/ InstanceType }}
+{{# InstanceTypeRef }}{ "Ref": "{{ InstanceTypeRef }}" }{{/ InstanceTypeRef }}
+
+</div></div>
+
+## <a id="commonCreationPolicy.mustache"></a>commonCreationPolicy.mustache<a class='navigator' href='#top'>[top]</a>
+
+You associate the CreationPolicy attribute with a resource to prevent its status from reaching create complete until AWS CloudFormation receives a specified number of success signals or the timeout period is exceeded. 
+
+
+**Attributes**: 
+
+* `CreationPolicy` : sub document defining creation policy
+  * `Timeout`: The value must be in ISO8601 duration format, in the
+    form: "PT#H#M#S", where each # is the number of hours, minutes,
+    and seconds, respectively.
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+{{# CreationPolicy }}
+   , "CreationPolicy" : {
+             "ResourceSignal": {
+                   "Timeout": "{{Timeout}}"
+             }
+   }
+{{/ CreationPolicy }} 
+
+
+</div></div>
+
+## <a id="commonCfnSignal.mustache"></a>commonCfnSignal.mustache<a class='navigator' href='#top'>[top]</a>
+
+**NOT USED**
+
+<strike>
+Common template to send a signlan
+
+**Attributes**: 
+
+* `WaitHandle` : to signal
+* `Message`    : text message for the signal
+
+</strike>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+{{# WaitHandle}}  
+   ,    "HANDLE='", { "Ref" : "{{WaitHandle}}" }, "'\n"
+   ,   "echo \"Signal success '{{WaitHandle}}' -handle with message '{{Message}}'\"  >> $LOG\n"
+   ,   "type cfn-signal && sudo cfn-signal --success true --reason \"{{Message}}\" $HANDLE >> $LOG\n"
+{{/ WaitHandle}}  
+
+
+</div></div>
+
+## <a id="commonValue.mustache"></a>commonValue.mustache<a class='navigator' href='#top'>[top]</a>
+
+Common template to output value (Value/Ref/Attr/StackRef)
+
+**Attributes**: 
+
+* `Value` : output value
+* `Ref`: output Ref
+* `StackRef`: 
+   * `Stack`
+   * `Output`
+* `Attr`: 
+   * `Ref`
+   * `Name`
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+
+{{#Value}}"{{Value}}"{{/Value}}
+{{#Ref}}{ "Ref": "{{Ref}}" }{{/Ref}}
+{{#Attr}}{ "Fn::GetAtt" : [ "{{Ref}}", "{{Name}}" ] }{{/Attr}}
+{{#StackRef}}{ "Fn::GetAtt": [ "{{Stack}}", "Outputs.{{Output}}"] }{{/StackRef}}
+
+
+</div></div>
+
+## <a id="commonKeyValue.mustache"></a>commonKeyValue.mustache<a class='navigator' href='#top'>[top]</a>
+
+Common template to output key-value pair
+
+**Attributes**: 
+
+* `Key`: 
+*  value given as as commonValue, [commonValue.mustache](#commonValue.mustache)
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+{
+   "Key" : "{{Key}}"
+   , "Value" : {{> commonValue }}
+}
+
+
+</div></div>
+
+## <a id="commonStackRef.mustache"></a>commonStackRef.mustache<a class='navigator' href='#top'>[top]</a>
+
+Common template to output nested stack reference
+
+**Attributes**: 
+
+* `Stack` : name of the nested stack resource
+* `Output`: name of output variable in nested stack
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+{ "Fn::GetAtt": [ "{{Stack}}", "Outputs.{{Output}}"] }
+
+</div></div>
+

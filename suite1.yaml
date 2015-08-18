@@ -69,7 +69,7 @@ resources:
         -  Instance: 
                  Name: &Instance1 myInstance
                  CreationPolicy: 
-                     Timeout: PT3M
+                     Timeout: PT6M
 
                  InstanceTypeRef: *Param_InstanceTypeName
 
@@ -87,7 +87,7 @@ resources:
         -  Instance: 
                  Name: &Instance2 myInstance2
                  CreationPolicy: 
-                     Timeout: PT3M
+                     Timeout: PT6M
 
                  InstanceTypeRef: *Param_InstanceTypeName
 
