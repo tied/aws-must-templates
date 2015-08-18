@@ -1,3 +1,4 @@
+## 0.0.4-SNAPSHOT/20150818-12:17:04
 ## 0.0.3/20150818-12:17:02
 
 * `Policy` (defined in template `mustache/resourcePolicy.mustache`),
