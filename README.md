@@ -1,4 +1,4 @@
-# aws-must-templates - cloudformation templates for aws - $Release:0.0.2-SNAPSHOT$
+# aws-must-templates - cloudformation templates for aws - $Release:0.0.2$
 
 CloudFormation templates for [aws-must](https://github.com/jarjuk/aws-must).
 
