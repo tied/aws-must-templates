@@ -59,12 +59,20 @@ end
 
 namespace "dev" do |ns|
 
-  desc "Generate html  documentaion into `{generate_docs_dir}` -subdirectory"
-  task :docs do
+  task "docs-html" do
     file = "#{generate_docs_dir}/aws-must-templates.html"
       capture_stdout_to( file ) { sh "#{aws_must} doc | markdown" }
   end
 
+  # generate an example json
+  task "docs-cf" do
+    suite = "suite1"
+    file = "#{generate_docs_dir}/#{suite}.json"
+      capture_stdout_to( file ) { sh "#{aws_must} gen #{suite}.yaml | jq ." }
+  end
+
+  desc "Generate html  documentaion into `{generate_docs_dir}` -subdirectory"
+  task :docs => ["dev:docs-html", "dev:docs-cf" ]
 
   desc "Finalize delivery"
   task "fast-delivery" => [ "dev:docs", "rt:release", "rt:push", "rt:snapshot" ]

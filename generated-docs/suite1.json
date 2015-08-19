@@ -1,0 +1,477 @@
+{
+  "Outputs": {
+    "Bucket": {
+      "Value": {
+        "Ref": "MyBucket"
+      },
+      "Description": "Reference to S3 bucket"
+    },
+    "myInstance2": {
+      "Value": {
+        "Fn::GetAtt": [
+          "myInstance2",
+          "PublicIp"
+        ]
+      },
+      "Description": "Ip of the newly created EC2 instance"
+    },
+    "myInstance": {
+      "Value": {
+        "Fn::GetAtt": [
+          "myInstance",
+          "PublicIp"
+        ]
+      },
+      "Description": "Ip of the newly created EC2 instance"
+    }
+  },
+  "Resources": {
+    "myInstance2": {
+      "Properties": {
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "\n",
+              [
+                "#!/bin/bash\n",
+                "set -x\n",
+                "set -e\n",
+                "set -o pipefail\n",
+                "LOG=/tmp/install.log\n",
+                "echo $(date): starting to install chef  > $LOG\n",
+                "function finish() {\n",
+                "    echo \"$(date): installation finished\"  \n",
+                "    STACK='",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "'\n",
+                "    REGION='",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "'\n",
+                "    RESOURCE='myInstance2'\n",
+                "    type cfn-signal && sudo cfn-signal --success true  --reason \"UserData script success\" --stack $STACK --resource $RESOURCE --region $REGION \n",
+                "}\n",
+                "function error() {\n",
+                "    local lineno=$1\n",
+                "    local error=1\n",
+                "    STACK='",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "'\n",
+                "    REGION='",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "'\n",
+                "    RESOURCE='myInstance2'\n",
+                "    type cfn-signal && sudo cfn-signal --exit-code $error  --reason \"installation finished in ERROR on line $lineno\" --stack $STACK --resource $RESOURCE --region $REGION \n",
+                "    echo \"$(date): installation finished in ERROR $error on line $lineno\"  \n",
+                "    exit 1\n",
+                "}\n",
+                "trap finish EXIT\n",
+                "trap 'error ${LINENO}' ERR\n",
+                "echo \"$(date): ------------------------------------------------------------------\"   \n",
+                "echo Install AWS client tools   \n",
+                "TMP_ZIP=awscli-bundle.zip\n",
+                "curl https://s3.amazonaws.com/aws-cli/awscli-bundle.zip -o $TMP_ZIP\n",
+                "sudo apt-get install unzip\n",
+                "unzip $TMP_ZIP -d /tmp\n",
+                "cd /tmp\n",
+                "sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws  \n",
+                "echo $(date): awscli installed successfully \n",
+                "echo \"$(date): ------------------------------------------------------------------\"   \n",
+                "echo Install Cloudformation tools   \n",
+                "sudo apt-get -y install python-setuptools  \n",
+                "[ -d aws-cfn-bootstrap-latest  ] || mkdir aws-cfn-bootstrap-latest  \n",
+                "curl https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz | tar xz -C aws-cfn-bootstrap-latest --strip-components 1  \n",
+                "sudo easy_install aws-cfn-bootstrap-latest  \n"
+              ]
+            ]
+          }
+        },
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "SecurityGroupIds": [
+          {
+            "Ref": "MyDefaultSecurityGroup"
+          }
+        ],
+        "Tags": [],
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "ImageId": {
+          "Fn::FindInMap": [
+            "AWSRegionArch2AMI",
+            {
+              "Ref": "AWS::Region"
+            },
+            {
+              "Fn::FindInMap": [
+                "AWSInstanceType2Arch",
+                {
+                  "Ref": "InstanceType"
+                },
+                "Arch"
+              ]
+            }
+          ]
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "config": {
+            "services": {},
+            "commands": {},
+            "files": {
+              "/tmp/cfn-init.txt": {
+                "group": "root",
+                "owner": "root",
+                "mode": "000444",
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "Installed in cfn-init",
+                      "\n"
+                    ]
+                  ]
+                }
+              }
+            },
+            "sources": {},
+            "users": {},
+            "groups": {},
+            "packages": {}
+          }
+        }
+      },
+      "CreationPolicy": {
+        "ResourceSignal": {
+          "Timeout": "PT6M"
+        }
+      },
+      "Type": "AWS::EC2::Instance"
+    },
+    "myInstance": {
+      "Properties": {
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "\n",
+              [
+                "#!/bin/bash\n",
+                "set -x\n",
+                "set -e\n",
+                "set -o pipefail\n",
+                "LOG=/tmp/install.log\n",
+                "echo $(date): starting to install chef  > $LOG\n",
+                "function finish() {\n",
+                "    echo \"$(date): installation finished\"  \n",
+                "    STACK='",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "'\n",
+                "    REGION='",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "'\n",
+                "    RESOURCE='myInstance'\n",
+                "    type cfn-signal && sudo cfn-signal --success true  --reason \"UserData script success\" --stack $STACK --resource $RESOURCE --region $REGION \n",
+                "}\n",
+                "function error() {\n",
+                "    local lineno=$1\n",
+                "    local error=1\n",
+                "    STACK='",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "'\n",
+                "    REGION='",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "'\n",
+                "    RESOURCE='myInstance'\n",
+                "    type cfn-signal && sudo cfn-signal --exit-code $error  --reason \"installation finished in ERROR on line $lineno\" --stack $STACK --resource $RESOURCE --region $REGION \n",
+                "    echo \"$(date): installation finished in ERROR $error on line $lineno\"  \n",
+                "    exit 1\n",
+                "}\n",
+                "trap finish EXIT\n",
+                "trap 'error ${LINENO}' ERR\n",
+                "echo \"$(date): ------------------------------------------------------------------\"   \n",
+                "echo Install AWS client tools   \n",
+                "TMP_ZIP=awscli-bundle.zip\n",
+                "curl https://s3.amazonaws.com/aws-cli/awscli-bundle.zip -o $TMP_ZIP\n",
+                "sudo apt-get install unzip\n",
+                "unzip $TMP_ZIP -d /tmp\n",
+                "cd /tmp\n",
+                "sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws  \n",
+                "echo $(date): awscli installed successfully \n",
+                "echo \"$(date): ------------------------------------------------------------------\"   \n",
+                "echo Install Cloudformation tools   \n",
+                "sudo apt-get -y install python-setuptools  \n",
+                "[ -d aws-cfn-bootstrap-latest  ] || mkdir aws-cfn-bootstrap-latest  \n",
+                "curl https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz | tar xz -C aws-cfn-bootstrap-latest --strip-components 1  \n",
+                "sudo easy_install aws-cfn-bootstrap-latest  \n"
+              ]
+            ]
+          }
+        },
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "IamInstanceProfile": {
+          "Ref": "S3InstanceProfile"
+        },
+        "SecurityGroupIds": [
+          {
+            "Ref": "MyDefaultSecurityGroup"
+          }
+        ],
+        "Tags": [],
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "ImageId": {
+          "Fn::FindInMap": [
+            "AWSRegionArch2AMI",
+            {
+              "Ref": "AWS::Region"
+            },
+            {
+              "Fn::FindInMap": [
+                "AWSInstanceType2Arch",
+                {
+                  "Ref": "InstanceType"
+                },
+                "Arch"
+              ]
+            }
+          ]
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "config": {
+            "services": {},
+            "commands": {},
+            "files": {
+              "/tmp/cfn-init.txt": {
+                "group": "root",
+                "owner": "root",
+                "mode": "000444",
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "Installed in cfn-init",
+                      "\n"
+                    ]
+                  ]
+                }
+              }
+            },
+            "sources": {},
+            "users": {},
+            "groups": {},
+            "packages": {}
+          }
+        }
+      },
+      "CreationPolicy": {
+        "ResourceSignal": {
+          "Timeout": "PT6M"
+        }
+      },
+      "Type": "AWS::EC2::Instance"
+    },
+    "S3InstanceProfile": {
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "S3AccessRole"
+          }
+        ],
+        "Path": "/"
+      },
+      "Type": "AWS::IAM::InstanceProfile"
+    },
+    "S3AllowReadPolicy": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "MyBucket"
+                    }
+                  ]
+                ]
+              },
+              "Action": [
+                "s3:List*",
+                "s3:Get*"
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "MyBucket"
+                    },
+                    "/*"
+                  ]
+                ]
+              },
+              "Action": [
+                "s3:List*",
+                "s3:Get*"
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::*"
+                  ]
+                ]
+              },
+              "Action": [
+                "s3:ListAllMyBuckets"
+              ],
+              "Effect": "Allow"
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "S3AccessRole"
+          }
+        ],
+        "PolicyName": "S3AllowReadPolicy"
+      },
+      "Type": "AWS::IAM::Policy"
+    },
+    "S3AccessRole": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "sts:AssumeRole"
+              ],
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Effect": "Allow"
+            }
+          ]
+        },
+        "Path": "/"
+      },
+      "Type": "AWS::IAM::Role"
+    },
+    "MyDefaultSecurityGroup": {
+      "Properties": {
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": {
+              "Ref": "SSHLocation"
+            },
+            "ToPort": "22",
+            "FromPort": "22",
+            "IpProtocol": "tcp"
+          }
+        ],
+        "GroupDescription": "Enable SSH access via port 22"
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    },
+    "MyBucket": {
+      "Properties": {},
+      "DeletionPolicy": "Delete",
+      "Type": "AWS::S3::Bucket"
+    }
+  },
+  "Mappings": {
+    "AWSRegionArch2AMI": {
+      "us-west-2": {
+        "64": "ami-57e8d767"
+      },
+      "us-gov-west-1": {
+        "64": "ami-51513172"
+      },
+      "us-west-1": {
+        "64": "ami-61b25925"
+      },
+      "ap-northeast-1": {
+        "64": "ami-90815290"
+      },
+      "ap-southeast-1": {
+        "64": "ami-0accf458"
+      },
+      "ap-southeast-2": {
+        "64": "ami-1dc8b127"
+      },
+      "cn-north-1": {
+        "64": "ami-eae27fd3"
+      },
+      "eu-central-1": {
+        "64": "ami-3248712f"
+      },
+      "eu-west-1": {
+        "64": "ami-d74437a0"
+      },
+      "sa-east-1": {
+        "64": "ami-0f6ced12"
+      },
+      "us-east-1": {
+        "64": "ami-83c525e8"
+      }
+    },
+    "AWSInstanceType2Arch": {
+      "t2.micro": {
+        "Arch": "64"
+      }
+    }
+  },
+  "Parameters": {
+    "SSHLocation": {
+      "Default": "0.0.0.0/0",
+      "Type": "String",
+      "Description": "The IP address range that can be used to SSH to the EC2 instances"
+    },
+    "KeyName": {
+      "Default": "demo-key",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance"
+    },
+    "InstanceType": {
+      "Default": "t2.micro",
+      "Type": "String",
+      "Description": "EC2 reousrce instance type"
+    }
+  },
+  "Description": "Example configuration with S3 bucket and EC2 instance",
+  "AWSTemplateFormatVersion": "2010-09-09"
+}
