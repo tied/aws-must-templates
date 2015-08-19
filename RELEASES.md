@@ -1,4 +1,9 @@
 ## 0.0.6-SNAPSHOT/20150819-09:55:09
+
+* Add example [suite1 json](generated-docs/suite1.json) using task `rake dev:docs`
+* UserData scripts do not use LOG (just output to stdout and find log in user-data.log
+* fixed gemspec to include templates from mustache directory (prev. templates)
+
 ## 0.0.5/20150819-09:55:07
 
 * Documentation enhancements

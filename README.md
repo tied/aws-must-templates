@@ -178,7 +178,7 @@ For a test suite to run successfully, you need to
 [import](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws)
 key pairs used in the suite to Amazon.
 
-For example, [suite1.yaml](suite1.yaml)) uses parameter `KeyName` to
+For example, [suite1.yaml](suite1.yaml) uses parameter `KeyName` to
 define a key name `demo-key`.
 
 
