@@ -1,3 +1,4 @@
+## 0.0.6-SNAPSHOT/20150819-09:55:09
 ## 0.0.5/20150819-09:55:07
 
 * Documentation enhancements
