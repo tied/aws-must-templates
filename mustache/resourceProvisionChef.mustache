@@ -26,13 +26,13 @@ UserData -script to provision Chef
            	 ,  "CHEF_ZERO_HOST='", {{> commonValue }}, "'\n"
                      {{/ChefZeroHost}}
                  ,  "CHEF_ZERO_HOST=$(echo $CHEF_ZERO_HOST)\n" {{! Removes new-line, which Ref -contruct creates }}
-                 ,  "echo $(date): Create directory /etc/chef - to store client.pem >> $LOG\n"
+                 ,  "echo $(date): Create directory /etc/chef - to store client.pem Q\n"
                  ,  "[ -d /etc/chef ] || sudo mkdir /etc/chef \n"
-                 ,  "echo $(date): Generating /tmp/fake.pem >> $LOG\n"
+                 ,  "echo $(date): Generating /tmp/fake.pem \n"
                  ,  "openssl genrsa -passout pass:'' -out /tmp/fake.pem 2048\n"
-                 ,  "echo $(date): start chef provision on node  $NODE >> $LOG\n"
+                 ,  "echo $(date): start chef provision on node  $NODE \n"
                  ,  "sudo chef-client --validation_key /tmp/fake.pem  --server http://$CHEF_ZERO_HOST:8889 --node-name $NODE --log_level info\n"
-                 ,  "echo $(date): chef provisioned node $NODE successfully >> $LOG\n"
+                 ,  "echo $(date): chef provisioned node $NODE successfully \n"
 
 
 {{! +++fold-off+++ }}

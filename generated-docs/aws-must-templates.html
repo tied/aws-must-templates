@@ -549,16 +549,16 @@ data in JSON format to the resource declaration.</p>
           , "LOG=/tmp/install.log\n"
                   , "echo $(date): starting to install chef  > $LOG\n"
                   , "function finish() {\n"
-          ,        "    echo \"$(date): installation finished\" >>$LOG 2>&1\n"
+          ,        "    echo \"$(date): installation finished\"  \n"
                            {{# CreationPolicy}}
                   ,        "    STACK='", { "Ref" : "AWS::StackName" }, "'\n"
                   ,        "    REGION='", { "Ref" : "AWS::Region" }, "'\n"
                   ,        "    RESOURCE='{{Name}}'\n"
-                  ,        "    type cfn-signal && sudo cfn-signal --success true  --reason \"UserData script success\" --stack $STACK --resource $RESOURCE --region $REGION>>$LOG 2>&1\n"
+                  ,        "    type cfn-signal && sudo cfn-signal --success true  --reason \"UserData script success\" --stack $STACK --resource $RESOURCE --region $REGION \n"
                            {{/ CreationPolicy}}
                            {{# InitializeWait}}
                   ,        "    HANDLE='", { "Ref" : "{{InitializeWait}}" }, "'\n"
-                  ,        "    type cfn-signal && sudo cfn-signal --success true  --reason \"UserData script success\" $HANDLE >>$LOG 2>&1\n"
+                  ,        "    type cfn-signal && sudo cfn-signal --success true  --reason \"UserData script success\" $HANDLE  \n"
                            {{/ InitializeWait}}
                   ,  "}\n" 
                   , "function error() {\n"
@@ -568,13 +568,13 @@ data in JSON format to the resource declaration.</p>
                   ,        "    STACK='", { "Ref" : "AWS::StackName" }, "'\n"
                   ,        "    REGION='", { "Ref" : "AWS::Region" }, "'\n"
                   ,        "    RESOURCE='{{Name}}'\n"
-                  ,        "    type cfn-signal && sudo cfn-signal --exit-code $error  --reason \"installation finished in ERROR on line $lineno\" --stack $STACK --resource $RESOURCE --region $REGION>>$LOG 2>&1\n"
+                  ,        "    type cfn-signal && sudo cfn-signal --exit-code $error  --reason \"installation finished in ERROR on line $lineno\" --stack $STACK --resource $RESOURCE --region $REGION \n"
                            {{/ CreationPolicy}}
                            {{# InitializeWait}}
                   ,        "    HANDLE='", { "Ref" : "{{InitializeWait}}" }, "'\n"
-                  ,        "    type cfn-signal && sudo cfn-signal --exit-code $error  --reason \"installation finished in ERROR on line $lineno\" $HANDLE >>$LOG 2>&1\n"
+                  ,        "    type cfn-signal && sudo cfn-signal --exit-code $error  --reason \"installation finished in ERROR on line $lineno\" $HANDLE  \n"
                            {{/ InitializeWait}}
-          ,        "    echo \"$(date): installation finished in ERROR $error on line $lineno\" >>$LOG 2>&1\n"
+          ,        "    echo \"$(date): installation finished in ERROR $error on line $lineno\"  \n"
                   ,        "    exit 1\n"
                   ,  "}\n" 
                   , "trap finish EXIT\n"
@@ -585,38 +585,38 @@ data in JSON format to the resource declaration.</p>
 
                 {{# Initialize}}
                 {{# InstallCFtools }}
-                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
-                    ,      "echo Install Cloudformation tools  >>$LOG 2>&1\n"
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"   \n"
+                    ,      "echo Install Cloudformation tools   \n"
                            {{> initializeCFtools }} 
                     {{/ InstallCFtools }}
                 {{#ProvisionChef }}
-                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
-                    ,      "echo Provision chef  >>$LOG 2>&1\n"
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"   \n"
+                    ,      "echo Provision chef   \n"
                            {{> initializeProvisionChef }} 
                     {{/ ProvisionChef }}
                 {{#InstallAwsCli }}
-                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
-                    ,      "echo Install AWS client tools  >>$LOG 2>&1\n"
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"   \n"
+                    ,      "echo Install AWS client tools   \n"
                           {{> initializeInstallAwsCli }}
                     {{/ InstallAwsCli }}
                 {{#InstallChef }}
-                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
-                    ,      "echo Install chef  >>$LOG 2>&1\n"
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"   \n"
+                    ,      "echo Install chef   \n"
                            {{> initializeInstallChef }} 
                     {{/ InstallChef }}
                 {{#LaunchChefZero }}
-                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
-                    ,      "echo Lauch ChefZero  >>$LOG 2>&1\n"
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"   \n"
+                    ,      "echo Lauch ChefZero   \n"
                            {{> initializeProvisionChefZero }} 
                     {{/ LaunchChefZero }}
                 {{# StartCfnInit }}
-                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
-                    ,      "echo Start cfn-init  >>$LOG 2>&1\n"
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"   \n"
+                    ,      "echo Start cfn-init   \n"
                            {{> initializeCFinit }} 
                     {{/ StartCfnInit }}
                 {{# StartCfnHup }}
-                    ,      "echo \"$(date): ------------------------------------------------------------------\"  >>$LOG 2>&1\n"
-                    ,      "echo Start cfn-hup  >>$LOG 2>&1\n"
+                    ,      "echo \"$(date): ------------------------------------------------------------------\"   \n"
+                    ,      "echo Start cfn-hup   \n"
                            {{> initializeStartCfnHup }} 
                     {{/ StartCfnHup }}
                 {{/ Initialize}}
@@ -647,9 +647,9 @@ data in JSON format to the resource declaration.</p>
              ,  "CHEF_VERSION={{Version}}\n"
                     {{/ Ref}}
                  {{/ Version}}
-                 ,  "echo $(date): starting to install chef  >> $LOG\n"
-         ,  "curl -L https://www.chef.io/chef/install.sh | sudo bash -s -- -v $CHEF_VERSION  >>$LOG 2>&1\n"
-                 ,  "echo $(date): chef installed successfully >> $LOG\n"
+                 ,  "echo $(date): starting to install chef  \n"
+         ,  "curl -L https://www.chef.io/chef/install.sh | sudo bash -s -- -v $CHEF_VERSION   \n"
+                 ,  "echo $(date): chef installed successfully \n"
 
 
 
@@ -674,8 +674,8 @@ data in JSON format to the resource declaration.</p>
                    , "sudo apt-get install unzip\n"
                    , "unzip $TMP_ZIP -d /tmp\n"
                    , "cd /tmp\n"
-                   , "sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws >>$LOG 2>&1\n"
-                   , "echo $(date): awscli installed successfully >> $LOG\n"
+                   , "sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws  \n"
+                   , "echo $(date): awscli installed successfully \n"
 
 
 </div></div>
@@ -694,15 +694,15 @@ data in JSON format to the resource declaration.</p>
 <div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
 
          ,  "KITCHEN=/tmp/setup\n"
-                 ,  "echo $(date): copy s3 bucket {{BucketName}} to $KITCHEN >> $LOG\n"
+                 ,  "echo $(date): copy s3 bucket {{BucketName}} to $KITCHEN \n"
                  ,  "aws s3 cp --recursive  --region $(aws s3api get-bucket-location --bucket {{BucketName}} --output text) s3://{{BucketName}}/setup/  $KITCHEN\n"
-                 ,  "echo $(date): install chef-zero >> $LOG\n"
-                 ,  "sudo apt-get install -y chef-zero >> $LOG 2>&1\n"
-                 ,  "echo $(date): start ChefZero in the background>> $LOG\n"
+                 ,  "echo $(date): install chef-zero \n"
+                 ,  "sudo apt-get install -y chef-zero  \n"
+                 ,  "echo $(date): start ChefZero in the background\n"
                  ,  "chef-zero --host 0.0.0.0 -d\n"
-                 ,  "echo $(date): upload kithchen >> $LOG\n"
+                 ,  "echo $(date): upload kithchen \n"
                  ,  "cd $KITCHEN && knife upload .\n"
-                 ,  "echo $(date): kitchen uploaded >> $LOG\n"
+                 ,  "echo $(date): kitchen uploaded \n"
 
 
 
@@ -721,10 +721,10 @@ CloudFormation Tools installation snippet.</p>
 </ul>
 
 <div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
-  ,    "sudo apt-get -y install python-setuptools  >> $LOG\n"
-  ,    "[ -d aws-cfn-bootstrap-latest  ] || mkdir aws-cfn-bootstrap-latest  >> $LOG\n"
-  ,    "curl https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz | tar xz -C aws-cfn-bootstrap-latest --strip-components 1  >> $LOG\n"
-  ,    "sudo easy_install aws-cfn-bootstrap-latest  >> $LOG\n"
+  ,    "sudo apt-get -y install python-setuptools  \n"
+  ,    "[ -d aws-cfn-bootstrap-latest  ] || mkdir aws-cfn-bootstrap-latest  \n"
+  ,    "curl https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz | tar xz -C aws-cfn-bootstrap-latest --strip-components 1  \n"
+  ,    "sudo easy_install aws-cfn-bootstrap-latest  \n"
 
 </div></div>
 
@@ -1294,8 +1294,8 @@ Common template to send a signlan</p>
 
 {{# WaitHandle}}  
    ,    "HANDLE='", { "Ref" : "{{WaitHandle}}" }, "'\n"
-   ,   "echo \"Signal success '{{WaitHandle}}' -handle with message '{{Message}}'\"  >> $LOG\n"
-   ,   "type cfn-signal && sudo cfn-signal --success true --reason \"{{Message}}\" $HANDLE >> $LOG\n"
+   ,   "echo \"Signal success '{{WaitHandle}}' -handle with message '{{Message}}'\" \n"
+   ,   "type cfn-signal && sudo cfn-signal --success true --reason \"{{Message}}\" $HANDLE \n"
 {{/ WaitHandle}}  
 
 

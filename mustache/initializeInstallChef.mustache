@@ -26,9 +26,9 @@ UserData -script to install Chef
            	 ,  "CHEF_VERSION={{Version}}\n"
                     {{/ Ref}}
                  {{/ Version}}
-                 ,  "echo $(date): starting to install chef  >> $LOG\n"
-		 ,  "curl -L https://www.chef.io/chef/install.sh | sudo bash -s -- -v $CHEF_VERSION  >>$LOG 2>&1\n"
-                 ,  "echo $(date): chef installed successfully >> $LOG\n"
+                 ,  "echo $(date): starting to install chef  \n"
+		 ,  "curl -L https://www.chef.io/chef/install.sh | sudo bash -s -- -v $CHEF_VERSION   \n"
+                 ,  "echo $(date): chef installed successfully \n"
 
 
 

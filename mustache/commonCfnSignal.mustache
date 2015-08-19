@@ -26,8 +26,8 @@ Common template to send a signlan
 
 {{# WaitHandle}}  
    ,    "HANDLE='", { "Ref" : "{{WaitHandle}}" }, "'\n"
-   ,   "echo \"Signal success '{{WaitHandle}}' -handle with message '{{Message}}'\"  >> $LOG\n"
-   ,   "type cfn-signal && sudo cfn-signal --success true --reason \"{{Message}}\" $HANDLE >> $LOG\n"
+   ,   "echo \"Signal success '{{WaitHandle}}' -handle with message '{{Message}}'\" \n"
+   ,   "type cfn-signal && sudo cfn-signal --success true --reason \"{{Message}}\" $HANDLE \n"
 {{/ WaitHandle}}  
 
 

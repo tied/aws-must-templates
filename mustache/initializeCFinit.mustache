@@ -21,7 +21,7 @@ Launch cfn-init to install the files and packages from the metadata
   ,  "# Install the files and packages from the metadata\n"
   ,  "STACK='", { "Ref": "AWS::StackName"  }, "'\n"
   ,  "REGION='", { "Ref": "AWS::Region" }, "'\n"
-  ,  "cfn-init -v --stack $STACK --region $REGION --resource {{Resource}} >> $LOG 2>&1 \n "
+  ,  "cfn-init -v --stack $STACK --region $REGION --resource {{Resource}}   \n "
 
 
 {{! +++fold-off+++ }}
