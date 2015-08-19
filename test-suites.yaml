@@ -13,7 +13,7 @@
 - smoke:
    desc: Fails fast if problems with AWS installation
    roles:
-     - 001-stack
+     - Stack
       
 
 - suite1:
@@ -21,9 +21,14 @@
    instances:
      - myInstance:
          roles:
-           - 001-stack
-           - s3reader
+           - Stack
+           - AwsCommandLineInterfaceInstalled
+           - CloudFormationHelperScriptsInstalled
+           - S3ReadAccessAllowed
 
      - myInstance2:
          roles:
-          - 001-stack
+          - Stack
+          - AwsCommandLineInterfaceInstalled
+          - CloudFormationHelperScriptsInstalled
+          - S3NoAccess

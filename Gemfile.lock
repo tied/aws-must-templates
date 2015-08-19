@@ -1,25 +1,10 @@
-GIT
-  remote: git://github.com/stelligent/serverspec-aws-resources.git
-  revision: ccb8a62b71d904cb5be177d92d164d67fabeb2c7
-  specs:
-    serverspec-aws-resources (0.0.5)
-      aws-sdk (>= 1.61.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
     aws-must (0.0.10)
       mustache (~> 1.0.1)
       thor (~> 0.18.1)
-    aws-sdk (2.1.14)
-      aws-sdk-resources (= 2.1.14)
-    aws-sdk-core (2.1.14)
-      jmespath (~> 1.0)
-    aws-sdk-resources (2.1.14)
-      aws-sdk-core (= 2.1.14)
     diff-lcs (1.2.5)
-    jmespath (1.0.2)
-      multi_json (~> 1.0)
     multi_json (1.11.2)
     mustache (1.0.2)
     net-scp (1.2.1)
@@ -42,7 +27,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.3.0)
     rspec-support (3.3.0)
-    serverspec (2.21.0)
+    serverspec (2.21.1)
       multi_json
       rspec (~> 3.0)
       rspec-its
@@ -61,4 +46,3 @@ PLATFORMS
 DEPENDENCIES
   aws-must (~> 0.0.10)
   serverspec
-  serverspec-aws-resources!

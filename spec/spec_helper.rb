@@ -1,8 +1,10 @@
 require 'serverspec'
 require 'net/ssh'
-
-# Added
 require 'json'
+
+require_relative "./support/utils.rb"
+
+# require 'serverspec-aws-resources'
 
 
 set :backend, :ssh
