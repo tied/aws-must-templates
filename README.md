@@ -70,42 +70,47 @@ and to install dependencies
 	cd aws-must-templates
 	bundle install
 
-### Templates
+### Generate CloudFormation JSON template
 
 To print out CloudFormation JSON template for `smoke.yaml` using
 [mustache templates](https://mustache.github.io/mustache.5.html)
 stored in directory `mustache`.
 
 	bundle exec aws-must.rb gen smoke.yaml
+	
+### Create template documentation	
 
 To extract HTML -documentation starting from `root.mustache` in
 directory `mustache`
 
 
 	bundle exec aws-must.rb doc | markdown
+	
+Rake task
+
+	bundle exec rake dev:docs
+	
+generates html documentation into `aws-must-templates.html` -file in
+`generated-docs` -directory.
 
 
-### Setup aws-account for running test suites
+### Implement a test suite
 
-Test configurations (e.g. [e.g. suite1.yaml](suite1.yaml)) refer to
-EC2 key pair with a name `demo-key`. For the test suites to run
-successfully, you need to
-[import a Key Pair to Amazon](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws)
-with the name `demo-key`.
+Test suite implementation includes
 
-### Configuring test suites
-
-Configuration for a test suite include
-
-* an entry in [test-suites.yaml](test-suites.yaml).
+* adding a test suite into [test-suites.yaml](test-suites.yaml).
 * a YAML configuration defining CloudFormation stack
-* an entry in `ssh/config` -file for each instance defined in
-  [test-suites.yaml](test-suites.yaml)
+* defining instance credentials in `ssh/config` 
+* writing serverspec tests in `spec` directory
 
 
-#### Configure test-suites.yaml
+**add a test suite into test-suites.yaml**
 
-For example, `suite1` is defined in [test-suites.yaml](test-suites.yaml)
+Test suites are defined [test-suites.yaml](test-suites.yaml)
+-configuration file.
+
+
+For example, the definition of `suite1` is 
 
     - suite1:
        desc: EC2 instance with s3 access
@@ -120,25 +125,30 @@ For example, `suite1` is defined in [test-suites.yaml](test-suites.yaml)
               - 001-stack
 
 
-The configuration defines two instances `myInstance` and
-`myInstance2`.  `myInstance` should pass two
-[serverspec](http://serverspec.org/) test sets `001-stack` and
-`s3reader`, which can are located under `spec` directory.
+This configuration lists two instances `myInstance` and `myInstance2`:
+`myInstance` should pass two [serverspec](http://serverspec.org/) test
+sets `001-stack` and `s3reader`, correspondingly `myInstance2`should
+pass test set `001-stack`.
+
+**a YAML defining CloudFormation stack**
+
+Each suite is has an associated CloudFormation stack configuration in
+a YAML file.
+
+For example, the CloudFormation stack of `suite1` is in YAML file
+[suite1.yaml](suite1.yaml).
 
 
+**define instance credential in 'ssh/config'**
 
-#### Configure YAML defining CloudFormation stack
+Ssh configuration file `ssh/config` should define an entry for each
+suite instance to allow serverspec to authenticate a ssh connection to
+the instance.
 
-The YAML configuration defining CloudFormation stack for `suite1` is
-in file [suite1.yaml](suite1.yaml).
 
-
-#### Configure instance credential in 'ssh/config'
-
-[test-suites.yaml](test-suites.yaml) names an EC2 instance
-`myInstance`.  The ssh-configuration enabling serverspec to take a ssh
-connection to the instance is defined in configuration file
-`ssh/config` as
+For example, `suite1` in [test-suites.yaml](test-suites.yaml) defines
+an EC2 instance `myInstance`, and file `ssh/config` contains following
+entry:
  
      host myInstance
          StrictHostKeyChecking no
@@ -147,15 +157,32 @@ connection to the instance is defined in configuration file
          IdentityFile ~/.ssh/demo-key/demo-key
 
 
-In this example, [suite1.yaml](suite1.yaml) uses parameter value
-`demo-key` to name the key to use in ssh connection to the instance.
+In this example, [suite1.yaml](suite1.yaml) uses parameter `KeyName`
+to allow ssh key `demo-key` to authenticate a ssh session to `myInstance`.
 
 Parameters `UserKnownHostsFile` and `StrictHostKeyChecking` prevent
 ssh from updating your default `.ssh/known_hosts` file with the
 fingerprint of the (temporary) instance used in testing.
 
+**write serverspec tests**
 
-### Running Test suites
+Test sets are defined in `roles` attributes in
+[test-suites.yaml](test-suites.yaml) configuration. The attribute
+lists names, which point to sub-directories in `spec` -directory. Each
+sub-directory contains [serverspec](http://serverspec.org/) tests,
+which the suite should pass.
+
+### Prepare aws-account for running test suites
+
+For a test suite to run successfully, you need to
+[import](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws)
+key pairs used in the suite to Amazon.
+
+For example, [suite1.yaml](suite1.yaml)) uses parameter `KeyName` to
+define a key name `demo-key`.
+
+
+### Running test suites
 
 **WARNING** Running tests provisions Amazon platform, and will be
 **charged according to Amazon pricing policies**.
@@ -169,9 +196,9 @@ iterates all test suites defined in
 
 For each test suite, the command generates a CloudFormation JSON
 template, uses it to provision the stack on Amazon platform, and, once
-the `StackStatus` is `CREATE_COMPLETE`, runs serverspec for the suite
-instances. Finally, after the test execution, the stack is deleted
-from Amazon platform.
+the `StackStatus` is `CREATE_COMPLETE`, runs test sets defined for the
+suite instances. Finally, after the test execution, the stack is
+deleted from Amazon platform.
 
 Command
 
@@ -186,6 +213,17 @@ list of tasks `rake suite:all` uses for implementation.
 ## Changes
 
 See [RELEASES](RELEASES.md)
+
+## TODO
+
+Add more tests, e.g.
+
+* VPC and subnets
+* install Chef
+
+Add more template support
+
+* support for SNS notifications
 
 
 ## License 
