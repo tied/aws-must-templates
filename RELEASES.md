@@ -1,5 +1,11 @@
 ## 0.0.6-SNAPSHOT/20150819-09:55:09
 
+* Reorganized tests in spec directory
+  * Added `AwsCommandLineInterfaceInstalled`
+  * Added `CloudFormationHelperScriptsInstalled`
+  * Added `S3NoAccess`
+  * Renamad `Stack`, `S3ReadAccessAllowed`
+* Add Custom Resource Type `valid_property( props, keys )`
 * Add example [suite1 json](generated-docs/suite1.json) using task `rake dev:docs`
 * UserData scripts do not use LOG (just output to stdout and find log in user-data.log
 * fixed gemspec to include templates from mustache directory (prev. templates)

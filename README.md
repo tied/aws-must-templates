@@ -117,18 +117,25 @@ For example, the definition of `suite1` is
        instances:
          - myInstance:
              roles:
-               - 001-stack
-               - s3reader
+               - Stack
+               - AwsCommandLineInterfaceInstalled
+               - CloudFormationHelperScriptsInstalled
+               - S3ReadAccessAllowed
     
          - myInstance2:
              roles:
-              - 001-stack
+              - Stack
+              - AwsCommandLineInterfaceInstalled
+              - CloudFormationHelperScriptsInstalled
+              - S3NoAccess
 
 
-This configuration lists two instances `myInstance` and `myInstance2`:
-`myInstance` should pass two [serverspec](http://serverspec.org/) test
-sets `001-stack` and `s3reader`, correspondingly `myInstance2`should
-pass test set `001-stack`.
+This configuration lists two instances `myInstance` and
+`myInstance2`. The examples says that `myInstance` should pass four
+[serverspec](http://serverspec.org/) test sets `Stack`,
+`AwsCommandLineInterfaceInstalled`,
+`CloudFormationHelperScriptsInstalled` and `S3ReadAccessAllowed`.
+
 
 **a YAML defining CloudFormation stack**
 
@@ -166,11 +173,16 @@ fingerprint of the (temporary) instance used in testing.
 
 **write serverspec tests**
 
-Test sets are defined in `roles` attributes in
-[test-suites.yaml](test-suites.yaml) configuration. The attribute
-lists names, which point to sub-directories in `spec` -directory. Each
-sub-directory contains [serverspec](http://serverspec.org/) tests,
+Suite tests are defined using `roles` attributes in
+[test-suites.yaml](test-suites.yaml) configuration file. The attribute
+lists names pointing to sub-directories of `spec` -directory.  The
+sub-directories contain [serverspec](http://serverspec.org/) tests,
 which the suite should pass.
+
+Test are implemented using
+[default serverspec resource types](http://serverspec.org/resource_types.html)
+or custom resource types defined in `spec/support/lib`.
+
 
 ### Prepare aws-account for running test suites
 
