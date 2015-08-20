@@ -70,7 +70,7 @@ describe "S3ReadAccessAllowed" do
       end
       
 
-      describe "Can cp S3 bucket object #{test_file}" do 
+      describe "Can read an object (= '#{test_file}') from S3 bucket" do 
 
         describe command("aws s3 cp s3://#{property['Outputs']['Bucket']}/#{test_file} /tmp/#{test_file} --region $(aws s3api get-bucket-location --bucket #{property['Outputs']['Bucket']} --output text)") do
           its( :exit_status ) { should eq 0 }
@@ -78,7 +78,25 @@ describe "S3ReadAccessAllowed" do
 
       end
 
-    end # test_file in bucket
+      describe "Cannot modify bucket = delete an object (= '#{test_file}') from S3 bucket" do 
+
+        describe command("aws s3 rm s3://#{property['Outputs']['Bucket']}/#{test_file} --region $(aws s3api get-bucket-location --bucket #{property['Outputs']['Bucket']} --output text)") do
+          its( :exit_status ) { should_not eq 0 }
+        end
+
+      end
+
+
+    end # context test_file in bucket
+
+    describe "Cannot write to bucket" do 
+
+        describe command("aws s3 cp /etc/hosts  s3://#{property['Outputs']['Bucket']}/#{test_file} --region $(aws s3api get-bucket-location --bucket #{property['Outputs']['Bucket']} --output text)") do
+          its( :exit_status ) { should_not eq 0 }
+        end
+
+    end
+
 
   end
 
