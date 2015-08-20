@@ -27,7 +27,7 @@ EOF
   # s.require_paths   = [ "lib" ]
   s.license       = 'MIT'
 
-  s.add_runtime_dependency 'aws-must',          '~>0.0.9'
+  s.add_runtime_dependency 'aws-must',          '~>0.0.12'
 
 
 end

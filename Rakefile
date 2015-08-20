@@ -77,6 +77,12 @@ namespace "dev" do |ns|
     sh "bundle exec rspec --format documentation #{args.rspec_opts} spec/mustache"
   end
 
+  desc "Launch guard"
+  task :guard do
+    sh "bundle exec guard"
+  end
+
+
   desc "Generate html  documentaion into `{generate_docs_dir}` -subdirectory"
   task :docs => ["dev:docs-html", "dev:docs-cf" ]
 
