@@ -1,4 +1,4 @@
-## 0.0.6-SNAPSHOT/20150819-09:55:09
+## 0.0.6/20150820-09:37:27
 
 * Reorganized tests in spec directory
   * Added `AwsCommandLineInterfaceInstalled`
