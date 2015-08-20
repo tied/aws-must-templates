@@ -35,9 +35,11 @@ user-data script
                   , "set -e\n"
                   , "set -o pipefail\n"
 		  , "LOG=/tmp/install.log\n"
-                  , "echo $(date): starting to install chef  > $LOG\n"
+                  , "echo $(date): User data script started  > $LOG\n"
+                  , "echo $(date): User data script started\n"
                   , "function finish() {\n"
 		  ,        "    echo \"$(date): installation finished\"  \n"
+		  ,        "    echo \"$(date): installation finished\"  >> $LOG \n"
                            {{# CreationPolicy}}
                   ,        "    STACK='", { "Ref" : "AWS::StackName" }, "'\n"
                   ,        "    REGION='", { "Ref" : "AWS::Region" }, "'\n"
@@ -48,10 +50,13 @@ user-data script
                   ,        "    HANDLE='", { "Ref" : "{{InitializeWait}}" }, "'\n"
                   ,        "    type cfn-signal && sudo cfn-signal --success true  --reason \"UserData script success\" $HANDLE  \n"
                            {{/ InitializeWait}}
+
                   ,  "}\n" 
                   , "function error() {\n"
                   ,        "    local lineno=$1\n"
                   ,        "    local error=1\n"
+		  ,        "    echo \"$(date): installation finished in ERROR $error on line $lineno\"  \n"
+		  ,        "    echo \"$(date): installation finished in ERROR $error on line $lineno\" >> $LOG \n"
                            {{# CreationPolicy}}
                   ,        "    STACK='", { "Ref" : "AWS::StackName" }, "'\n"
                   ,        "    REGION='", { "Ref" : "AWS::Region" }, "'\n"
@@ -62,7 +67,6 @@ user-data script
                   ,        "    HANDLE='", { "Ref" : "{{InitializeWait}}" }, "'\n"
                   ,        "    type cfn-signal && sudo cfn-signal --exit-code $error  --reason \"installation finished in ERROR on line $lineno\" $HANDLE  \n"
                            {{/ InitializeWait}}
-		  ,        "    echo \"$(date): installation finished in ERROR $error on line $lineno\"  \n"
                   ,        "    exit 1\n"
                   ,  "}\n" 
                   , "trap finish EXIT\n"
