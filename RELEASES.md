@@ -1,3 +1,4 @@
+## 0.0.7-SNAPSHOT/20150820-09:37:28
 ## 0.0.6/20150820-09:37:27
 
 * Reorganized tests in spec directory
