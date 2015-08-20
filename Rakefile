@@ -71,6 +71,12 @@ namespace "dev" do |ns|
       capture_stdout_to( file ) { sh "#{aws_must} gen #{suite}.yaml | jq ." }
   end
 
+  desc "Run unit tests"
+  task :rspec, :rspec_opts  do |t, args|
+    args.with_defaults(:rspec_opts => "")
+    sh "bundle exec rspec --format documentation #{args.rspec_opts} spec/mustache"
+  end
+
   desc "Generate html  documentaion into `{generate_docs_dir}` -subdirectory"
   task :docs => ["dev:docs-html", "dev:docs-cf" ]
 

@@ -1,5 +1,9 @@
 2015-08-20  jj  <jj@horsti>
 
+	* spec/mustache/rspec_spec.rb: gem AwsMust::AwsMust can be instantiated
+
+	* Rakefile (#version): add task `dev:rspec`
+
 	* mustache/resourceS3Bucket.mustache: Fixed documentation (removed
 	with default 'PublicRead')
 

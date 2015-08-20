@@ -45,4 +45,5 @@ PLATFORMS
 
 DEPENDENCIES
   aws-must (~> 0.0.10)
+  rspec
   serverspec
