@@ -93,6 +93,21 @@ Rake task
 generates html documentation into `aws-must-templates.html` -file in
 `generated-docs` -directory.
 
+### Run unit tests
+
+Template unit tests are stored in directory `spec/mustache`. All unit
+test are executed with the command
+
+	rake dev:rspec
+
+
+To launch Guard monitor, which triggers unit test to run automatically
+on a template change, issue the command
+
+    rake dev:guard
+	
+in a new terminal window.
+
 
 ### Implement a test suite
 
