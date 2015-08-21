@@ -21,6 +21,10 @@ def json_sanitize( str, key='"val"' )
   return JSON.parse( "{ #{key} #{ key ? ':' : ''} #{str} }" )
 end
 
+def json_parse( str  ) 
+  return JSON.parse( str )
+end
+
 # ------------------------------------------------------------------
 # Fixed values
 
