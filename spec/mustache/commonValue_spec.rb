@@ -6,6 +6,8 @@ describe "commonValue" do
     return JSON.parse( "{ \"val\": #{str} }" )
   end
 
+  let( :template ) { "commonValue" }
+
 
   before :each do
     @aws_must = AwsMust::AwsMust.new( { :template_path => "mustache"} )
@@ -21,7 +23,7 @@ describe "commonValue" do
         Ref: aaa
       EOF
 
-      expect( json_sanitize( @aws_must.generate_str( "commonValue", stubbaa( yaml_text ), {} ) )).to eql( json_sanitize( expect_str ))
+      expect( json_sanitize( @aws_must.generate_str( template, stub_yaml_file( yaml_text ), {} ) )).to eql( json_sanitize( expect_str ))
 
 
     end
@@ -34,7 +36,7 @@ describe "commonValue" do
         Value: bbb
       EOF
 
-      expect( json_sanitize( @aws_must.generate_str( "commonValue", stubbaa( yaml_text ), {} ) )).to eql( json_sanitize( expect_str ))
+      expect( json_sanitize( @aws_must.generate_str( template, stub_yaml_file( yaml_text ), {} ) )).to eql( json_sanitize( expect_str ))
 
     end
 
@@ -49,7 +51,7 @@ describe "commonValue" do
            Name: nimi
       EOF
 
-      expect( json_sanitize( @aws_must.generate_str( "commonValue", stubbaa( yaml_text ), {} ) )).to eql( json_sanitize( expect_str ))
+      expect( json_sanitize( @aws_must.generate_str( template, stub_yaml_file( yaml_text ), {} ) )).to eql( json_sanitize( expect_str ))
 
     end
 
@@ -63,7 +65,7 @@ describe "commonValue" do
            Output: outoutout
       EOF
 
-      expect( json_sanitize( @aws_must.generate_str( "commonValue", stubbaa( yaml_text ), {} ) )).to eql( json_sanitize( expect_str ))
+      expect( json_sanitize( @aws_must.generate_str( template, stub_yaml_file( yaml_text ), {} ) )).to eql( json_sanitize( expect_str ))
 
     end
 
