@@ -1,6 +1,5 @@
 require_relative "spec_helper"
 
-
 template_under_test = "tag"
 
 describe template_under_test do
