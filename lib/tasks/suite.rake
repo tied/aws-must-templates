@@ -76,7 +76,7 @@ namespace :suite do
 
     end # all_suites.each
 
-    if failed_suites then
+    if failed_suites.any?  then
       puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
       puts "Failed suites"
       puts failed_suites
