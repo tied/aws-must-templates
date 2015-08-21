@@ -1,12 +1,16 @@
 ## 0.0.7-SNAPSHOT/20150820-09:37:28
 
+* Unit test support
+  * rake dev:rspec
+  * rake dev:guard
+  * directory spec/mustache
 * spec/S3ReadAccessAllowed/S3ReadAccessAllowed_spec.rb: Added tests
   "Cannot write bucket" "Cannot modify bucket"
 * template changes
   	* mustache/resourceInstanceInitialize.mustache: LOG output fixed
-* Documentation fixes:
-  * mustache/resourceS3Bucket.mustache: Fixed documentation (removed
-	with default 'PublicRead')
+* Documentation fixes
+  * mustache/resourceS3Bucket.mustache
+  * mustache/resourcePolicy.mustache
 
 ## 0.0.6/20150820-09:37:27
 
