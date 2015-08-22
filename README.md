@@ -6,6 +6,7 @@ for [aws-must](https://github.com/jarjuk/aws-must).
 
 ## Usage
 
+
 ### Installation
 
 Add the following lines to `Gemfile`
@@ -33,6 +34,9 @@ The easiest way to start, is to take a look at test suite stack YAML configurati
 * [suite1.yaml](suite1.yaml): creates two EC2 instances, and one S3
   bucket, one of the instances (`myInstance`) which is granted a read
   access to the S3 bucket
+  
+For a configuration walk trough see blog post
+[Announcing aws-must-templates – part 1](https://jarjuk.wordpress.com/2015/08/18/announcing-aws-must-templates-part1)
 
 ### Generate CloudFormation JSON templates
 

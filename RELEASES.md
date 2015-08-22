@@ -1,5 +1,6 @@
 ## 0.0.7-SNAPSHOT/20150820-09:37:28
 
+
 * Unit test support
   * rake dev:rspec
   * rake dev:guard
@@ -9,6 +10,7 @@
 * template changes
   	* mustache/resourceInstanceInitialize.mustache: LOG output fixed
 * Documentation fixes
+  * README: ref [Announcing aws-must-templates – part 1](https://jarjuk.wordpress.com/2015/08/18/announcing-aws-must-templates-part1)
   * mustache/resourceS3Bucket.mustache
   * mustache/resourcePolicy.mustache
 
