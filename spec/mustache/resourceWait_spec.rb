@@ -8,6 +8,7 @@ describe template_under_test do
 
   let( :template_dir ) { "mustache" }
 
+
   before :each do
     @aws_must = AwsMust::AwsMust.new( { :template_path => template_dir } )
 
@@ -18,10 +19,17 @@ describe template_under_test do
 
   end
 
+  # ------------------------------------------------------------------
+  # attributes
 
-  it "#Name in YAML'" do
+
+
+  it "#Name, Timeout, commonDependsOn -partial'" do
 
     name = "koe"
+    timeout = "PT11M"
+    resourceDependededOn="resuToDependOn"
+
     expect_str= <<-EOS
     "koe" : {
       "Type" : "AWS::CloudFormation::WaitConditionHandle"
@@ -29,9 +37,12 @@ describe template_under_test do
 
      "koeCondition" : {
           "Type" : "AWS::CloudFormation::WaitCondition"
+     
+            , "DependsOn" : "resuToDependOn"   
+
                 , "Properties" : {
                 "Handle"  : { "Ref" : "koe" }
-              , "Timeout" : ""
+              , "Timeout" : "#{timeout}"
           }
      }
 
@@ -40,10 +51,14 @@ describe template_under_test do
     # debug
     # puts json_sanitize( expect_str, nil  )
 
-
     yaml_text = <<-EOF
       Name: #{name}
+      Timeout: #{timeout}
+      DependsOn: #{resourceDependededOn}
     EOF
+
+    # stub partial
+    expect_any_instance_of( AwsMust::Template ).to receive( :partial ).with( :commonDependsOn ).and_call_original
 
     render_str = @aws_must.generate_str( template_under_test, stub_yaml_file( yaml_text ), {} )
 
@@ -57,5 +72,7 @@ describe template_under_test do
 
 
 
+  # ------------------------------------------------------------------
+  # attributes
 
 end

@@ -18,7 +18,7 @@ describe template_under_test do
   end
 
   
-  describe "empty YAML"  do
+  describe "empty YAML generates UserData bash -script"  do
 
     before :each do
       yaml_text = <<-EOS
@@ -148,8 +148,6 @@ describe template_under_test do
       render_str = @aws_must.generate_str( template_under_test, stub_yaml_file( yaml_text ), {} )
 
     end
-
-
 
 
 

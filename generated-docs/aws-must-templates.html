@@ -399,7 +399,7 @@ subnet block.</p>
 
 <ul>
 <li><code>Name</code>: name of the EC2 instance to create</li>
-<li>Instance type
+<li>Instance type (mandatory)
 <ul>
 <li><code>InstanceType</code> : The instance type, such as t2.micro. </li>
 <li><code>InstanceTyperef</code> : Reference to instance type</li>
@@ -547,9 +547,11 @@ data in JSON format to the resource declaration.</p>
                   , "set -e\n"
                   , "set -o pipefail\n"
           , "LOG=/tmp/install.log\n"
-                  , "echo $(date): starting to install chef  > $LOG\n"
+                  , "echo $(date): User data script started  > $LOG\n"
+                  , "echo $(date): User data script started\n"
                   , "function finish() {\n"
           ,        "    echo \"$(date): installation finished\"  \n"
+          ,        "    echo \"$(date): installation finished\"  >> $LOG \n"
                            {{# CreationPolicy}}
                   ,        "    STACK='", { "Ref" : "AWS::StackName" }, "'\n"
                   ,        "    REGION='", { "Ref" : "AWS::Region" }, "'\n"
@@ -560,10 +562,13 @@ data in JSON format to the resource declaration.</p>
                   ,        "    HANDLE='", { "Ref" : "{{InitializeWait}}" }, "'\n"
                   ,        "    type cfn-signal && sudo cfn-signal --success true  --reason \"UserData script success\" $HANDLE  \n"
                            {{/ InitializeWait}}
+
                   ,  "}\n" 
                   , "function error() {\n"
                   ,        "    local lineno=$1\n"
                   ,        "    local error=1\n"
+          ,        "    echo \"$(date): installation finished in ERROR $error on line $lineno\"  \n"
+          ,        "    echo \"$(date): installation finished in ERROR $error on line $lineno\" >> $LOG \n"
                            {{# CreationPolicy}}
                   ,        "    STACK='", { "Ref" : "AWS::StackName" }, "'\n"
                   ,        "    REGION='", { "Ref" : "AWS::Region" }, "'\n"
@@ -574,7 +579,6 @@ data in JSON format to the resource declaration.</p>
                   ,        "    HANDLE='", { "Ref" : "{{InitializeWait}}" }, "'\n"
                   ,        "    type cfn-signal && sudo cfn-signal --exit-code $error  --reason \"installation finished in ERROR on line $lineno\" $HANDLE  \n"
                            {{/ InitializeWait}}
-          ,        "    echo \"$(date): installation finished in ERROR $error on line $lineno\"  \n"
                   ,        "    exit 1\n"
                   ,  "}\n" 
                   , "trap finish EXIT\n"
@@ -770,7 +774,7 @@ CloudFormation Tools installation snippet.</p>
 
 <h2><a id="resourceS3Bucket.mustache"></a>resourceS3Bucket.mustache <a class='navigator' href='#top'>[top]</a></h2>
 
-<p>Create an S3 Bucket - with default 'PublicRead'</p>
+<p>Create an S3 Bucket.</p>
 
 <p><strong>Attributes</strong>: context=  <code>./resources/Instance</code></p>
 
@@ -871,7 +875,7 @@ a policy, which is a document that explicitly lists permissions.</p>
 <li><code>Statements</code> array of
 <ul>
 <li><code>Effect</code>: Allow/Deny</li>
-<li><code>Action</code>: list of actions for the policy</li>
+<li><code>Actions</code>: list of actions for the policy</li>
 <li><code>Resource</code>: array of <a href="#commonValue.mustache">commonValues</a> concatenated to create resource reference</li>
 </ul></li>
 </ul>
