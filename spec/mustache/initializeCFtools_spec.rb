@@ -18,6 +18,24 @@ describe template_under_test do
 
   end
 
-  skip "Implementation missing"
+  before :each do
+
+    @expect_version="1.2.3"
+    
+    yaml_text = <<-EOS
+         Version: #{@expect_version}
+      EOS
+    @render_str = @aws_must.generate_str( template_under_test, stub_yaml_file( yaml_text ), {} )
+    # puts @render_str
+  end
+
+  it "#curl aws-cfn-bootstrap-latest" do
+    expect( @render_str ).to match( /curl .*aws-cfn-bootstrap-latest/  )
+  end
+
+  it "#easy_install aws-cfn-bootstrap-latest" do
+    expect( @render_str ).to match( /easy_install +aws-cfn-bootstrap-latest/  )
+  end
+
 
 end

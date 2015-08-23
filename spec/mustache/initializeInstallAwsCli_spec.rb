@@ -18,7 +18,24 @@ describe template_under_test do
 
   end
 
-  skip "Implementation missing"
+  before :each do
+
+    @expect_version="1.2.3"
+    
+    yaml_text = <<-EOS
+      EOS
+    @render_str = @aws_must.generate_str( template_under_test, stub_yaml_file( yaml_text ), {} )
+    # puts @render_str
+  end
+
+  it "#curl awscli-bundle.zip'" do
+    expect( @render_str ).to match( /curl .*awscli-bundle\.zip/  )
+  end
+
+  it "#awscli-bundle/install -i /usr/local/aws'" do
+    expect( @render_str ).to match( /awscli-bundle\/install -i \/usr\/local\/aws/  )
+  end
+
 
 
 end

@@ -17,6 +17,24 @@ describe template_under_test do
 
   end
 
-  skip "Implementation missing"
+  before :each do
+
+    @expect_version="1.2.3"
+    
+    yaml_text = <<-EOS
+         Version: #{@expect_version}
+      EOS
+    @render_str = @aws_must.generate_str( template_under_test, stub_yaml_file( yaml_text ), {} )
+    # puts @render_str
+  end
+
+  it "#CHEF_VERSION='@expect_version'" do
+    expect( @render_str ).to match( /CHEF_VERSION=#{@expect_version}/  )
+  end
+
+  it "#curl -L install.sh | sudo bash" do
+    expect( @render_str ).to match( /curl .*install.sh.*bash/  )
+  end
+
 
 end

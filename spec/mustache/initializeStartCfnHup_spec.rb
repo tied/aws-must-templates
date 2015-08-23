@@ -17,7 +17,21 @@ describe template_under_test do
 
   end
 
-  skip "Implementation missing"
+  before :each do
+
+    @expect_resource="resut"
+    
+    yaml_text = <<-EOS
+         Resource: #{@expect_resource}
+      EOS
+    @render_str = @aws_must.generate_str( template_under_test, stub_yaml_file( yaml_text ), {} )
+    # puts @render_str
+  end
+
+  it "#cfn-hup" do
+    expect( @render_str ).to match( /cfn-hup/  )
+  end
+
 
 
 end

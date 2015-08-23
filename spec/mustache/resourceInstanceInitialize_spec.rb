@@ -26,16 +26,16 @@ describe template_under_test do
       @render_str = @aws_must.generate_str( template_under_test, stub_yaml_file( yaml_text ), {} )
     end
 
-    it "#defines /bin/bash -script'" do
+    it "#defines /bin/bash -script" do
       expect( @render_str ).to include( '/bin/bash'  )
     end
 
-    it "#traps finish'" do
+    it "#trap finish EXIT" do
       expect( @render_str ).to include( 'function finish'  )
       expect( @render_str ).to include( 'trap finish EXIT'  )
     end
 
-    it "#traps ERROR'" do
+    it "#traps error ERR" do
       expect( @render_str ).to include( 'function error'  )
       expect( @render_str ).to include( "trap 'error ${LINENO}' ERR"  )
     end

@@ -13,6 +13,7 @@
   * README: ref [Announcing aws-must-templates – part 1](https://jarjuk.wordpress.com/2015/08/18/announcing-aws-must-templates-part1)
   * mustache/resourceS3Bucket.mustache
   * mustache/resourcePolicy.mustache
+  * initializeProvisionChefZero.mustache
 
 ## 0.0.6/20150820-09:37:27
 

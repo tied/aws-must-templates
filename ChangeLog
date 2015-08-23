@@ -1,3 +1,7 @@
+2015-08-23  jj  <jj@horsti>
+
+	* mustache/initializeProvisionChefZero.mustache: Fixed documentation for attributes
+
 2015-08-21  jj  <jj@horsti>
 
 	* spec/mustache/mappings_spec.rb: first version

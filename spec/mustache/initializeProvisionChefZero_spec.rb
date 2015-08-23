@@ -17,6 +17,24 @@ describe template_under_test do
 
   end
 
-  skip "Implementation missing"
+  before :each do
+
+    @expect_bucket="buketti"
+    
+    yaml_text = <<-EOS
+         BucketName: #{@expect_bucket}
+      EOS
+    @render_str = @aws_must.generate_str( template_under_test, stub_yaml_file( yaml_text ), {} )
+    # puts @render_str
+  end
+
+  it "#apt-get install chef-zero {{BucketName}}'" do
+    expect( @render_str ).to match( /apt-get install .+chef-zero/  )
+  end
+
+  it "#aws s3 cp --bucket'" do
+    expect( @render_str ).to match( /aws s3 cp.+--bucket #{@expect_bucket}/  )
+  end
+
 
 end
