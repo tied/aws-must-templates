@@ -4,6 +4,47 @@ CloudFormation
 [templates](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html)
 for [aws-must](https://github.com/jarjuk/aws-must).
 
+## The Problem
+
+When using template generators, consider
+
+1. Template generators are much like a "Garden Party"/"You see, ya
+   can't please everyone, so ya got to please yourself": Most of the
+   things that you need are there, but some specific feature is
+   missing, or should be implemented in a different way.
+
+2. You can't say that a "Day is Done" just by having an
+   implementation. Implementation without validating correctness is
+   asking for trouble.
+
+3.  Avoid "Vanishing Mind" syndrome in testing, i.e.  failing to reuse
+    existing tests.  After all, we are relying on a template
+    generator, which is hopefully comprehensively tested. The test
+    mechanism and test suites should be available also for template
+    generator users.
+  
+4. When reusing tests: "Do You Remember"/"It All Starts With One". We
+   need to be able to extend also the tests that come along with the
+   generator.
+
+## The solution
+
+**aws-must-templates** tries to address the above listed considerations
+
+1. by allowing user to override templates used in generation
+
+2. implementing  [test-suites.yaml](test-suites.yaml) configuration,
+   which allows defining [serverspec](http://serverspec.org/) test
+   suites
+
+3. [test-suites.yaml](test-suites.yaml) configuration may refer to
+   test sets cataloged in ???, test input variables may be mapped
+
+4. user may write their own serversepc test and refer to these in
+   *test-suites.yaml* configuration
+
+
+
 ## Usage
 
 
