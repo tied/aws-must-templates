@@ -79,28 +79,34 @@ end
 
 namespace "dev" do |ns|
 
-  # test suite JSON
-  desc "Clean generated json templates"
-  task "json-clean", :stack do |t,args|
-    args.with_defaults(:stack => "*")
-    sh "rm -f #{cf_templates}/#{args.stack}.json"; 
-  end
-
-  # test suite JSON
-  desc "Create CloudFormation json templates into #{cf_templates}"
-  task :json => stacks.pathmap( "#{cf_templates}/%X.json" )
-
   task "docs-html" do
     file = "#{generate_docs_dir}/aws-must-templates.html"
       capture_stdout_to( file ) { sh "#{aws_must} doc | markdown" }
   end
 
   # generate an example json
-  task "docs-cf" do
-    suite = "suite1"
-    file = "#{generate_docs_dir}/#{suite}.json"
-      capture_stdout_to( file ) { sh "#{aws_must} gen #{suite}.yaml | jq ." }
+  task "docs-cf", :suite do |t,args|
+
+
+    args.with_defaults(:stack => "*")
+    if args.suite 
+      stack = args.suite
+      file = "#{generate_docs_dir}/#{stack}.json"
+      capture_stdout_to( file ) { sh "#{aws_must} gen #{stack}.yaml | jq ." }
+    else
+      suite_properties.each do |suite|
+        stack = suite.keys.first
+        file = "#{generate_docs_dir}/#{stack}.json"
+        capture_stdout_to( file ) { sh "#{aws_must} gen #{stack}.yaml | jq ." }
+      end
+      
+    end
+
   end
+
+  desc "Template html-documentaion, suite json files  into `{generate_docs_dir}` -subdirectory"
+  task :docs => ["dev:docs-html", "dev:docs-cf" ]
+
 
   desc "Run unit tests"
   task :rspec, :rspec_opts  do |t, args|
@@ -124,9 +130,6 @@ namespace "dev" do |ns|
     sh "gem install ./aws-must-templates-#{version}.gem"
   end
 
-  desc "Generate html  documentaion into `{generate_docs_dir}` -subdirectory"
-  task :docs => ["dev:docs-html", "dev:docs-cf" ]
-
   desc "Finalize delivery"
   task "fast-delivery" => [ "dev:docs", "rt:release", "rt:push", "rt:snapshot" ]
 
@@ -138,6 +141,7 @@ end
 # ------------------------------------------------------------------
 # common methods
 
+# 
 def capture_stdout_to( file )
   real_stdout, = $stdout.clone
   $stdout.reopen( file )
@@ -148,4 +152,9 @@ ensure
   $stdout.reopen( real_stdout )
   $stdout.sync = true
 
+end
+
+
+# output stack json to file
+def stack_json( stack ) 
 end
