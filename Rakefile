@@ -82,6 +82,18 @@ namespace "dev" do |ns|
     sh "bundle exec guard"
   end
 
+  desc "Build gempspec"
+  task :build do
+    sh "gem build aws-must-templates.gemspec"
+  end
+
+  desc "Install locally"
+  task :install do
+    version = version()
+    sh "gem install ./aws-must-templates-#{version}.gem"
+  end
+
+
 
   desc "Generate html  documentaion into `{generate_docs_dir}` -subdirectory"
   task :docs => ["dev:docs-html", "dev:docs-cf" ]
