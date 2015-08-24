@@ -31,7 +31,7 @@ When using template generators, consider
 
 **aws-must-templates** tries to address the above listed considerations
 
-1. by allowing user to override templates used in generation
+1. by allowing users to [override templates](#"OVERRIDE) in **aws-must-templates**
 
 2. implementing  [test-suites.yaml](test-suites.yaml) configuration,
    which allows defining [serverspec](http://serverspec.org/) test
@@ -84,9 +84,54 @@ For a configuration walk trough see blog post
 Assuming a YAML stack configuration in a file `mystack.yaml`, the
 command
 
-	bundle exec	aws-must.rb gen mystack.yaml  -g aws-must-templates 
+	bundle exec	aws-must.rb gen mystack.yaml  -m aws-must-templates 
 	
 prints the CloudFromation JSON template to STDOUT.
+
+### Overriding template implementation<a id="OVERRIDE"/>
+
+A typical change, is to replace the default
+[AIM mapping table](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#mappings.mustache)
+with an other version. 
+
+For example, after saving the following template in `myextensions/mappings/mustache`
+
+     {{!
+     +++start+++
+	 
+     Use Ubuntu `utopic` v. 14.10 for `t2.micro` `instanceType`.
+	 
+     +++close+++
+     }}
+     
+     {{! +++fold-on+++ }}
+     
+           "AWSInstanceType2Arch" : {
+           "t2.micro"    : { "Arch" : "64" }
+           },
+           "AWSRegionArch2AMI" : {
+                "ap-northeast-1" : { "64" : "ami-50c27450" },
+                "ap-southeast-1" : { "64" : "ami-8ae3e1d8" },
+                "ap-southeast-2" : { "64" : "ami-25eea81f" },
+                "cn-north-1" : { "64" : "ami-9671ecaf" },
+                "eu-central-1" : { "64" : "ami-84333699" },
+                "eu-west-1" : { "64" : "ami-b4a5eec3" },
+                "sa-east-1" : { "64" : "ami-0f199612" },
+                "us-east-1" : { "64" : "ami-d36cb0b8" },
+                "us-west-1" : { "64" : "ami-33fc9c10" },
+                "us-gov-west-1" : { "64" : "ami-77887533" },
+                "us-west-2" : { "64" : "ami-dd353aed" }
+           }
+     
+     {{! +++fold-off+++ }}
+
+and issuing the command
+
+	bundle exec	aws-must.rb gen mystack.yaml  -m myextensions/ aws-must-templates
+	
+creates a CloufFormation JSON template, which uses Ubuntu `utopic`
+v. 14.10 for `t2.micro` instance types.
+
 
 ### Provision the stack on Amazon platform
 
@@ -97,7 +142,7 @@ Assuming the [aws command line utility](https://aws.amazon.com/cli) is
 [correctly setup](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html),
 the command
 
-	aws cloudformation create-stack --stack-name mystack  --capabilities CAPABILITY_IAM  --template-body "$(bundle exec	aws-must.rb gen mystack.yaml  -g aws-must-templates)"  --disable-rollback
+	aws cloudformation create-stack --stack-name mystack  --capabilities CAPABILITY_IAM  --template-body "$(bundle exec	aws-must.rb gen mystack.yaml  -m aws-must-templates)"  --disable-rollback
 
 provisions a stack `mystack` from YAML config `mystack.yaml ` on the
 Amazon platform.

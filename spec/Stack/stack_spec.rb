@@ -61,18 +61,28 @@ describe "Stack" do
 
   # ------------------------------------------------------------------
   # 
-  describe "Properties stack '#{property[:stack]}' should define" do
+  describe "Stack '#{property[:stack]}'" do
 
-    suite_properties[property[:stack]].each do | keys |
+    puts "property=#{property}"
+
+    describe "should be well known" do
+
+      it "#can be found in 'suite_properties'" do 
+
+        expect( suite_properties[property[:stack]]).not_to   eql( nil ) 
+
+      end
+
+    end
+
+    suite_properties[property[:stack]] && suite_properties[property[:stack]].each do | keys |
 
       describe valid_property( property, keys ) do
         its( :value ) { should_not eq nil } 
       end
-
+      
     end
   end
-
-
 
 end
 

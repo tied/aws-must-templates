@@ -37,11 +37,17 @@ end
 
 aws_must          = "aws-must.rb"         # command to conver yaml-configs to cf-templates
 generate_docs_dir = "generated-docs"      # html docmente generated here
+cf_templates      = "cf-templates"        # directory where CloudFormation json templates are generated
 
 # ------------------------------------------------------------------
-# test suites
+# suite namespace
 
+require_relative  "./lib/tasks/common.rb"
 import "./lib/tasks/suite.rake"
+
+# and init it
+suite_properties = AwsMustTemplates::Common::init_suites
+stacks = AwsMustTemplates::Common::init_stacks( suite_properties )
 
 
 # ------------------------------------------------------------------
@@ -53,11 +59,36 @@ task :usage do
   puts "(type rake -T for more detail)\n\n"
 end
 
+
+# ------------------------------------------------------------------
+# rules
+
+# this rule 'source_for_json' to find yaml file to convert to json
+rule ".json" => ->(f){ source_for_json(f)} do |t|
+  sh "#{aws_must} gen #{t.source} > #{t.name}"
+end
+
+# source_for_json is the yaml file in working directory
+def source_for_json( json_file )
+  json_file.pathmap( "%n.yaml" )
+end
+
+
 # ------------------------------------------------------------------
 # dev.workflow defined here
 
-
 namespace "dev" do |ns|
+
+  # test suite JSON
+  desc "Clean generated json templates"
+  task "json-clean", :stack do |t,args|
+    args.with_defaults(:stack => "*")
+    sh "rm -f #{cf_templates}/#{args.stack}.json"; 
+  end
+
+  # test suite JSON
+  desc "Create CloudFormation json templates into #{cf_templates}"
+  task :json => stacks.pathmap( "#{cf_templates}/%X.json" )
 
   task "docs-html" do
     file = "#{generate_docs_dir}/aws-must-templates.html"
@@ -92,8 +123,6 @@ namespace "dev" do |ns|
     version = version()
     sh "gem install ./aws-must-templates-#{version}.gem"
   end
-
-
 
   desc "Generate html  documentaion into `{generate_docs_dir}` -subdirectory"
   task :docs => ["dev:docs-html", "dev:docs-cf" ]

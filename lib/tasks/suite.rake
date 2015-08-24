@@ -8,13 +8,15 @@ require 'json'
 require 'rake'
 require 'rspec/core/rake_task'
 
+# ------------------------------------------------------------------
+# commons
+
+require_relative  "common"
 
 # ------------------------------------------------------------------
 # configs
 
 aws_must          = "aws-must.rb"         # command to conver yaml-configs to cf-templates
-suite_configs     = 'test-suites.yaml'    # YAML configuration file for suites/instances            
-cf_templates      = "cf-templates"        # directory where CloudFormation json templates are generated
 
 # read json using aws cli
 describe_stacks_command  =  "aws cloudformation describe-stacks"    
@@ -24,28 +26,10 @@ SUCESS_STATES  = ["CREATE_COMPLETE", "UPDATE_COMPLETE"]
 FAILURE_STATES = ["CREATE_FAILED", "DELETE_FAILED", "UPDATE_ROLLBACK_FAILED", "ROLLBACK_FAILED", "ROLLBACK_COMPLETE","ROLLBACK_FAILED","UPDATE_ROLLBACK_COMPLETE","UPDATE_ROLLBACK_FAILED"]
 END_STATES     = SUCESS_STATES + FAILURE_STATES
 
-
-
 # ------------------------------------------------------------------
-# Init
-
-
-suite_properties = YAML.load_file( suite_configs )
-stacks = Rake::FileList.new( suite_properties.map { |s| s.keys.first + '.yaml'} )
-
-# ------------------------------------------------------------------
-# rules
-
-# this rule 'source_for_json' to find yaml file to convert to json
-rule ".json" => ->(f){ source_for_json(f)} do |t|
-  sh "#{aws_must} gen #{t.source} > #{t.name}"
-end
-
-# source_for_json is the yaml file in working directory
-def source_for_json( json_file )
-  json_file.pathmap( "%n.yaml" )
-end
-
+# init
+suite_properties = AwsMustTemplates::Common::init_suites
+stacks = AwsMustTemplates::Common::init_stacks( suite_properties )
 
 # ------------------------------------------------------------------
 # namespace :suite
@@ -56,7 +40,7 @@ namespace :suite do
 
   # **********
   desc "All suites"
-  all_suites = ["suite:json-clean"] +  suite_properties.map{ |s| "suite:" + s.keys.first }
+  all_suites = suite_properties.map{ |s| "suite:" + s.keys.first }
   task :all do 
 
     failed_suites = []
@@ -87,15 +71,6 @@ namespace :suite do
   end # task :all
 
   # **********
-  desc "Clean generated json templates"
-  task "json-clean", :stack do |t,args|
-    args.with_defaults(:stack => "*")
-    sh "rm -f #{cf_templates}/#{args.stack}.json"; 
-  end
-
-  # **********
-  desc "Create CloudFormation json templates into #{cf_templates}"
-  task :json => stacks.pathmap( "#{cf_templates}/%X.json" )
 
   suite_properties.each do |suite_map|
 
@@ -108,8 +83,9 @@ namespace :suite do
     # **********
     # Create stack for a suite
     desc "Create stack #{stack} for suite #{suite_id}"
-    task "#{suite_id}-stack-create" => [ "#{cf_templates}/#{stack}.json"] do
-      sh "aws cloudformation create-stack --stack-name #{stack} --capabilities CAPABILITY_IAM  --template-body \"$(cat #{cf_templates}/#{stack}.json)\"  --disable-rollback"
+    task "#{suite_id}-stack-create"  do
+      json_template="#{aws_must} gen #{stack}.yaml"  
+      sh "aws cloudformation create-stack --stack-name #{stack} --capabilities CAPABILITY_IAM  --template-body \"$(#{json_template})\"  --disable-rollback"
     end
 
     desc "Create stack #{stack} for suite #{suite_id}"
@@ -159,7 +135,8 @@ namespace :suite do
       # test all roles for the instance
       t.rspec_opts = "--format documentation"
       t.fail_on_error = false       
-      t.pattern = 'spec/{' + suite["roles"].join(',') + '}/*_spec.rb' 
+      t.ruby_opts= spec_opts
+      t.pattern = suite["roles"].map {  |r|  spec_pattern( r ) }.join(",")
 
     end if suite.has_key?( "roles" )
 
@@ -227,14 +204,30 @@ namespace :suite do
 
           # test all roles for the instance
           t.rspec_opts = "--format documentation"
-          t.fail_on_error = false       
-          t.pattern = 'spec/{' + instance["roles"].join(',') + '}/*_spec.rb'
+          t.fail_on_error = false
+          t.ruby_opts= spec_opts
+          # t.pattern = 'spec/{' + instance["roles"].join(',') + '}/*_spec.rb'
+
+          t.pattern = instance["roles"].map {  |r|  spec_pattern( r ) }.join(",")
 
         end
       end if suite.has_key?("instances")
     end # ns suite_id
 
   end # suite_properties.each
+
+  # ------------------------------------------------------------------
+  # DRY methods
+
+  # override spec defined in Gem
+  def spec_pattern( role ) 
+    File.exist?( "spec/#{role}" ) ? "spec/#{role}/*_spec.rb" : File.join( File.dirname(__FILE__), "../..", "spec/#{role}/*_spec.rb" )
+  end
+
+  # use -I option to allow Gem and client specs to include spec_helper
+  def spec_opts
+    "-I #{File.join( File.dirname(__FILE__), '../../spec/support' )}"
+  end
   
 end # ns suite
 

@@ -2,10 +2,12 @@ require 'serverspec'
 require 'net/ssh'
 require 'json'
 
-require_relative "./support/utils.rb"
+# serverspec extensions
 
-# require 'serverspec-aws-resources'
+require_relative "./utils.rb"
 
+# ------------------------------------------------------------------
+# sudo password (ask implemented by serverspec init)
 
 set :backend, :ssh
 
@@ -20,6 +22,9 @@ else
   set :sudo_password, ENV['SUDO_PASSWORD']
 end
 
+# ------------------------------------------------------------------
+# suite.rake sets target HOST && STACK to test
+
 host                = ENV['TARGET_HOST']    # Host to test
 stack               = ENV['TARGET_STACK']   # Stack context for the host
 
@@ -29,7 +34,6 @@ puts "host #{host}" if host
 # ------------------------------------------------------------------
 # Constants used in stack
 
-
 output_key_for_hostname  = host           # Output variable with
                                           # keyvalue 'host' holds the
                                           # IP or hostname for the
@@ -38,10 +42,8 @@ output_key_for_hostname  = host           # Output variable with
 describe_stacks_command  = 
   "aws cloudformation describe-stacks"    # read json using aws cli
 
-ssh_config_file = 
-  File.join( 
-            File.dirname(__FILE__), 
-            "../ssh/config" )             # SSH client configuration
+# SSH client configuration must be in CWD (=user directory)
+ssh_config_file = "ssh/config"
                                           # file to use
 # stack states
 
@@ -82,6 +84,14 @@ set_property properties
 # access ssh-configs
 
 # CloudFormatio instance resources are defined in 'ssh_config_file' 
+
+raise <<-EOS unless File.exist?( ssh_config_file )
+
+   Could not find ssh configuration file in '#{ssh_config_file}'.
+
+   Serverspec uses ssh to connect to #{host}, but no configuration found!
+
+EOS
 
 options = Net::SSH::Config.for(host, [ ssh_config_file ] )
 # puts "host #{host}, options=#{options}"

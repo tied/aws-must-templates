@@ -1,3 +1,12 @@
+2015-08-24  jj  <jj@horsti>
+
+	* spec/support/spec_helper.rb: 'hide' spec_helper in support
+	directory and use suite.rake to pass -I option to define directory
+	to include
+
+	* lib/tasks/suite.rake: empty suite_properties does not raise
+	exception
+	
 2015-08-23  jj  <jj@horsti>
 
 	* mustache/initializeProvisionChefZero.mustache: Fixed documentation for attributes
