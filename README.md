@@ -6,43 +6,44 @@ for [aws-must](https://github.com/jarjuk/aws-must).
 
 ## The Problem
 
-When using template generators, consider
+When using code generators, consider
 
-1. Template generators are much like a "Garden Party"/"You see, ya
-   can't please everyone, so ya got to please yourself": Most of the
-   things that you need are there, but some specific feature is
-   missing, or should be implemented in a different way.
+1.  Code generators are much like a "Garden Party": Most of the things
+    that you need may be there, but some specific feature is quite
+    likely to be missing, or should be implemented in a different way.
+    "When you can't please everyone, you got to please yourself", and
+    use the possibility to extend the template generation process to
+    meet your own needs.
 
-2. You can't say that a "Day is Done" just by having an
-   implementation. Implementation without validating correctness is
-   asking for trouble.
+2.  You can't say that a "Day is Done" just by having an
+    implementation. Implementation without validating correctness is
+    asking for trouble.
 
 3.  Avoid "Vanishing Mind" syndrome in testing, i.e.  failing to reuse
-    existing tests.  After all, we are relying on a template
-    generator, which is hopefully comprehensively tested. The test
-    mechanism and test suites should be available also for template
-    generator users.
+    existing tests.  After all, we are relying on a generator, which
+    is hopefully comprehensively tested. The test mechanism and test
+    suites should be available also for template generator users.
   
-4. When reusing tests: "Do You Remember"/"It All Starts With One". We
-   need to be able to extend also the tests that come along with the
-   generator.
+4. When reusing tests: "Do You Remember"/"It All Starts With One": the
+   tests that come along with the generator should also be open for
+   extensions.
+
 
 ## The solution
 
 **aws-must-templates** tries to address the above listed considerations
 
-1. by allowing users to [override templates](#"OVERRIDE) in **aws-must-templates**
+1. by allowing users to [extend](#"OVERRIDE) template generation
+   process
 
-2. implementing  [test-suites.yaml](test-suites.yaml) configuration,
-   which allows defining [serverspec](http://serverspec.org/) test
-   suites
+2. by including a configurable [test runner](#TEST-RUNNER) to lower
+   the threshold to write tests
 
-3. [test-suites.yaml](test-suites.yaml) configuration may refer to
-   test sets cataloged in ???, test input variables may be mapped
+3. by offering a [library of test cases](#TEST-CASES), which can be parametrized to
+   validate user defined stacks
 
-4. user may write their own serversepc test and refer to these in
-   *test-suites.yaml* configuration
-
+4. by having the possibility to [include own test](#TEST-EXTENSION)
+   cases to test suites
 
 
 ## Usage
@@ -206,7 +207,7 @@ Test suite implementation includes
 * adding a test suite into [test-suites.yaml](test-suites.yaml).
 * a YAML configuration defining CloudFormation stack
 * defining instance credentials in `ssh/config` 
-* writing serverspec tests in `spec` directory
+* writing serverspec tests in `spec/aws-must-templates` directory
 
 
 **add a test suite into test-suites.yaml**
@@ -280,7 +281,7 @@ fingerprint of the (temporary) instance used in testing.
 
 Suite tests are defined using `roles` attributes in
 [test-suites.yaml](test-suites.yaml) configuration file. The attribute
-lists names pointing to sub-directories of `spec` -directory.  The
+lists names pointing to sub-directories of `spec/aws-must-templates` -directory.  The
 sub-directories contain [serverspec](http://serverspec.org/) tests,
 which the suite should pass.
 

@@ -40,14 +40,16 @@ generate_docs_dir = "generated-docs"      # html docmente generated here
 cf_templates      = "cf-templates"        # directory where CloudFormation json templates are generated
 
 # ------------------------------------------------------------------
-# suite namespace
+# test-suites.yaml
 
 require_relative  "./lib/test-suites/test_suites.rb"
+test_suites = AwsMustTemplates::TestSuites::TestSuites.new
+
+# ------------------------------------------------------------------
+# suite namespace
 
 import "./lib/tasks/suite.rake"
 
-# and init it
-test_suites = AwsMustTemplates::TestSuites::TestSuites.new
 # suite_properties = AwsMustTemplates::Common::init_suites
 # stacks = AwsMustTemplates::Common::init_stacks( suite_properties )
 

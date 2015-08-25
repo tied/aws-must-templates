@@ -11,7 +11,7 @@ module Serverspec
         keys = ["Outputs"]
         keys << output
         @output = output
-        super( @runner.property, keys)
+        super( keys )
       end
 
       def to_s

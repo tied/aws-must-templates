@@ -1,21 +1,51 @@
 require 'spec_helper'
 
+current_test = "S3ReadAccessAllowed"
 
-describe "S3ReadAccessAllowed" do
+describe current_test do
 
-  bucket_name =  stack_output( 'Bucket' ).value 
+  # ------------------------------------------------------------------
+  # test parameters
+
+  bucket_name = test_parameter( current_test, "Bucket" )
+
+  # bucket_name =  stack_output( 'Bucket' ).value 
+
+  # ------------------------------------------------------------------
+  # constanst used in test
+
   test_file="ttest.tmp"
 
   # ------------------------------------------------------------------
-  # Stack parameters && outputs
+  # Test paramters defined
 
-  describe "Stack" do 
+  describe "Test parameter definition" do
 
-    it "#defines bucket_name"  do
-      expect( bucket_name ).not_to eql( nil )
+    describe bucket_name do
+      its( :definition_in_test_suite ) { should_not  eq nil }
     end
 
   end
+
+  describe "Test parameter values" do
+
+    describe bucket_name do
+      its( :value ) { should_not  eq nil }
+    end
+
+  end
+
+
+  # # ------------------------------------------------------------------
+  # # Stack parameters && outputs
+
+  # describe "Stack" do 
+
+  #   it "#defines bucket_name"  do
+  #     expect( bucket_name ).not_to eql( nil )
+  #   end
+
+  # end
 
   # ------------------------------------------------------------------
   # aws Command line interface installed
@@ -43,7 +73,7 @@ describe "S3ReadAccessAllowed" do
 
     describe "Can list S3 bucket keys" do 
 
-      subject { command( "aws s3 ls s3://#{bucket_name} --region $(aws s3api get-bucket-location --bucket #{bucket_name} --output text)").exit_status }
+      subject { command( "aws s3 ls s3://#{bucket_name.value} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)").exit_status }
       it { is_expected.to eql 0 }
 
     end
@@ -52,13 +82,13 @@ describe "S3ReadAccessAllowed" do
     context "When an Object exists in S3 bucket" do 
 
       before(:context) do
-        cmd =  "echo tst | aws s3 cp - s3://#{bucket_name}/#{test_file}"
+        cmd =  "echo tst | aws s3 cp - s3://#{bucket_name.value}/#{test_file}"
         `#{cmd}`
         raise "Error in '#{cmd}' " unless $? == 0
       end
 
       after(:context) do
-        cmd = "aws s3 rm  s3://#{bucket_name}/#{test_file}"
+        cmd = "aws s3 rm  s3://#{bucket_name.value}/#{test_file}"
         `#{cmd}`
         raise "Error in '#{cmd}' " unless $? == 0
       end
@@ -67,7 +97,7 @@ describe "S3ReadAccessAllowed" do
 
       describe "Can read the Object from a S3 bucket" do 
 
-        describe command("aws s3 cp s3://#{bucket_name}/#{test_file} /tmp/#{test_file} --region $(aws s3api get-bucket-location --bucket #{bucket_name} --output text)") do
+        describe command("aws s3 cp s3://#{bucket_name.value}/#{test_file} /tmp/#{test_file} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)") do
           its( :exit_status ) { should eq 0 }
         end
 
@@ -76,7 +106,7 @@ describe "S3ReadAccessAllowed" do
       # using subject + expect style
       describe "Cannot modify (= delete) the  Object in bucket" do
 
-        subject { command("aws s3 rm s3://#{@bucket_name}/#{test_file} --region $(aws s3api get-bucket-location --bucket #{@bucket_name} --output text)") }
+        subject { command("aws s3 rm s3://#{bucket_name.value}/#{test_file} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)") }
         it { expect( subject.exit_status ).not_to eql 0 }
 
       end
@@ -87,7 +117,7 @@ describe "S3ReadAccessAllowed" do
     describe "Cannot write to bucket" do 
 
       describe "Create an Object in bucket should fail" do
-        subject { command("aws s3 cp /etc/hosts  s3://#{@bucket_name}/#{test_file} --region $(aws s3api get-bucket-location --bucket #{@bucket_name} --output text)").exit_status }
+        subject { command("aws s3 cp /etc/hosts  s3://#{bucket_name.value}/#{test_file} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)").exit_status }
         it { is_expected.not_to eql 0  }
       end
 

@@ -1,5 +1,9 @@
 #
 parameters:
+        -  Name: DummyParameter
+           Type: String
+           Description: Dummy paramter, not used
+           Value: input paramter value
 
 
 resources:

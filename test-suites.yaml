@@ -13,27 +13,34 @@
 - smoke:
    desc: Fails fast if problems with AWS installation
    roles:
+     - NoSuchTest
      - Stack
-      
+     - ParameterTest:
+          param1: value1
+          param2: "@Parameters.DummyParameter"
+          param3: "@Outputs.Bucket"
 
 - suite1:
    desc: EC2 instance with s3 access
+   # roles:
+   #   - Stack
    instances:
      - myInstance:
          roles:
-           - Stack:
-                  param1: value
-                  param2: Stack.Outputs.xxx
-                  param3: Stack.Parameter.xxx
-                  param3: Property.host
-
-           # - AwsCommandLineInterfaceInstalled
-           # - CloudFormationHelperScriptsInstalled
-           # - S3ReadAccessAllowed
+           - Stack
+           - AwsCommandLineInterfaceInstalled:
+           - CloudFormationHelperScriptsInstalled
+           - S3ReadAccessAllowed:
+                Bucket: "@Outputs.Bucket"
 
      - myInstance2:
          roles:
+          - ParameterTest:
+              param1: value1
+              param2: "value2"
+              param3: "@Outputs.Bucket"
           - Stack
           - AwsCommandLineInterfaceInstalled
           - CloudFormationHelperScriptsInstalled
-          - S3NoAccess
+          - S3NoAccess:
+              Bucket: "@Outputs.Bucket"

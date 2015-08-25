@@ -14,18 +14,6 @@ require 'rspec/core/rake_task'
 require_relative  "../test-suites/test_suites.rb"
 test_suites = AwsMustTemplates::TestSuites::TestSuites.new
 
-
-
-# xx # ------------------------------------------------------------------
-# xx # commons
-
-# xx require_relative  "common"
-
-# xx init
-# xx suite_properties = AwsMustTemplates::Common::init_suites
-# xx stacks = AwsMustTemplates::Common::init_stacks( suite_properties )
-
-
 # ------------------------------------------------------------------
 # configs
 
@@ -88,7 +76,7 @@ namespace :suite do
 
     # suite = test_suites.get_suite( suite_id )
     
-    # use suite_is as stack name
+    # find the stack name for suite
     stack = test_suites.get_suite_stack_id( suite_id )
 
     # **********
@@ -141,13 +129,15 @@ namespace :suite do
       puts "suite=#{suite_id }"
 
       # see spec/spec_helper.rb
-      ENV['TARGET_STACK'] = stack
+      ENV['TARGET_SUITE_ID'] = suite_id
 
       # test all roles for the instance
-      t.rspec_opts = "--format documentation"
+      t.rspec_opts = rspec_opts( suite_id )
       t.fail_on_error = false       
-      t.ruby_opts= spec_opts
-      t.pattern = suite["roles"].map {  |r|  spec_pattern( r ) }.join(",")
+      t.ruby_opts= rspec_ruby_opts
+      # t.pattern = suite["roles"].map {  |r|  spec_pattern( r ) }.join(",")
+      t.pattern = test_suites.suite_role_ids( suite_id ).map{ |r| spec_pattern( r ) }.join(",")
+
 
     end if test_suites.suite_roles( suite_id )
 
@@ -212,16 +202,14 @@ namespace :suite do
           puts "suite=#{suite_id }, instance=#{instance_id}"
 
           # see spec/spec_helper.rb
-          ENV['TARGET_STACK'] = stack
-          ENV['TARGET_HOST'] = instance_id
+          ENV['TARGET_SUITE_ID'] = suite_id
+          ENV['TARGET_INSTANCE_ID'] = instance_id
+
+          t.rspec_opts = rspec_opts( suite_id, instance_id )
+          t.fail_on_error = false
+          t.ruby_opts= rspec_ruby_opts
 
           # test all roles for the instance
-          t.rspec_opts = "--format documentation"
-          t.fail_on_error = false
-          t.ruby_opts= spec_opts
-          # t.pattern = 'spec/{' + instance["roles"].join(',') + '}/*_spec.rb'
-
-          # t.pattern = instance["roles"].map {  |r|  spec_pattern( r ) }.join(",")
           t.pattern = test_suites.suite_instance_role_ids( suite_id, instance_id ).map{ |r| spec_pattern( r ) }.join(",")
 
         end
@@ -240,8 +228,14 @@ namespace :suite do
   end
 
   # use -I option to allow Gem and client specs to include spec_helper
-  def spec_opts
+  def rspec_ruby_opts
     "-I #{File.join( File.dirname(__FILE__), '../../spec/support' )}"
+  end
+
+  # to pass to rpsec
+  def rspec_opts( suite_id, instance_id=nil )
+    # "--format documentation"
+    "--format progress --format documentation --out generated-docs/suites/#{suite_id}#{ instance_id ? '-'+instance_id : ""}.txt"
   end
   
 end # ns suite
