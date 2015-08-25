@@ -42,12 +42,14 @@ cf_templates      = "cf-templates"        # directory where CloudFormation json 
 # ------------------------------------------------------------------
 # suite namespace
 
-require_relative  "./lib/tasks/common.rb"
+require_relative  "./lib/test-suites/test_suites.rb"
+
 import "./lib/tasks/suite.rake"
 
 # and init it
-suite_properties = AwsMustTemplates::Common::init_suites
-stacks = AwsMustTemplates::Common::init_stacks( suite_properties )
+test_suites = AwsMustTemplates::TestSuites::TestSuites.new
+# suite_properties = AwsMustTemplates::Common::init_suites
+# stacks = AwsMustTemplates::Common::init_stacks( suite_properties )
 
 
 # ------------------------------------------------------------------
@@ -59,65 +61,64 @@ task :usage do
   puts "(type rake -T for more detail)\n\n"
 end
 
-
-# ------------------------------------------------------------------
-# rules
-
-# this rule 'source_for_json' to find yaml file to convert to json
-rule ".json" => ->(f){ source_for_json(f)} do |t|
-  sh "#{aws_must} gen #{t.source} > #{t.name}"
-end
-
-# source_for_json is the yaml file in working directory
-def source_for_json( json_file )
-  json_file.pathmap( "%n.yaml" )
-end
-
-
 # ------------------------------------------------------------------
 # dev.workflow defined here
 
 namespace "dev" do |ns|
+  
+  # ------------------------------------------------------------------
+  # docs
 
+  # mustache templates --> html documentation
   task "docs-html" do
     file = "#{generate_docs_dir}/aws-must-templates.html"
       capture_stdout_to( file ) { sh "#{aws_must} doc | markdown" }
   end
 
-  # generate an example json
-  task "docs-cf", :suite do |t,args|
+  # stack YAML --> CloudFormation Json
+  task "docs-cf", :stack do |t,args|
 
-
-    args.with_defaults(:stack => "*")
-    if args.suite 
-      stack = args.suite
-      file = "#{generate_docs_dir}/#{stack}.json"
-      capture_stdout_to( file ) { sh "#{aws_must} gen #{stack}.yaml | jq ." }
+    if args.stack 
+      stack_id = args.suite
+      file = "#{generate_docs_dir}/#{stack_id}.json"
+      capture_stdout_to( file ) { sh "#{aws_must} gen #{stack_id}.yaml | jq ." }
     else
-      suite_properties.each do |suite|
-        stack = suite.keys.first
-        file = "#{generate_docs_dir}/#{stack}.json"
-        capture_stdout_to( file ) { sh "#{aws_must} gen #{stack}.yaml | jq ." }
+      test_suites.stack_ids.each do |stack_id|
+        file = "#{generate_docs_dir}/#{stack_id}.json"
+        capture_stdout_to( file ) { sh "#{aws_must} gen #{stack_id}.yaml | jq ." }
       end
       
     end
 
   end
 
-  desc "Template html-documentaion, suite json files  into `{generate_docs_dir}` -subdirectory"
+  desc "Generate html-, stack CloudFormation JSON templates into `{generate_docs_dir}` -subdirectory"
   task :docs => ["dev:docs-html", "dev:docs-cf" ]
 
+  # ------------------------------------------------------------------
+  # unit tests
 
-  desc "Run unit tests"
-  task :rspec, :rspec_opts  do |t, args|
+  task "rspec-mustache", :rspec_opts  do |t, args|
     args.with_defaults(:rspec_opts => "")
-    sh "bundle exec rspec --format documentation #{args.rspec_opts} spec/mustache"
+    sh "bundle exec rspec --format documentation spec/mustache"
   end
+
+  task "rspec-lib", :rspec_opts  do |t, args|
+    args.with_defaults(:rspec_opts => "")
+    sh "bundle exec rspec --format documentation spec/lib"
+  end
+
+  desc "Run unit tests"  
+  task :rspec => ["dev:rspec-mustache", "dev:rspec-lib" ]
 
   desc "Launch guard"
   task :guard do
     sh "bundle exec guard"
   end
+
+  # ------------------------------------------------------------------
+  # Build && delivery
+
 
   desc "Build gempspec"
   task :build do
@@ -151,10 +152,5 @@ def capture_stdout_to( file )
 ensure
   $stdout.reopen( real_stdout )
   $stdout.sync = true
-
 end
 
-
-# output stack json to file
-def stack_json( stack ) 
-end

@@ -21,10 +21,15 @@
    instances:
      - myInstance:
          roles:
-           - Stack
-           - AwsCommandLineInterfaceInstalled
-           - CloudFormationHelperScriptsInstalled
-           - S3ReadAccessAllowed
+           - Stack:
+                  param1: value
+                  param2: Stack.Outputs.xxx
+                  param3: Stack.Parameter.xxx
+                  param3: Property.host
+
+           # - AwsCommandLineInterfaceInstalled
+           # - CloudFormationHelperScriptsInstalled
+           # - S3ReadAccessAllowed
 
      - myInstance2:
          roles:
