@@ -32,6 +32,16 @@ suite_properties = {
 
 }
 
+
+props = {
+  "suite1" => [
+             stack_output( "Bucket" ),
+             stack_parameter( "InstanceType" ),
+             stack_parameter( "KeyName" ),
+             stack_parameter( "SSHLocation" )
+   ]
+
+}
 # ------------------------------------------------------------------
 # 
 
@@ -73,6 +83,19 @@ describe "Stack" do
 
       end
 
+      it "#can be found in 'props'" do 
+
+        expect( props[property[:stack]]).not_to   eql( nil ) 
+
+      end
+
+
+    end
+
+    props[property[:stack]] && props[property[:stack]].each do | stack_property |
+      describe stack_property  do
+        its( :value ) { should_not eq nil } 
+      end
     end
 
     suite_properties[property[:stack]] && suite_properties[property[:stack]].each do | keys |

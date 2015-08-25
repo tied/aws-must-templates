@@ -9,9 +9,22 @@ require 'rake'
 require 'rspec/core/rake_task'
 
 # ------------------------------------------------------------------
-# commons
+# test-suites.yaml
 
-require_relative  "common"
+require_relative  "../test-suites/test_suites.rb"
+test_suites = AwsMustTemplates::TestSuites::TestSuites.new
+
+
+
+# xx # ------------------------------------------------------------------
+# xx # commons
+
+# xx require_relative  "common"
+
+# xx init
+# xx suite_properties = AwsMustTemplates::Common::init_suites
+# xx stacks = AwsMustTemplates::Common::init_stacks( suite_properties )
+
 
 # ------------------------------------------------------------------
 # configs
@@ -26,10 +39,6 @@ SUCESS_STATES  = ["CREATE_COMPLETE", "UPDATE_COMPLETE"]
 FAILURE_STATES = ["CREATE_FAILED", "DELETE_FAILED", "UPDATE_ROLLBACK_FAILED", "ROLLBACK_FAILED", "ROLLBACK_COMPLETE","ROLLBACK_FAILED","UPDATE_ROLLBACK_COMPLETE","UPDATE_ROLLBACK_FAILED"]
 END_STATES     = SUCESS_STATES + FAILURE_STATES
 
-# ------------------------------------------------------------------
-# init
-suite_properties = AwsMustTemplates::Common::init_suites
-stacks = AwsMustTemplates::Common::init_stacks( suite_properties )
 
 # ------------------------------------------------------------------
 # namespace :suite
@@ -40,7 +49,8 @@ namespace :suite do
 
   # **********
   desc "All suites"
-  all_suites = suite_properties.map{ |s| "suite:" + s.keys.first }
+  # xx all_suites = suite_properties.map{ |s| "suite:" + s.keys.first }
+  all_suites = test_suites.suite_ids.map{ |id| "suite:" + id }
   task :all do 
 
     failed_suites = []
@@ -71,14 +81,15 @@ namespace :suite do
   end # task :all
 
   # **********
+  # xx suite_properties.each do |suite_map|
 
-  suite_properties.each do |suite_map|
+  test_suites.suite_ids.each do |suite_id|
 
-    suite_id = suite_map.keys.first
-    suite = suite_map[suite_id]
+
+    # suite = test_suites.get_suite( suite_id )
     
     # use suite_is as stack name
-    stack = suite_id
+    stack = test_suites.get_suite_stack_id( suite_id )
 
     # **********
     # Create stack for a suite
@@ -138,20 +149,21 @@ namespace :suite do
       t.ruby_opts= spec_opts
       t.pattern = suite["roles"].map {  |r|  spec_pattern( r ) }.join(",")
 
-    end if suite.has_key?( "roles" )
+    end if test_suites.suite_roles( suite_id )
 
 
     # **********
     # Run tasks for suite suite_id
 
-    desc "Run all takss for suite '#{suite_id}' - #{suite['desc']}"
+    desc "Run all takss for suite '#{suite_id}' - {suite['desc']"
     suite_tasks = 
       [ 
        "suite:#{suite_id}-stack-create",
         "suite:#{suite_id}-stack-wait", 
       ] + 
       ( Rake::Task.task_defined?(  "suite:#{suite_id}-common"  ) ? [  "suite:#{suite_id}-common"  ] : [] )  + 
-      ( suite["instances"] ? suite["instances"].each.map{ |a| "suite:#{suite_id}:" + a.keys.first } : []  ) + 
+      # ( suite["instances"] ? suite["instances"].each.map{ |a| "suite:#{suite_id}:" + a.keys.first } : []  ) + 
+      ( test_suites.suite_instance_ids( suite_id ).each.map{ |instance_id| "suite:#{suite_id}:" + instance_id }  ) + 
       [ "suite:#{suite_id}-stack-delete" ] 
 
     task suite_id do
@@ -186,10 +198,11 @@ namespace :suite do
     # instance tasks (within suite)
     namespace suite_id do
 
-      suite["instances"].each do |instance_map|
+      # suite["instances"].each do |instance_map|
+      test_suites.suite_instance_ids( suite_id ).each do |instance_id|
 
-        instance_id = instance_map.keys.first
-        instance = instance_map[instance_id]
+        # instance_id = instance_map.keys.first
+        # instance = instance_map[instance_id]
 
         # **********
         desc "Test roles for instance '#{instance_id}' in suite '#{suite_id}'"
@@ -208,10 +221,11 @@ namespace :suite do
           t.ruby_opts= spec_opts
           # t.pattern = 'spec/{' + instance["roles"].join(',') + '}/*_spec.rb'
 
-          t.pattern = instance["roles"].map {  |r|  spec_pattern( r ) }.join(",")
+          # t.pattern = instance["roles"].map {  |r|  spec_pattern( r ) }.join(",")
+          t.pattern = test_suites.suite_instance_role_ids( suite_id, instance_id ).map{ |r| spec_pattern( r ) }.join(",")
 
         end
-      end if suite.has_key?("instances")
+      end # instance_ids
     end # ns suite_id
 
   end # suite_properties.each
@@ -221,7 +235,8 @@ namespace :suite do
 
   # override spec defined in Gem
   def spec_pattern( role ) 
-    File.exist?( "spec/#{role}" ) ? "spec/#{role}/*_spec.rb" : File.join( File.dirname(__FILE__), "../..", "spec/#{role}/*_spec.rb" )
+    spec_root="spec/aws-must-templates"
+    File.exist?( "#{spec_root}/#{role}" ) ? "#{spec_root}/#{role}/*_spec.rb" : File.join( File.dirname(__FILE__), "../..", "#{spec_root}/#{role}/*_spec.rb" )
   end
 
   # use -I option to allow Gem and client specs to include spec_helper
