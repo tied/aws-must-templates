@@ -40,7 +40,12 @@ namespace :suite do
   task :all => [ 'suite:clean', 'suite:suites'] 
 
   task  :clean do 
-    rm_rf suite_test_report_dirpath()
+
+    files =   FileList[ "#{suite_test_report_dirpath()}/**/*"]
+    files.exclude { |f|  File.directory?(f) }
+
+    rm_rf files if files
+
   end
 
   # **********

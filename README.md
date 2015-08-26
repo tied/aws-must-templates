@@ -1,8 +1,13 @@
 # aws-must-templates - cloudformation templates for aws-must - $Release:0.0.7-SNAPSHOT$
 
-CloudFormation
+Set of [extensibe](#OVERRIDE)
 [templates](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html)
-for [aws-must](https://github.com/jarjuk/aws-must).
+for [aws-must](https://github.com/jarjuk/aws-must) tool to generate
+CloudFormation JSON from a YAML configuration, and corresponding
+[validation tests](#TEST-CASES) for a [test runner](#TEST-RUNNER).
+[Test runner](#TEST-RUNNER) and
+[validation test primitives](#TEST-PRIMITIVES) can be used to validate
+correctness of the stack created by the user.
 
 ## The Problem
 
@@ -33,21 +38,20 @@ When using code generators, consider
 
 **aws-must-templates** tries to address the above listed considerations
 
-1. by allowing users to [extend](#"OVERRIDE) template generation
+1. by allowing users to [extend](#OVERRIDE) template generation
    process
 
 2. by including a configurable [test runner](#TEST-RUNNER) to lower
    the threshold to write tests
 
-3. by offering a [library of test cases](#TEST-CASES), which can be parametrized to
-   validate user defined stacks
+3. by opening the [library of test primitives](#TEST-PRIMITIVES) for
+   validating user stacks
 
 4. by having the possibility to [include own test](#TEST-EXTENSION)
    cases to test suites
 
 
 ## Usage
-
 
 ### Installation
 
@@ -132,7 +136,6 @@ and issuing the command
 	
 creates a CloufFormation JSON template, which uses Ubuntu `utopic`
 v. 14.10 for `t2.micro` instance types.
-
 
 ### Provision the stack on Amazon platform
 

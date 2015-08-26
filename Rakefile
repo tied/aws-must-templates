@@ -1,5 +1,7 @@
 # -*- mode: ruby -*-
 
+require 'stringio'
+require_relative "lib/tasks/cross-ref"
 
 # Rake.application.options.trace_rules = true
 
@@ -73,6 +75,37 @@ namespace "dev" do |ns|
   
   namespace "docs" do |ns|
 
+    task :clean do
+
+      files =   FileList[ "#{generate_docs_dir}/**/*"]
+      files.exclude { |f|  File.directory?(f) }
+      # do not clean test reports
+      files.exclude( suite_test_report_dirpath() )
+
+      rm_rf files if files
+
+    end
+
+    # xfre
+    desc "Test cases vs. test suites"
+    task :xref, :stdout  do |t,args|
+      
+      test_reports = FileList[ "#{suite_test_report_dirpath()}/*" ]
+      xref_suite_X_test, xref_test_X_suite = build_cross_refs( test_reports )
+
+      # puts "xref_suite_X_test=#{xref_suite_X_test}"
+      # puts "xref_test_X_suite=#{xref_test_X_suite}"
+
+      dot_file = "#{generate_docs_dir}/tmp/xref_suite_X_test.dot"
+      capture_stdout_to( dot_file ) {  xref_to_dot( xref_suite_X_test, xref_test_X_suite )     } 
+
+      eps_file = "#{generate_docs_dir}/xref_suite_X_test.eps"
+
+      sh "dot #{dot_file} -T eps > #{eps_file}"
+
+    end # task :xref
+
+
     # tests
     desc "Markdown documention for tests in 'test-suites.yaml'"
     task :tests, :stdout  do |t,args|
@@ -94,12 +127,14 @@ namespace "dev" do |ns|
           puts ""
           puts ""
 
-          puts "### Stack Parameters and Outputs"
-          
-          puts ""
-          puts "<pre>"
-          sh "cat #{suite_test_report_filepath( suite_id )}"
-          puts "</pre>"
+          if File.exist?( suite_test_report_filepath( suite_id ) ) then
+
+            puts "### Stack Parameters and Outputs"
+            puts ""
+            puts "<pre>"
+            sh "cat #{suite_test_report_filepath( suite_id )}"
+            puts "</pre>"
+          end 
 
           puts ""
           puts ""
@@ -119,11 +154,6 @@ namespace "dev" do |ns|
 
     end
     
-    # path to file where suite_id common output
-    def suite_test_report_filepath( suite_id, instance_id=nil )
-      "generated-docs/suites/#{suite_id}#{ instance_id ? '-' + instance_id : ""}.txt"
-    end
-
     # mustache templates --> html documentation
     desc "HTMl documention for mustache templates"
     task "mustache" do
@@ -133,15 +163,15 @@ namespace "dev" do |ns|
 
     # stack YAML --> CloudFormation Json
     desc "CloudFormation JSON templates for tests in 'test-suites.yaml'"    
-    task "cf", :stack do |t,args|
+    task :cf, :stack do |t,args|
 
       if args.stack 
         stack_id = args.suite
-        file = "#{generate_docs_dir}/#{stack_id}.json"
+        file = stack_json_template_filepath( stack_id ) # "#{generate_docs_dir}/#{stack_id}.json"
         capture_stdout_to( file ) { sh "#{aws_must} gen #{stack_id}.yaml | jq ." }
       else
         test_suites.stack_ids.each do |stack_id|
-          file = "#{generate_docs_dir}/#{stack_id}.json"
+          file = stack_json_template_filepath( stack_id )
           capture_stdout_to( file ) { sh "#{aws_must} gen #{stack_id}.yaml | jq ." }
         end
         
@@ -206,17 +236,41 @@ end
 
 # if file defined, redirect stdout (temporaliy) to file 
 def capture_stdout_to( file )
-  if  file  then
-    real_stdout, = $stdout.clone
+  if file == '-' then
+    real_stdout = $stdout
+    $stdout = StringIO.new('','w')
+    $stdout.sync = true
+  elsif file  then
+    real_stdout = $stdout.clone
     $stdout.reopen( file )
     $stdout.sync = true
   end
   yield
-  # $stdout.string
+  if file == '-' then
+    $stdout.string
+  end
 ensure
-  if file 
+  if file  == '-'
+    $stdout = real_stdout
+    $stdout.sync = true
+  elsif file 
     $stdout.reopen( real_stdout )
     $stdout.sync = true
   end
+end
+
+# path to file where suite_id common output
+def suite_test_report_filepath( suite_id, instance_id=nil )
+  "generated-docs/suites/#{suite_id}#{ instance_id ? '-' + instance_id : ""}.txt"
+end
+
+# location of test run reports
+def suite_test_report_dirpath
+  "generated-docs/suites"
+end
+
+# path to cloudformation stack
+def stack_json_template_filepath( stack_id  )
+  "generated-docs/cloudformation/#{stack_id}.json"
 end
 
