@@ -18,7 +18,7 @@
   
    roles:
      - Stack
-     - System
+     - AwsMustTestRunnerProperties
      - ParameterTest:
           param1: value1
           param2: "@Parameters.DummyParameter"
@@ -55,17 +55,16 @@
          roles:
            - AwsCommandLineInterfaceInstalled:
            - CloudFormationHelperScriptsInstalled
+           - ValidOSVersion:
+                Codename: trusty
            - S3ReadAccessAllowed:
                 Bucket: "@Outputs.Bucket"
 
      - myInstance2:
          roles:
-          - ParameterTest:
-              param1: value1
-              param2: "value2"
-              param3: "@Outputs.Bucket"
-          - Stack
-          - AwsCommandLineInterfaceInstalled
-          - CloudFormationHelperScriptsInstalled
-          - S3NoAccess:
+           - AwsCommandLineInterfaceInstalled
+           - CloudFormationHelperScriptsInstalled
+           - ValidOSVersion:
+                Codename: trusty
+           - S3NoAccess:
               Bucket: "@Outputs.Bucket"
