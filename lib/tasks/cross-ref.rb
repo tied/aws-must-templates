@@ -48,6 +48,7 @@ def xref_to_dot( xref_suite_X_test, xref_test_X_suite )
 
   puts <<-EOS
           digraph {
+             rankdir=TB
 
              node      [     fontname = "Courier"
                              fontsize = 8
@@ -66,7 +67,7 @@ def xref_to_dot( xref_suite_X_test, xref_test_X_suite )
   end
 
   xref_suite_X_test.each do  |suite,tests|
-    puts "           #{suite}"
+    puts "           #{suite} [shape=\"ellipse\"]"
     tests.each { |test| puts "           #{suite} -> #{test}" }
 
   end
