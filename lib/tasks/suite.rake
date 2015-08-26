@@ -221,10 +221,25 @@ namespace :suite do
   # ------------------------------------------------------------------
   # DRY methods
 
-  # override spec defined in Gem
+  # spec found in 'user_test' or 'gem_test' directory
   def spec_pattern( role ) 
     spec_root="spec/aws-must-templates"
-    File.exist?( "#{spec_root}/#{role}" ) ? "#{spec_root}/#{role}/*_spec.rb" : File.join( File.dirname(__FILE__), "../..", "#{spec_root}/#{role}/*_spec.rb" )
+    user_test = File.expand_path( "#{spec_root}/#{role}" )
+    gem_test  = File.expand_path(  File.join( File.dirname( __FILE__), "../..", "#{spec_root}/#{role}"  ))
+      
+    return "#{user_test}/*_spec.rb"  if File.exist?( user_test )
+    return "#{gem_test}/*_spec.rb"   if File.exist?( gem_test )
+
+    message =  <<-EOS
+
+       Could not locate test spec 
+       in test direcotory '#{user_test}'
+    EOS
+    message += <<-EOS if user_test != gem_test
+       nor in gem test directory '#{gem_test}'
+    EOS
+    raise message
+
   end
 
   # use -I option to allow Gem and client specs to include spec_helper
