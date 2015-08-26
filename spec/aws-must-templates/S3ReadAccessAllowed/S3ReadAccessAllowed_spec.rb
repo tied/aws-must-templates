@@ -107,8 +107,9 @@ describe current_test do
       # using subject + expect style
       describe "Cannot modify (= delete) the  Object in bucket" do
 
-        subject { command("aws s3 rm s3://#{bucket_name.value}/#{test_file} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)") }
-        it { expect( subject.exit_status ).not_to eql 0 }
+        describe  command("aws s3 rm s3://#{bucket_name.value}/#{test_file} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)") do
+          its ( :exit_status )  { should_not eql 0 }
+        end
 
       end
 
@@ -118,13 +119,11 @@ describe current_test do
     describe "Cannot write to bucket" do 
 
       describe "Create an Object in bucket should fail" do
-        subject { command("aws s3 cp /etc/hosts  s3://#{bucket_name.value}/#{test_file} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)").exit_status }
-        it { is_expected.not_to eql 0  }
+        describe command("aws s3 cp /etc/hosts  s3://#{bucket_name.value}/#{test_file} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)") do
+          its( :exit_status ) { should_not eql 0  }
+        end
       end
-
     end
-
-
   end
 
   # ------------------------------------------------------------------
