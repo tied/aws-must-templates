@@ -23,7 +23,7 @@ This repo contains templates for generating CloudFormation json -templates
 from YAML -configuration.
 EOF
   s.authors         = ["jarjuk"]
-  s.files           = ["README.md"] | Dir.glob("mustache/**/*") 
+  s.files           = ["README.md"] | Dir.glob("mustache/**/*")  | Dir.glob("lib/**/*") 
   # s.require_paths   = [ "lib" ]
   s.license       = 'MIT'
 
