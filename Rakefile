@@ -182,7 +182,7 @@ namespace "dev" do |ns|
   end # ns docs
 
   desc "Generate html-, stack CloudFormation JSON templates into `{generate_docs_dir}` -subdirectory"
-  task :docs => ["dev:docs:mustache", "dev:docs:cf", "dev:docs:tests" ]
+  task :docs => ["dev:docs:mustache", "dev:docs:cf", "dev:docs:tests", "dev:docs:xref" ]
 
   # ------------------------------------------------------------------
   # unit tests
