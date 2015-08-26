@@ -70,48 +70,108 @@ namespace "dev" do |ns|
   
   # ------------------------------------------------------------------
   # docs
+  
+  namespace "docs" do |ns|
 
-  # mustache templates --> html documentation
-  task "docs-html" do
-    file = "#{generate_docs_dir}/aws-must-templates.html"
-      capture_stdout_to( file ) { sh "#{aws_must} doc | markdown" }
-  end
+    # tests
+    desc "Markdown documention for tests in 'test-suites.yaml'"
+    task :tests, :stdout  do |t,args|
 
-  # stack YAML --> CloudFormation Json
-  task "docs-cf", :stack do |t,args|
+      file = "#{generate_docs_dir}/test-suites.md" unless ( args.stdout )
 
-    if args.stack 
-      stack_id = args.suite
-      file = "#{generate_docs_dir}/#{stack_id}.json"
-      capture_stdout_to( file ) { sh "#{aws_must} gen #{stack_id}.yaml | jq ." }
-    else
-      test_suites.stack_ids.each do |stack_id|
-        file = "#{generate_docs_dir}/#{stack_id}.json"
-        capture_stdout_to( file ) { sh "#{aws_must} gen #{stack_id}.yaml | jq ." }
-      end
-      
+      capture_stdout_to( file ) { 
+
+        puts "# [aws-must-templates](https://github.com/jarjuk/aws-must-templates) - tests"
+        
+
+        test_suites.suite_ids.each do |suite_id|
+          
+          suite = test_suites.get_suite( suite_id )
+
+          puts "## #{suite_id} - #{suite['desc']}"
+          puts ""
+          puts suite['long_desc']
+          puts ""
+          puts ""
+
+          puts "### Stack Parameters and Outputs"
+          
+          puts ""
+          puts "<pre>"
+          sh "cat #{suite_test_report_filepath( suite_id )}"
+          puts "</pre>"
+
+          puts ""
+          puts ""
+
+          puts "### Instance Test Reports"
+          puts ""
+
+          # iterate suite instancess to create a link to test report
+          test_suites.suite_instance_ids( suite_id ).each do |instance_id|
+            puts "* [#{instance_id}](#{suite_test_report_filepath(suite_id,instance_id)})"
+          end
+          
+
+        end # each suite_ids
+      } # capture stdout
+
+
+    end
+    
+    # path to file where suite_id common output
+    def suite_test_report_filepath( suite_id, instance_id=nil )
+      "generated-docs/suites/#{suite_id}#{ instance_id ? '-' + instance_id : ""}.txt"
     end
 
-  end
+    # mustache templates --> html documentation
+    desc "HTMl documention for mustache templates"
+    task "mustache" do
+      file = "#{generate_docs_dir}/aws-must-templates.html"
+      capture_stdout_to( file ) { sh "#{aws_must} doc | markdown" }
+    end
+
+    # stack YAML --> CloudFormation Json
+    desc "CloudFormation JSON templates for tests in 'test-suites.yaml'"    
+    task "cf", :stack do |t,args|
+
+      if args.stack 
+        stack_id = args.suite
+        file = "#{generate_docs_dir}/#{stack_id}.json"
+        capture_stdout_to( file ) { sh "#{aws_must} gen #{stack_id}.yaml | jq ." }
+      else
+        test_suites.stack_ids.each do |stack_id|
+          file = "#{generate_docs_dir}/#{stack_id}.json"
+          capture_stdout_to( file ) { sh "#{aws_must} gen #{stack_id}.yaml | jq ." }
+        end
+        
+      end
+
+    end # task cf
+
+  end # ns docs
 
   desc "Generate html-, stack CloudFormation JSON templates into `{generate_docs_dir}` -subdirectory"
-  task :docs => ["dev:docs-html", "dev:docs-cf" ]
+  task :docs => ["dev:docs:mustache", "dev:docs:cf", "dev:docs:tests" ]
 
   # ------------------------------------------------------------------
   # unit tests
 
-  task "rspec-mustache", :rspec_opts  do |t, args|
-    args.with_defaults(:rspec_opts => "")
-    sh "bundle exec rspec --format documentation spec/mustache"
-  end
+  namespace :rspec do |ns|
 
-  task "rspec-lib", :rspec_opts  do |t, args|
-    args.with_defaults(:rspec_opts => "")
-    sh "bundle exec rspec --format documentation spec/lib"
-  end
+    task :mustache, :rspec_opts  do |t, args|
+      args.with_defaults(:rspec_opts => "")
+      sh "bundle exec rspec --format documentation spec/mustache"
+    end
+
+    task :lib, :rspec_opts  do |t, args|
+      args.with_defaults(:rspec_opts => "")
+      sh "bundle exec rspec --format documentation spec/lib"
+    end
+  end # ns 
 
   desc "Run unit tests"  
-  task :rspec => ["dev:rspec-mustache", "dev:rspec-lib" ]
+  task :rspec => ["dev:rspec:mustache", "dev:rspec:lib" ]
 
   desc "Launch guard"
   task :guard do
@@ -144,15 +204,19 @@ end
 # ------------------------------------------------------------------
 # common methods
 
-# 
+# if file defined, redirect stdout (temporaliy) to file 
 def capture_stdout_to( file )
-  real_stdout, = $stdout.clone
-  $stdout.reopen( file )
-  $stdout.sync = true
+  if  file  then
+    real_stdout, = $stdout.clone
+    $stdout.reopen( file )
+    $stdout.sync = true
+  end
   yield
   # $stdout.string
 ensure
-  $stdout.reopen( real_stdout )
-  $stdout.sync = true
+  if file 
+    $stdout.reopen( real_stdout )
+    $stdout.sync = true
+  end
 end
 

@@ -244,7 +244,7 @@ describe "AwsMustTemplates::TestSuites::TestSuites" do
     suite_id = "suite1"
 
     it "#returns suite when found" do
-      expect( @sut.get_suite( suite_id )).to eql( @suite1 )
+      expect( @sut.get_suite( suite_id )).to eql( @suite1[suite_id] )
     end
 
     it "#returns nil when NOT found" do

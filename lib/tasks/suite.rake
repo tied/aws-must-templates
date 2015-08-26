@@ -36,10 +36,16 @@ namespace :suite do
   # suite_properties.each{  |a| a.keys.first }
 
   # **********
-  desc "All suites"
-  # xx all_suites = suite_properties.map{ |s| "suite:" + s.keys.first }
+  desc "Run all suites"
+  task :all => [ 'suite:clean', 'suite:suites'] 
+
+  task  :clean do 
+    rm_rf suite_test_report_dirpath()
+  end
+
+  # **********
   all_suites = test_suites.suite_ids.map{ |id| "suite:" + id }
-  task :all do 
+  task :suites do 
 
     failed_suites = []
 
@@ -69,8 +75,6 @@ namespace :suite do
   end # task :all
 
   # **********
-  # xx suite_properties.each do |suite_map|
-
   test_suites.suite_ids.each do |suite_id|
 
 
@@ -250,8 +254,19 @@ namespace :suite do
   # to pass to rpsec
   def rspec_opts( suite_id, instance_id=nil )
     # "--format documentation"
-    "--format progress --format documentation --out generated-docs/suites/#{suite_id}#{ instance_id ? '-'+instance_id : ""}.txt"
+    # "--format progress --format documentation --out generated-docs/suites/#{suite_id}#{ instance_id ? '-'+instance_id : ""}.txt"
+    "--format progress --format documentation --out #{suite_test_report_filepath( suite_id, instance_id )}"
   end
+
+  def suite_test_report_filepath( suite_id, instance_id=nil )
+    "#{suite_test_report_dirpath()}/#{suite_id}#{ instance_id ? '-' + instance_id : ""}.txt"
+  end
+
+  def suite_test_report_dirpath
+    "generated-docs/suites"
+  end
+
+
   
 end # ns suite
 

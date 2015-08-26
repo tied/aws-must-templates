@@ -39,7 +39,7 @@ module AwsMustTemplates
       # return list of suite-roles (i.e. roles not in instances)
       def suite_roles( suite_id ) 
         suite = get_suite( suite_id )
-        return (suite ? suite[suite_id]["roles"] : nil)
+        return (suite ? suite["roles"] : nil)
       end
 
       # ------------------------------------------------------------------
@@ -56,7 +56,7 @@ module AwsMustTemplates
       def suite_instance_ids( suite_id ) 
         suite = get_suite( suite_id )
         return nil unless suite
-        return suite[suite_id]["instances"] ? suite[suite_id]["instances"].map{ |instance_hash| instance_hash.keys.first } : []
+        return suite["instances"] ? suite["instances"].map{ |instance_hash| instance_hash.keys.first } : []
       end
 
       # ------------------------------------------------------------------
@@ -65,7 +65,9 @@ module AwsMustTemplates
 
       # return suite configuration for the suite id
       def get_suite( suite_id )
-        return @suites.select { |suite| suite.keys.first == suite_id }.first
+        suite = @suites.select { |suite| suite.keys.first == suite_id }.first
+        return suite[suite_id] if suite 
+        return nil
       end
 
       # return suite configuration for the suite id
@@ -98,8 +100,8 @@ module AwsMustTemplates
       # instance sub document for `instance_id` in `suite_id`
       def suite_instance( suite_id, instance_id )
         suite = get_suite( suite_id )
-        return nil unless suite && suite[suite_id]["instances"]
-        return suite[suite_id]["instances"].select { |i| i.keys.first == instance_id }.first
+        return nil unless suite && suite["instances"]
+        return suite["instances"].select { |i| i.keys.first == instance_id }.first
       end
 
 

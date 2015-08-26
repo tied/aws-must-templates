@@ -8,17 +8,6 @@ require 'spec_helper'
 
 current_test = "Stack"
 
-
-# every suite should define these paramentes
-system_properties = [
-                     [:stack ],
-                     [:suite_id ],
-                     ["Outputs" ],
-                     ["Parameters" ],
-                    ]
-
-
-
 props = {
   "smoke" => [
              stack_parameter( "DummyParameter" ),
@@ -37,22 +26,6 @@ props = {
 
 describe current_test do 
 
-  # ------------------------------------------------------------------
-  # 
-  describe "System properties" do
-
-    system_properties.each do | keys |
-
-      describe valid_property( keys ) do
-        its( :value ) { should_not eq nil } 
-      end
-
-    end
-  end
-
-
-  # ------------------------------------------------------------------
-  # 
   describe "Stack '#{property[:stack]}'" do
 
     it "#known in test '#{current_test}''" do 

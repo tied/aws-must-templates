@@ -12,8 +12,11 @@
 
 - smoke:
    desc: Fails fast if problems with AWS installation
+   long_desc: |
+
+          Creates a S3 bucket, and no EC2 instances. 
+  
    roles:
-     - NoSuchTest
      - Stack
      - ParameterTest:
           param1: value1
@@ -21,13 +24,34 @@
           param3: "@Outputs.Bucket"
 
 - suite1:
-   desc: EC2 instance with s3 access
-   # roles:
-   #   - Stack
+   desc: EC2 instance with S3 read access
+   long_desc: |
+
+         Creates an S3 bucket and two EC2 instances (myInstance, myInstance2)
+         One of the instances (myInstance) is granted Read Access Rights to the Bucket.
+  
+         To grant Access Rights 
+
+         * create a Role
+         * create Policy referencing the Role
+         * create an InstanceProfile referencing the Role
+         * associate the InstanceProfile to the EC2 instance to grant Read Access
+
+         Creates SecurityGroup to act as a virtual firewall, and to allow ssh
+         connection to the EC2 instance.
+
+         EC2 installation uses UserData script to install
+         
+         * AWS Command Line Interface
+         * CloudFormation Helper Scripts. These scripts are used to create
+           notification when installation is finished
+         
+
+   roles:
+     - Stack
    instances:
      - myInstance:
          roles:
-           - Stack
            - AwsCommandLineInterfaceInstalled:
            - CloudFormationHelperScriptsInstalled
            - S3ReadAccessAllowed:

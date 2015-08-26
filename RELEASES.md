@@ -1,19 +1,21 @@
-## 0.0.7-SNAPSHOT/20150820-09:37:28
+## 0.1.0-SNAPSHOT/20150820-09:37:28
 
+* Major changes:
+  * adds instruction && support for user to override template impelemtation
+  * adds instruction && support for user to use test runner `suite.rake`
+  * adds [test report](generated-docs/test-suites.md)
+  * adds unit tests and rake tasks `rake dev:rspec`
+    * to test templates in `mustache` directory, tests in `spec/mustache`
+    * to ruby code  `lib` directory, tests in `spec/lib`
 
-* Unit test support
-  * rake dev:rspec
-  * rake dev:guard
-  * directory spec/mustache
-* spec/S3ReadAccessAllowed/S3ReadAccessAllowed_spec.rb: Added tests
-  "Cannot write bucket" "Cannot modify bucket"
-* template changes
+* Refractored code base
+  * serverspec tests in directory `spec/aws-must-templates`
+
+* Some minor changes
+  * Added && modified tests serverspec tests
+  * template changes
   	* mustache/resourceInstanceInitialize.mustache: LOG output fixed
-* Documentation fixes
-  * README: ref [Announcing aws-must-templates – part 1](https://jarjuk.wordpress.com/2015/08/18/announcing-aws-must-templates-part1)
-  * mustache/resourceS3Bucket.mustache
-  * mustache/resourcePolicy.mustache
-  * initializeProvisionChefZero.mustache
+  * Documentation fixes
 
 ## 0.0.6/20150820-09:37:27
 

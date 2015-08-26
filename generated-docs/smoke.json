@@ -70,7 +70,13 @@
       }
     }
   },
-  "Parameters": {},
+  "Parameters": {
+    "DummyParameter": {
+      "Default": "input paramter value",
+      "Type": "String",
+      "Description": "Dummy paramter, not used"
+    }
+  },
   "Description": "",
   "AWSTemplateFormatVersion": "2010-09-09"
 }
