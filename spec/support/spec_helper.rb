@@ -34,7 +34,7 @@ suite_id            = ENV['TARGET_SUITE_ID']     # test suite being processed
 instance_id         = ENV['TARGET_INSTANCE_ID']  # instance being tested (if any)
 
 # map suite_id to stack_id
-stack               = test_suites.get_suite_stack_id(  suite_id )
+stack_id            = test_suites.get_suite_stack_id(  suite_id )
 
 puts "------------------------------------------------------------------"
 puts "instance_id #{instance_id}" if instance_id
@@ -63,10 +63,10 @@ END_STATES     = SUCESS_STATES + FAILURE_STATES
 all_stacks_json = JSON.parse( %x{ #{describe_stacks_command} } )
 
 # extract json -subdocument for stack of interest
-stack_json = all_stacks_json["Stacks"].select{ |a| a["StackName"] == stack }.first
+stack_json = all_stacks_json["Stacks"].select{ |a| a["StackName"] == stack_id }.first
 raise <<-EOS unless stack_json
 
-    Could locate '#{stack}' in JSON
+    Could locate '#{stack_id}' in JSON
 
     #{all_stacks_json}
 
@@ -76,7 +76,7 @@ raise <<-EOS unless stack_json
 
 EOS
 
-raise "Stack '#{stack}' status='#{stack_json["StackStatus"]} is not ready (=#{SUCESS_STATES}) '" unless SUCESS_STATES.include?( stack_json["StackStatus"] )
+raise "Stack '#{stack_id}' status='#{stack_json["StackStatus"]} is not ready (=#{SUCESS_STATES}) '" unless SUCESS_STATES.include?( stack_json["StackStatus"] )
 
 if instance_id then
   # find output parameter defining hostname (or ip address)
@@ -91,7 +91,7 @@ properties = {
    # Roles for test (from instance or from common suites)
   "Roles" => (  instance_id ? test_suites.suite_instance_roles( suite_id,  instance_id ) : test_suites.suite_roles( suite_id ) ),
   :host => instance_id,
-  :stack => stack,
+  :stack_id => stack_id,
   :suite_id=> suite_id,
 }
 

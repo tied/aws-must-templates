@@ -1,3 +1,14 @@
+2015-08-26  jj  <jj@horsti>
+
+	* spec/aws-must-templates/S3ReadAccessAllowed/S3ReadAccessAllowed_spec.rb:
+	try command 'aws s3 ls' and 'aws s3 cp': try first without
+	--region parameter, if it fails use awsa s3api
+	get-location. Reason for this change was that get location return
+	EU (and not eu-west-1 for Ireland data center.
+
+	* spec/support/spec_helper.rb: pass stack_id in
+	`propery[:stack_id]` previously `propery[:stack]`
+
 2015-08-24  jj  <jj@horsti>
 
 	* spec/support/spec_helper.rb: 'hide' spec_helper in support

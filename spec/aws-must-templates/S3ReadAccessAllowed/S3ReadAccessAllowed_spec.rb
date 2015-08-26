@@ -72,10 +72,11 @@ describe current_test do
     end
 
     describe "Can list S3 bucket keys" do 
-
-      subject { command( "aws s3 ls s3://#{bucket_name.value} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)").exit_status }
-      it { is_expected.to eql 0 }
-
+      default_ls = "aws s3 ls s3://#{bucket_name.value}"
+      region_ls  = "aws s3 ls s3://#{bucket_name.value} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)"
+      describe command( "#{default_ls} || #{region_ls}" ) do
+        its ( :exit_status ) { should eq 0 }
+      end
     end
 
 
@@ -94,10 +95,10 @@ describe current_test do
       end
 
       # Using "serverspec" style here
-
       describe "Can read the Object from a S3 bucket" do 
-
-        describe command("aws s3 cp s3://#{bucket_name.value}/#{test_file} /tmp/#{test_file} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)") do
+        default_cp = "aws s3 cp s3://#{bucket_name.value}/#{test_file} /tmp/#{test_file}"
+        region_cp = "aws s3 cp s3://#{bucket_name.value}/#{test_file} /tmp/#{test_file} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)"
+        describe command( "#{default_cp} || #{region_cp}" ) do
           its( :exit_status ) { should eq 0 }
         end
 

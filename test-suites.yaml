@@ -18,6 +18,7 @@
   
    roles:
      - Stack
+     - System
      - ParameterTest:
           param1: value1
           param2: "@Parameters.DummyParameter"

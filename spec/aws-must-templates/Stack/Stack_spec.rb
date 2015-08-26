@@ -26,17 +26,17 @@ props = {
 
 describe current_test do 
 
-  describe "Stack '#{property[:stack]}'" do
+  describe "Stack '#{property[:stack_id]}'" do
 
     it "#known in test '#{current_test}''" do 
 
-      expect( props[property[:stack]]).not_to eql( nil ) 
+      expect( props[property[:stack_id]]).not_to eql( nil ) 
 
     end
 
     # Validate configurations
 
-    props[property[:stack]] && props[property[:stack]].each do | stack_property |
+    props[property[:stack_id]] && props[property[:stack_id]].each do | stack_property |
       describe stack_property  do
         its( :value ) { should_not eq nil } 
       end

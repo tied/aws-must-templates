@@ -10,7 +10,7 @@ current_test = "AwsMustTestRunnerProperties"
 
 # every suite should define these paramentes
 system_properties = [
-                     [:stack ],
+                     [:stack_id ],
                      [:suite_id ],
                      ["Outputs" ],
                      ["Parameters" ],
