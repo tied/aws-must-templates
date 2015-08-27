@@ -10,11 +10,12 @@
 
 * Refractored code base
   * serverspec tests in directory `spec/aws-must-templates`
+  * cloudformation tempates generated in directory
+    `generated-docs/cloudformation/`
 
 * Some minor changes
   * Added && modified tests serverspec tests
   * template changes
-  	* mustache/resourceInstanceInitialize.mustache: LOG output fixed
   * Documentation fixes
 
 ## 0.0.6/20150820-09:37:27
