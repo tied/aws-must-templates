@@ -215,19 +215,19 @@ namespace "dev" do |ns|
 
   desc "Build gempspec"
   task :build do
-    sh "gem build aws-must-templates.gemspec"
+    sh "gem build #{gem}.gemspec"
   end
 
   desc "Install locally"
   task :install do
     version = version()
-    sh "gem install ./aws-must-templates-#{version}.gem"
+    sh "gem install ./#{gem}-#{version}.gem"
   end
 
   desc "Push to RubyGems"
   task :push do
     version = version()
-    sh "gem push ./aws-must-#{version}.gem"
+    sh "gem push ./#{gem}-#{version}.gem"
   end
 
   desc "Finalize delivery"

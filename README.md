@@ -1,10 +1,10 @@
-# aws-must-templates - cloudformation templates for aws-must - $Release:0.1.1$
+# aws-must-templates - cloudformation templates for aws-must - $Release:0.1.2$
 
 Set of [extensible](#OVERRIDE)
 [templates](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html)
 for [aws-must](https://github.com/jarjuk/aws-must) tool to generate
 CloudFormation JSON from a YAML configuration, and a
-[Test Runner](#TESTING) for [validating correctness](#TEST-CASES) of
+[Test Runner](#TESTING) for [validating correctness](#TEST_CASES) of
 CloudFormation stacks provisioned.
 
 
@@ -43,11 +43,11 @@ When using code generators, consider
 2. by including a [configurable](#TEST-SUITES) [test runner](#TESTING) to lower
    the threshold to write tests
 
-3. by allowing users [to reuse](#TEST-CASES)
+3. by allowing users [to reuse](#TEST_CASES)
    [test cases](generated-docs/test-suites.md) used
    in **aws-must-templates** quality assurance
 
-4. by having the possibility to [include own test](#TEST-CASES)
+4. by having the possibility to [include own test](#TEST_CASES)
    cases to test suites
 
 
@@ -174,7 +174,7 @@ To use the **aws-must-templates** Test Runner
 
 * [setup for Test Runner](#SETUP-TEST-RUNNER)
 * [prepare Test Context](#TEST-CONTEXT)
-* [implement Test Cases](#TEST-CASES)
+* [implement Test Cases](#TEST_CASES)
 * [configure Test Suites](#TEST-SUITES) in `test-suites.yaml` -file
 * [run tests](#RUN-TESTS)
 
@@ -234,7 +234,7 @@ Parameters `UserKnownHostsFile` and `StrictHostKeyChecking` prevent
 ssh from updating your default `.ssh/known_hosts` file with the
 fingerprint of the (temporary) instance used in testing.
 
-### Implement Test Cases<a id="TEST-CASES"/>
+### Implement Test Cases<a id="TEST_CASES"/>
 
 Test Runner searches Test Cases first from sub-directories under
 `spec/aws-must-templates` directory, and if not found, tries to locate
@@ -281,7 +281,7 @@ A Test Suite validates the correctness of a CloudFormation Stack. One
 Test Suite defines tests for multiple EC2 Instances. Each EC2 Instance
 must have a corresponding SSH Connection prepared in
 [ssh/config](#TEST-CONTEXT) -file. An EC2 Instance acts in many
-Roles. A Role maps to a [Test Case](#TEST-CASES), and and defines
+Roles. A Role maps to a [Test Case](#TEST_CASES), and and defines
 values for the Test Case Parameters. The parameter may be a constant,
 or a reference to Stack Parameter, or to Stack Output.
 
@@ -301,7 +301,7 @@ This configuration validates stack `mystack` by running two Test Cases
 `ValidOSVersion` and `S3ReadAccessAllowed` on EC2 instance
 `myInstance`.
 
-Test Case ValidOSVersion was presented [earlier](#TEST-CASES). It uses
+Test Case ValidOSVersion was presented [earlier](#TEST_CASES). It uses
 parameter `Codename` to validate operating system version. In this
 configuration, the parameter value is constant `utopic`. Effectively
 this validates that CloudFormation mapping used to
@@ -336,9 +336,9 @@ directory `myextensions`, use the command
 For a Test Suite, Test Runner
 
 * generates a CloudFormation JSON template, 
-* uses the JSON template to provision the stack on Amazon platform, 
+* uses the JSON template to provision a stack on Amazon platform, 
 * and, once the `StackStatus` is `CREATE_COMPLETE`, 
-* iterates EC2 Instances and run Test Cases in the EC2 Instance Role
+* iterates EC2 Instances and runs Test Cases in the EC2 Instance Role
 * creates a test report to `generated-doc/suites` directory
 * finally, after the test execution, the stack is deleted from Amazon platform.
 
@@ -350,7 +350,6 @@ To run all test suites defined in `test-suites.yaml`, use the command
 or to override the default implementation
 
 	bundle exec rake suite:all['-m myextensions/ aws-must-templates']
-
 
 Command
 
@@ -372,11 +371,15 @@ Add more tests, e.g.
 
 * VPC and subnets
 * install Chef
-* use RDoc to document Test Cases
 
 Add more template support
 
 * support for SNS notifications
+
+Better documentation
+
+* use RDoc to document Test Cases
+
 
 
 ## License 
