@@ -1,11 +1,11 @@
-# aws-must-templates - cloudformation templates for aws-must - $Release:0.1.0$
+# aws-must-templates - cloudformation templates for aws-must - $Release:0.1.1$
 
 Set of [extensible](#OVERRIDE)
 [templates](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html)
 for [aws-must](https://github.com/jarjuk/aws-must) tool to generate
 CloudFormation JSON from a YAML configuration, and a
 [Test Runner](#TESTING) for [validating correctness](#TEST-CASES) of
-the CloudFormation stack provisioned.
+CloudFormation stacks provisioned.
 
 
 ## The Problem
@@ -265,7 +265,7 @@ with the code shown:
 
 See [test report](generated-docs/test-suites.md) created when running
 suites defined in [test-suites.yaml](test-suites.yaml), and
-[diagram](generated-docs/xref_suite_X_test.eps) presenting Test Cases
+[diagram](generated-docs/xref_suite_X_test.pdf) presenting Test Cases
 used in Test Suites.
 
 ### Configure Test Suites <a id="TEST-SUITES"/>

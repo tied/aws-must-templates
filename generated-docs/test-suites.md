@@ -108,5 +108,5 @@ Finished in 0.00336 seconds (files took 1.06 seconds to load)
 
 ### Instance Test Reports
 
-* [myInstance](generated-docs/suites/suite1-myInstance.txt)
-* [myInstance2](generated-docs/suites/suite1-myInstance2.txt)
+* [myInstance](suites/suite1-myInstance.txt)
+* [myInstance2](suites/suite1-myInstance2.txt)

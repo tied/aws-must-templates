@@ -99,9 +99,9 @@ namespace "dev" do |ns|
       dot_file = "#{generate_docs_dir}/tmp/xref_suite_X_test.dot"
       capture_stdout_to( dot_file ) {  xref_to_dot( xref_suite_X_test, xref_test_X_suite )     } 
 
-      eps_file = "#{generate_docs_dir}/xref_suite_X_test.eps"
+      pdf_file = "#{generate_docs_dir}/xref_suite_X_test.pdf"
 
-      sh "dot #{dot_file} -T eps > #{eps_file}"
+      sh "dot #{dot_file} -T pdf > #{pdf_file}"
 
     end # task :xref
 
@@ -144,7 +144,7 @@ namespace "dev" do |ns|
 
           # iterate suite instancess to create a link to test report
           test_suites.suite_instance_ids( suite_id ).each do |instance_id|
-            puts "* [#{instance_id}](#{suite_test_report_filepath(suite_id,instance_id)})"
+            puts "* [#{instance_id}](#{suite_test_report_filelink(suite_id,instance_id)})"
           end
           
 
@@ -224,8 +224,14 @@ namespace "dev" do |ns|
     sh "gem install ./aws-must-templates-#{version}.gem"
   end
 
+  desc "Push to RubyGems"
+  task :push do
+    version = version()
+    sh "gem push ./aws-must-#{version}.gem"
+  end
+
   desc "Finalize delivery"
-  task "fast-delivery" => [ "dev:docs", "rt:release", "rt:push", "rt:snapshot" ]
+  task "fast-delivery" => [ "dev:docs", "rt:release", "rt:push", "dev:build", "dev:install", "rt:snapshot" ]
 
   desc "Run all tests suites && create delivery"
   task "full-delivery" => [ "suite:all", "dev:fast-delivery" ]
@@ -284,6 +290,11 @@ end
 # path to file where suite_id common output
 def suite_test_report_filepath( suite_id, instance_id=nil )
   "generated-docs/suites/#{suite_id}#{ instance_id ? '-' + instance_id : ""}.txt"
+end
+
+# relative link to test report
+def suite_test_report_filelink( suite_id, instance_id=nil )
+  "suites/#{suite_id}#{ instance_id ? '-' + instance_id : ""}.txt"
 end
 
 # location of test run reports
