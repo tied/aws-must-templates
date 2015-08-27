@@ -1,19 +1,64 @@
-# aws-must-templates - cloudformation templates for aws-must - $Release:0.0.7-SNAPSHOT$
+# aws-must-templates - cloudformation templates for aws-must - $Release:0.1.0$
 
-CloudFormation
+Set of [extensible](#OVERRIDE)
 [templates](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html)
-for [aws-must](https://github.com/jarjuk/aws-must).
+for [aws-must](https://github.com/jarjuk/aws-must) tool to generate
+CloudFormation JSON from a YAML configuration, and a
+[Test Runner](#TESTING) for [validating correctness](#TEST-CASES) of
+the CloudFormation stack provisioned.
+
+
+## The Problem
+
+When using code generators, consider
+
+1.  Code generators are much like a "Garden Party": Most of the things
+    that you need may be there, but some specific feature is quite
+    likely to be missing, or should be implemented in a different way.
+    "When you can't please everyone, you got to please yourself" - and
+    use the possibility to modify template generation process to meet
+    your own needs.
+
+2.  You can't say that a "Day is Done" just by having an
+    implementation. Implementation without validating correctness is
+    asking for trouble.
+
+3.  Avoid "Vanishing Mind" syndrome in testing, i.e.  failing to reuse
+    existing tests.  After all, we are relying on a generator, which
+    is hopefully comprehensively tested. The test mechanism and test
+    suites should be available also for template generator users.
+  
+4. When reusing tests: "Do You Remember"/"It All Starts With One": the
+   tests that come along with the generator should also be open for
+   extensions.
+
+
+## The solution
+
+**aws-must-templates** tries to address the above listed considerations
+
+1. by allowing users to [extend](#OVERRIDE) template generation
+   process
+
+2. by including a [configurable](#TEST-SUITES) [test runner](#TESTING) to lower
+   the threshold to write tests
+
+3. by allowing users [to reuse](#TEST-CASES)
+   [test cases](generated-docs/test-suites.md) used
+   in **aws-must-templates** quality assurance
+
+4. by having the possibility to [include own test](#TEST-CASES)
+   cases to test suites
+
 
 ## Usage
-
 
 ### Installation
 
 Add the following lines to `Gemfile`
 
     source 'https://rubygems.org'
-	gem 'aws-must'
-	gem 'aws-must-templates', git: 'git@repo:aws-must-templates.git'
+	gem 'aws-must-templates'
 	
 and run
 
@@ -27,7 +72,11 @@ Create a YAML configuration for a CloudFormation stack using
 attributes referenced by
 [aws-must-templates](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html).
 
-The easiest way to start, is to take a look at test suite stack YAML configuration files:
+For a configuration walk trough see blog post
+[Announcing aws-must-templates - part 1](https://jarjuk.wordpress.com/2015/08/18/announcing-aws-must-templates-part1)
+
+The easiest way to start, is to take a look at YAML configurations
+used to validate **aws-must-templates** implementation. For, example
 
 * [smoke.yaml](smoke.yaml): creates a S3 bucket
 
@@ -35,201 +84,273 @@ The easiest way to start, is to take a look at test suite stack YAML configurati
   bucket, one of the instances (`myInstance`) which is granted a read
   access to the S3 bucket
   
-For a configuration walk trough see blog post
-[Announcing aws-must-templates – part 1](https://jarjuk.wordpress.com/2015/08/18/announcing-aws-must-templates-part1)
+See [test report](generated-docs/test-suites.md) of
+**aws-must-templates** for more information.
 
 ### Generate CloudFormation JSON templates
 
 Assuming a YAML stack configuration in a file `mystack.yaml`, the
 command
 
-	bundle exec	aws-must.rb gen mystack.yaml  -g aws-must-templates 
+	bundle exec	aws-must.rb gen mystack.yaml  -m aws-must-templates 
 	
-prints the CloudFromation JSON template to STDOUT.
+prints the generated CloudFromation JSON template to STDOUT.
 
-### Provision the stack on Amazon platform
+### Overriding template implementation<a id="OVERRIDE"/>
+
+For a better match of a particular need, user may modify template
+generation by overriding
+[templates](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html)
+in **aws-must-templates** with own implementations.
+
+For example, the default
+[AIM mapping table](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#mappings.mustache)
+in **aws-must-templates** supports only `t2.micro` instance type for
+type Ubuntu 14.04 LTS Trusty operating system version.
+
+Saving the following template in `myextensions/mappings.mustache`
+
+
+     {{!
+     +++start+++
+	 
+     Use Ubuntu `utopic` v. 14.10 for `t2.micro` `instanceType`.
+	 
+     +++close+++
+     }}
+     
+     {{! +++fold-on+++ }}
+     
+           "AWSInstanceType2Arch" : {
+           "t2.micro"    : { "Arch" : "64" }
+           },
+           "AWSRegionArch2AMI" : {
+                "ap-northeast-1" : { "64" : "ami-50c27450" },
+                "ap-southeast-1" : { "64" : "ami-8ae3e1d8" },
+                "ap-southeast-2" : { "64" : "ami-25eea81f" },
+                "cn-north-1" : { "64" : "ami-9671ecaf" },
+                "eu-central-1" : { "64" : "ami-84333699" },
+                "eu-west-1" : { "64" : "ami-b4a5eec3" },
+                "sa-east-1" : { "64" : "ami-0f199612" },
+                "us-east-1" : { "64" : "ami-d36cb0b8" },
+                "us-west-1" : { "64" : "ami-33fc9c10" },
+                "us-gov-west-1" : { "64" : "ami-77887533" },
+                "us-west-2" : { "64" : "ami-dd353aed" }
+           }
+     
+     {{! +++fold-off+++ }}
+
+and issuing the command
+
+	bundle exec	aws-must.rb gen mystack.yaml  -m myextensions/ aws-must-templates
+	
+uses Ubuntu `utopic` v. 14.10 for `t2.micro` instance types.
+
+**NOTICE**: In `-m` option, directory names need to end with slash
+  character to distinguish them from Gem names.
+
+### Provision the stack on Amazon platform <a id="PROVISION"/>
 
 **WARNING** Provisioning CloudFormation templates on Amazon will be
 **charged according to Amazon pricing policies**.
 
-Assuming the [aws command line utility](https://aws.amazon.com/cli) is
-[correctly setup](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html),
+Assuming that [Aws Command Line Utility](https://aws.amazon.com/cli)
+is installed and
+[setup correctly](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html),
 the command
 
-	aws cloudformation create-stack --stack-name mystack  --capabilities CAPABILITY_IAM  --template-body "$(bundle exec	aws-must.rb gen mystack.yaml  -g aws-must-templates)"  --disable-rollback
+	aws cloudformation create-stack --stack-name mystack  --capabilities CAPABILITY_IAM  --template-body "$(bundle exec	aws-must.rb gen mystack.yaml  -m myextensions/ aws-must-templates)"  --disable-rollback
 
-provisions a stack `mystack` from YAML config `mystack.yaml ` on the
-Amazon platform.
+provisions stack `mystack` from YAML configuration in `mystack.yaml`.
+Templates in `myextensions` directory override default implementations
+in **aws-must-templates** Gem.
 
-## Development
+## Testing CloudFormation stacks using **aws-must-templates** Test Runner<a id="TESTING"/>
 
-### Clone
+CloudFormation stacks can be tested using Test Runner that comes along
+with **aws-must-templates** Gem.
 
-To clone the repo
+To use the **aws-must-templates** Test Runner
 
-	git clone https://github.com/jarjuk/aws-must-templates
+* [setup for Test Runner](#SETUP-TEST-RUNNER)
+* [prepare Test Context](#TEST-CONTEXT)
+* [implement Test Cases](#TEST-CASES)
+* [configure Test Suites](#TEST-SUITES) in `test-suites.yaml` -file
+* [run tests](#RUN-TESTS)
+
+
+### Setup for Test Runner<a id="SETUP-TEST-RUNNER"/>
+
+Ensure that `Gemfile` includes
+
+	gem 'rake'
+	gem 'rspec'
+	gem 'serverspec'
+	gem 'aws-must-templates'
+
+Run `bundle install`, if new gems were added to the `Gemfile`.
+
+Add following lines to `Rakefile`
+
+	spec = Gem::Specification.find_by_name 'aws-must-templates'
+	load "#{spec.gem_dir}/lib/tasks/suite.rake"
 	
-and to install dependencies
+and run 	
 
-	cd aws-must-templates
-	bundle install
-
-### Generate CloudFormation JSON template
-
-To print out CloudFormation JSON template for `smoke.yaml` using
-[mustache templates](https://mustache.github.io/mustache.5.html)
-stored in directory `mustache`.
-
-	bundle exec aws-must.rb gen smoke.yaml
+	bundle exec rake -T suite
 	
-### Create template documentation	
+to show new tasks for the Test Runner.
 
-To extract HTML -documentation starting from `root.mustache` in
-directory `mustache`
+### Prepare Test Context <a id="TEST-CONTEXT"/>
 
+Preparing Test Context includes
 
-	bundle exec aws-must.rb doc | markdown
-	
-Rake task
+* Setting up AWS Account 
+* Preparing ssh-connection configuration
 
-	bundle exec rake dev:docs
-	
-generates html documentation into `aws-must-templates.html` -file in
-`generated-docs` -directory.
+**Setup AWS Account**
 
-### Run unit tests
+In order to access an EC2 instances, to AWS needs to have a valid key
+pair
+[imported](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws).
 
-Template unit tests are stored in directory `spec/mustache`. All unit
-test are executed with the command
+**Prepare ssh-connection configuration**
 
-	rake dev:rspec
+Test Runner uses SSH connection to access an EC2 instances, and needs
+an entry in `ssh/config` file defining user name, and ssh-key used in
+authentication, etc.
 
+For example, the SSH configuration below for an EC2 instance
+`myInstance` defines `IdentityFile` parameter matching `demo-key` EC2
+key used in **aws-must-templates** test suites.
 
-To launch Guard monitor, which triggers unit test to run automatically
-on a template change, issue the command
-
-    rake dev:guard
-	
-in a new terminal window.
-
-
-### Implement a test suite
-
-Test suite implementation includes
-
-* adding a test suite into [test-suites.yaml](test-suites.yaml).
-* a YAML configuration defining CloudFormation stack
-* defining instance credentials in `ssh/config` 
-* writing serverspec tests in `spec` directory
-
-
-**add a test suite into test-suites.yaml**
-
-Test suites are defined [test-suites.yaml](test-suites.yaml)
--configuration file.
-
-
-For example, the definition of `suite1` is 
-
-    - suite1:
-       desc: EC2 instance with s3 access
-       instances:
-         - myInstance:
-             roles:
-               - Stack
-               - AwsCommandLineInterfaceInstalled
-               - CloudFormationHelperScriptsInstalled
-               - S3ReadAccessAllowed
-    
-         - myInstance2:
-             roles:
-              - Stack
-              - AwsCommandLineInterfaceInstalled
-              - CloudFormationHelperScriptsInstalled
-              - S3NoAccess
-
-
-This configuration lists two instances `myInstance` and
-`myInstance2`. The examples says that `myInstance` should pass four
-[serverspec](http://serverspec.org/) test sets `Stack`,
-`AwsCommandLineInterfaceInstalled`,
-`CloudFormationHelperScriptsInstalled` and `S3ReadAccessAllowed`.
-
-
-**a YAML defining CloudFormation stack**
-
-Each suite is has an associated CloudFormation stack configuration in
-a YAML file.
-
-For example, the CloudFormation stack of `suite1` is in YAML file
-[suite1.yaml](suite1.yaml).
-
-
-**define instance credential in 'ssh/config'**
-
-Ssh configuration file `ssh/config` should define an entry for each
-suite instance to allow serverspec to authenticate a ssh connection to
-the instance.
-
-
-For example, `suite1` in [test-suites.yaml](test-suites.yaml) defines
-an EC2 instance `myInstance`, and file `ssh/config` contains following
-entry:
- 
      host myInstance
          StrictHostKeyChecking no
          UserKnownHostsFile=/dev/null
          user ubuntu
          IdentityFile ~/.ssh/demo-key/demo-key
 
-
-In this example, [suite1.yaml](suite1.yaml) uses parameter `KeyName`
-to allow ssh key `demo-key` to authenticate a ssh session to `myInstance`.
-
 Parameters `UserKnownHostsFile` and `StrictHostKeyChecking` prevent
 ssh from updating your default `.ssh/known_hosts` file with the
 fingerprint of the (temporary) instance used in testing.
 
-**write serverspec tests**
+### Implement Test Cases<a id="TEST-CASES"/>
 
-Suite tests are defined using `roles` attributes in
-[test-suites.yaml](test-suites.yaml) configuration file. The attribute
-lists names pointing to sub-directories of `spec` -directory.  The
-sub-directories contain [serverspec](http://serverspec.org/) tests,
-which the suite should pass.
+Test Runner searches Test Cases first from sub-directories under
+`spec/aws-must-templates` directory, and if not found, tries to locate
+Test Cases in Gem **aws-must-templates**. This allows user to reuse
+existing test in **aws-must-templates** and implement own Test Cases.
 
-Test are implemented using
-[default serverspec resource types](http://serverspec.org/resource_types.html)
-or custom resource types defined in `spec/support/lib`.
+Test runner uses Rspec with [serverspec](http://serverspec.org/)
+library.  For example, `ValidOSVersion` Test Case in
+**aws-must-templates**, validates operating system version
+with the code shown:
+
+    require 'spec_helper'
+    
+    current_test = "ValidOSVersion"
+    
+    describe current_test do
+    
+      # parameter 'Codename' defined in test-suites.yaml
+      codename = test_parameter( current_test, "Codename" )
+    
+      describe "Operating system codename '#{codename.value}'" do
+        describe command('lsb_release --c -s') do
+          its( :stdout ) { should match /#{codename.value}/ }
+        end
+      end
+    end
 
 
-### Prepare aws-account for running test suites
+See [test report](generated-docs/test-suites.md) created when running
+suites defined in [test-suites.yaml](test-suites.yaml), and
+[diagram](generated-docs/xref_suite_X_test.eps) presenting Test Cases
+used in Test Suites.
 
-For a test suite to run successfully, you need to
-[import](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws)
-key pairs used in the suite to Amazon.
+### Configure Test Suites <a id="TEST-SUITES"/>
 
-For example, [suite1.yaml](suite1.yaml) uses parameter `KeyName` to
-define a key name `demo-key`.
+Test suites are configured in `test-suites.yaml`. Test runner search
+this file in current working directory. 
 
+The picture below present main elements used in `test-suites.yaml`.
 
-### Running test suites
+![test-suites.yaml elements](./pics/test-suites.jpg)
+
+A Test Suite validates the correctness of a CloudFormation Stack. One
+Test Suite defines tests for multiple EC2 Instances. Each EC2 Instance
+must have a corresponding SSH Connection prepared in
+[ssh/config](#TEST-CONTEXT) -file. An EC2 Instance acts in many
+Roles. A Role maps to a [Test Case](#TEST-CASES), and and defines
+values for the Test Case Parameters. The parameter may be a constant,
+or a reference to Stack Parameter, or to Stack Output.
+
+An example Test Case for `mystack` is shown below
+
+    - mystack:
+       desc: Copy of suite1 EC2 instance with s3 access
+       instances:
+         - myInstance:
+             roles:
+               - ValidOSVersion:
+                    Codename: utopic
+              - S3ReadAccessAllowed:
+                    Bucket: "@Outputs.Bucket"
+
+This configuration validates stack `mystack` by running two Test Cases
+`ValidOSVersion` and `S3ReadAccessAllowed` on EC2 instance
+`myInstance`.
+
+Test Case ValidOSVersion was presented [earlier](#TEST-CASES). It uses
+parameter `Codename` to validate operating system version. In this
+configuration, the parameter value is constant `utopic`. Effectively
+this validates that CloudFormation mapping used to
+[override](#OVERRIDE) the default implementation in
+**aws-must-templates** is successfully provisioned.
+
+Test Case `S3ReadAccessAllowed` is passed a parameter, which gets its
+value from stack output variable `Bucket`.
+
+See [test-suites.yaml](test-suites.yaml) in **aws-must-templatest**
+for more detailed explanation, and for more examples.
+
+### Running test suites <a id="RUN-TESTS"/>
 
 **WARNING** Running tests provisions Amazon platform, and will be
 **charged according to Amazon pricing policies**.
 
-The command
+**NOTICE** It advisable to check on AWS console that all stack
+  resources are deleted successfully after running test suites.
 
-	rake suite:all
+To run test suite `mystack` defined in in `test-suites.yml` using
+default templates in **aws-must-templates** use the command
 
-iterates all test suites defined in
-[test-suites.yaml](test-suites.yaml).
+    bundle exec rake suite:mystack
+	
+To [override](#OVERRIDE) default implementation with templates in
+directory `myextensions`, use the command
 
-For each test suite, the command generates a CloudFormation JSON
-template, uses it to provision the stack on Amazon platform, and, once
-the `StackStatus` is `CREATE_COMPLETE`, runs test sets defined for the
-suite instances. Finally, after the test execution, the stack is
-deleted from Amazon platform.
+	bundle exec rake suite:mystack['-m myextensions/ aws-must-templates']
+
+
+For a Test Suite, Test Runner
+
+* generates a CloudFormation JSON template, 
+* uses the JSON template to provision the stack on Amazon platform, 
+* and, once the `StackStatus` is `CREATE_COMPLETE`, 
+* iterates EC2 Instances and run Test Cases in the EC2 Instance Role
+* creates a test report to `generated-doc/suites` directory
+* finally, after the test execution, the stack is deleted from Amazon platform.
+
+
+To run all test suites defined in `test-suites.yaml`, use the command
+
+	bundle exec rake suite:all
+	
+or to override the default implementation
+
+	bundle exec rake suite:all['-m myextensions/ aws-must-templates']
+
 
 Command
 
@@ -237,9 +358,9 @@ Command
 	
 list of tasks `rake suite:all` uses for implementation.
 
-**NOTICE** It advisable to check on AWS console that all stack
-  resources are deleted successfully after the test suites.
+## Development
 
+See [DEVELOPMENT](DEVELOPMENT.md)
 
 ## Changes
 
@@ -251,6 +372,7 @@ Add more tests, e.g.
 
 * VPC and subnets
 * install Chef
+* use RDoc to document Test Cases
 
 Add more template support
 

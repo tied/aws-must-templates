@@ -1,5 +1,5 @@
 * Unit test implementation
-  * Implmenentation exists
+  * Implmenentation exists - OK
   * Covereded
     *  initializeCfnInitHupFiles_spec.rb
     *  initializeCFinit_spec.rb

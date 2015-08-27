@@ -8,13 +8,16 @@ require 'json'
 require 'rake'
 require 'rspec/core/rake_task'
 
+# ------------------------------------------------------------------
+# test-suites.yaml
+
+require_relative  "../test-suites/test_suites.rb"
+test_suites = AwsMustTemplates::TestSuites::TestSuites.new
 
 # ------------------------------------------------------------------
 # configs
 
 aws_must          = "aws-must.rb"         # command to conver yaml-configs to cf-templates
-suite_configs     = 'test-suites.yaml'    # YAML configuration file for suites/instances            
-cf_templates      = "cf-templates"        # directory where CloudFormation json templates are generated
 
 # read json using aws cli
 describe_stacks_command  =  "aws cloudformation describe-stacks"    
@@ -25,28 +28,6 @@ FAILURE_STATES = ["CREATE_FAILED", "DELETE_FAILED", "UPDATE_ROLLBACK_FAILED", "R
 END_STATES     = SUCESS_STATES + FAILURE_STATES
 
 
-
-# ------------------------------------------------------------------
-# Init
-
-
-suite_properties = YAML.load_file( suite_configs )
-stacks = Rake::FileList.new( suite_properties.map { |s| s.keys.first + '.yaml'} )
-
-# ------------------------------------------------------------------
-# rules
-
-# this rule 'source_for_json' to find yaml file to convert to json
-rule ".json" => ->(f){ source_for_json(f)} do |t|
-  sh "#{aws_must} gen #{t.source} > #{t.name}"
-end
-
-# source_for_json is the yaml file in working directory
-def source_for_json( json_file )
-  json_file.pathmap( "%n.yaml" )
-end
-
-
 # ------------------------------------------------------------------
 # namespace :suite
 
@@ -55,15 +36,30 @@ namespace :suite do
   # suite_properties.each{  |a| a.keys.first }
 
   # **********
-  desc "All suites"
-  all_suites = ["suite:json-clean"] +  suite_properties.map{ |s| "suite:" + s.keys.first }
-  task :all do 
+  desc "Run all suites"
+  task :all, :gen_opts   do |t,args|
+    Rake::Task['suite:clean'].invoke()
+    Rake::Task['suite:suites'].invoke(args.gen_opts)
+  end
+
+  task  :clean do 
+
+    files =   FileList[ "#{suite_test_report_dirpath()}/**/*"]
+    files.exclude { |f|  File.directory?(f) }
+
+    rm_rf files unless files.empty?
+
+  end
+
+  # **********
+  all_suites = test_suites.suite_ids.map{ |id| "suite:" + id }
+  task :suites, :gen_opts  do |t,args|
 
     failed_suites = []
 
     all_suites.each do |t|
       begin
-        Rake::Task[t].invoke
+        Rake::Task[t].invoke( args.gen_opts ) 
         failed_suites << t unless $?.success?
         # # Run in isolation && continue no matter what
         # sh "rake #{t}; true"
@@ -87,29 +83,21 @@ namespace :suite do
   end # task :all
 
   # **********
-  desc "Clean generated json templates"
-  task "json-clean", :stack do |t,args|
-    args.with_defaults(:stack => "*")
-    sh "rm -f #{cf_templates}/#{args.stack}.json"; 
-  end
+  test_suites.suite_ids.each do |suite_id|
 
-  # **********
-  desc "Create CloudFormation json templates into #{cf_templates}"
-  task :json => stacks.pathmap( "#{cf_templates}/%X.json" )
 
-  suite_properties.each do |suite_map|
-
-    suite_id = suite_map.keys.first
-    suite = suite_map[suite_id]
+    # suite = test_suites.get_suite( suite_id )
     
-    # use suite_is as stack name
-    stack = suite_id
+    # find the stack name for suite
+    stack = test_suites.get_suite_stack_id( suite_id )
 
     # **********
     # Create stack for a suite
     desc "Create stack #{stack} for suite #{suite_id}"
-    task "#{suite_id}-stack-create" => [ "#{cf_templates}/#{stack}.json"] do
-      sh "aws cloudformation create-stack --stack-name #{stack} --capabilities CAPABILITY_IAM  --template-body \"$(cat #{cf_templates}/#{stack}.json)\"  --disable-rollback"
+    task "#{suite_id}-stack-create", :gen_opts  do |t,args|
+      args.with_defaults( :gen_opts => "-m aws-must-templates" )
+      json_template="#{aws_must} gen #{stack}.yaml #{args.gen_opts}"  
+      sh "aws cloudformation create-stack --stack-name #{stack} --capabilities CAPABILITY_IAM  --template-body \"$(#{json_template})\"  --disable-rollback"
     end
 
     desc "Create stack #{stack} for suite #{suite_id}"
@@ -140,6 +128,11 @@ namespace :suite do
       sh "aws cloudformation delete-stack --stack-name #{stack}"
     end
 
+    task :report_dir  do 
+      t = suite_test_report_dirpath()
+      sh "mkdir -p #{t}" unless File.exist?(t) 
+    end
+
     # **********
     desc "Show status for stack #{stack}"
     task "#{suite_id}-stack-status" do
@@ -154,42 +147,52 @@ namespace :suite do
       puts "suite=#{suite_id }"
 
       # see spec/spec_helper.rb
-      ENV['TARGET_STACK'] = stack
+      ENV['TARGET_SUITE_ID'] = suite_id
 
       # test all roles for the instance
-      t.rspec_opts = "--format documentation"
+      t.rspec_opts = rspec_opts( suite_id )
       t.fail_on_error = false       
-      t.pattern = 'spec/{' + suite["roles"].join(',') + '}/*_spec.rb' 
+      t.ruby_opts= rspec_ruby_opts
+      # t.pattern = suite["roles"].map {  |r|  spec_pattern( r ) }.join(",")
+      t.pattern = test_suites.suite_role_ids( suite_id ).map{ |r| spec_pattern( r ) }.join(",")
 
-    end if suite.has_key?( "roles" )
+
+    end if test_suites.suite_roles( suite_id )
 
 
     # **********
     # Run tasks for suite suite_id
 
-    desc "Run all takss for suite '#{suite_id}' - #{suite['desc']}"
+    desc "Run all takss for suite '#{suite_id}' - {suite['desc']"
     suite_tasks = 
       [ 
-       "suite:#{suite_id}-stack-create",
+       "suite:report_dir", 
+       [ "suite:#{suite_id}-stack-create", "gen_opts" ],
         "suite:#{suite_id}-stack-wait", 
       ] + 
       ( Rake::Task.task_defined?(  "suite:#{suite_id}-common"  ) ? [  "suite:#{suite_id}-common"  ] : [] )  + 
-      ( suite["instances"] ? suite["instances"].each.map{ |a| "suite:#{suite_id}:" + a.keys.first } : []  ) + 
+      # ( suite["instances"] ? suite["instances"].each.map{ |a| "suite:#{suite_id}:" + a.keys.first } : []  ) + 
+      ( test_suites.suite_instance_ids( suite_id ).each.map{ |instance_id| "suite:#{suite_id}:" + instance_id }  ) + 
       [ "suite:#{suite_id}-stack-delete" ] 
 
-    task suite_id do
+    task suite_id, :gen_opts do |ta,args|
 
       failed_tasks = []
 
-      suite_tasks.each do |t|
+      suite_tasks.each do |task|
         begin
-          Rake::Task[t].invoke
-          failed_tasks << t unless $?.success?
+          if task.kind_of?( Array )
+            taskname = task.shift
+            Rake::Task[taskname].invoke( *(task.select{ |arg_name| args[arg_name]}.map{ |arg_name| args[arg_name] }) )
+          else
+            Rake::Task[task].invoke( args )
+          end
+          failed_tasks << task unless $?.success?
           # # Run in isolation && continue no matter what
           # sh "rake #{t}; true"
         rescue => e
           puts "#{e.class}: #{e.message}"
-          failed_tasks << t
+          failed_tasks << task
           # puts e.backtrace
           puts "continue with next task"
         end
@@ -209,10 +212,11 @@ namespace :suite do
     # instance tasks (within suite)
     namespace suite_id do
 
-      suite["instances"].each do |instance_map|
+      # suite["instances"].each do |instance_map|
+      test_suites.suite_instance_ids( suite_id ).each do |instance_id|
 
-        instance_id = instance_map.keys.first
-        instance = instance_map[instance_id]
+        # instance_id = instance_map.keys.first
+        # instance = instance_map[instance_id]
 
         # **********
         desc "Test roles for instance '#{instance_id}' in suite '#{suite_id}'"
@@ -222,19 +226,67 @@ namespace :suite do
           puts "suite=#{suite_id }, instance=#{instance_id}"
 
           # see spec/spec_helper.rb
-          ENV['TARGET_STACK'] = stack
-          ENV['TARGET_HOST'] = instance_id
+          ENV['TARGET_SUITE_ID'] = suite_id
+          ENV['TARGET_INSTANCE_ID'] = instance_id
+
+          t.rspec_opts = rspec_opts( suite_id, instance_id )
+          t.fail_on_error = false
+          t.ruby_opts= rspec_ruby_opts
 
           # test all roles for the instance
-          t.rspec_opts = "--format documentation"
-          t.fail_on_error = false       
-          t.pattern = 'spec/{' + instance["roles"].join(',') + '}/*_spec.rb'
+          t.pattern = test_suites.suite_instance_role_ids( suite_id, instance_id ).map{ |r| spec_pattern( r ) }.join(",")
 
         end
-      end if suite.has_key?("instances")
+      end # instance_ids
     end # ns suite_id
 
   end # suite_properties.each
+
+  # ------------------------------------------------------------------
+  # DRY methods
+
+  # spec found in 'user_test' or 'gem_test' directory
+  def spec_pattern( role ) 
+    spec_root="spec/aws-must-templates"
+    user_test = File.expand_path( "#{spec_root}/#{role}" )
+    gem_test  = File.expand_path(  File.join( File.dirname( __FILE__), "../..", "#{spec_root}/#{role}"  ))
+      
+    return "#{user_test}/*_spec.rb"  if File.exist?( user_test )
+    return "#{gem_test}/*_spec.rb"   if File.exist?( gem_test )
+
+    message =  <<-EOS
+
+       Could not locate test spec 
+       in test direcotory '#{user_test}'
+    EOS
+    message += <<-EOS if user_test != gem_test
+       nor in gem test directory '#{gem_test}'
+    EOS
+    raise message
+
+  end
+
+  # use -I option to allow Gem and client specs to include spec_helper
+  def rspec_ruby_opts
+    "-I #{File.join( File.dirname(__FILE__), '../../spec/support' )}"
+  end
+
+  # to pass to rpsec
+  def rspec_opts( suite_id, instance_id=nil )
+    # "--format documentation"
+    # "--format progress --format documentation --out generated-docs/suites/#{suite_id}#{ instance_id ? '-'+instance_id : ""}.txt"
+    "--format progress --format documentation --out #{suite_test_report_filepath( suite_id, instance_id )}"
+  end
+
+  def suite_test_report_filepath( suite_id, instance_id=nil )
+    "#{suite_test_report_dirpath()}/#{suite_id}#{ instance_id ? '-' + instance_id : ""}.txt"
+  end
+
+  def suite_test_report_dirpath
+    "generated-docs/suites"
+  end
+
+
   
 end # ns suite
 

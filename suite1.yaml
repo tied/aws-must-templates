@@ -70,7 +70,7 @@ resources:
         -  Instance: 
                  Name: &Instance1 myInstance
                  CreationPolicy: 
-                     Timeout: PT6M
+                     Timeout: PT8M
 
                  InstanceTypeRef: *Param_InstanceTypeName
 

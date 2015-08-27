@@ -294,7 +294,7 @@
       },
       "CreationPolicy": {
         "ResourceSignal": {
-          "Timeout": "PT6M"
+          "Timeout": "PT8M"
         }
       },
       "Type": "AWS::EC2::Instance"
