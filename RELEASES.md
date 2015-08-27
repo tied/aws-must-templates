@@ -1,4 +1,4 @@
-## 0.1.1-SNAPSHOT/20150827-14:33:09
+## 0.1.1/20150827-14:59:40
 
 * Documentation fixes
   * fixed link to instance test reports `test-suites.md`
