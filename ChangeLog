@@ -1,7 +1,8 @@
 2015-08-27  jj  <jj@horsti>
 
 	* aws-must-templates.gemspec: runtime depencies rake, rspec,
-	serversepc added, fixed versions for these
+	serversepc added, fixed versions for these, aded homepage
+
 
 	* Rakefile (#version): use relativa link for test reports
 	(rake dev:xref): ,  gerate also pdf file
