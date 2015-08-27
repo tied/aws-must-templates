@@ -1,21 +1,48 @@
-# test-suites.yaml defining test suites for aws-must-templates
 # 
-# Defines an array of test suite definitions with attributes
-# - desc: one liner summarizing the test suite
-# - roles: (optional) an array of test specs in the directory `spec`
-# - instance (optional): an array of EC2 instance test specifications, which should be tested
-# 
-# EC2 instance test specificiation:
-# - roles: an array of test spect in the directory `spec`, which the EC2 instance should pass
+# TEST CONFIGURATION:
 #
+# **test-suites.yaml** : array of 'Test Suites' 
 # 
+# **Test Suite**: a hash mapping  'Test Suite Name' to set of attributes:
+#  - `desc`: one liner summarizing the test suite
+#  - `long_desc`: (optional) multi line description of the test suite
+#  - `roles`: (optional) an array of 'Test Cases' suite should pass locally
+#  - `instance` (optional): an array of 'EC2 Instances'
+# 
+# **EC2 Instance**: hash mapping 'Instance Name' to set of attributes:
+#  - roles: an array of 'Test Cases' 
+#
+# **Test Case**: a hash mapping name of 'Test Case Implementation' to 'Test Case Parameters'
+#
+# Test Case Parameter: key value pair
+#  - key: name of parameter used in `Test Case Implementation`
+#  - value: one of
+#    - `string`: const value of the paremeter
+#    - `@Outputs.<output_name>`: parameter value is taken from
+#      CloudFormation stack output <output_name>
+#    - `@Parameters.<param_name>`: parameter value is taken from
+#      CloudFormation stack Parameter <param_name>
+#
+# TEST CONTEXT:
+#
+# **Test Suite Name**: name of the Stack test test
+# 
+# **Instance Name**: identify configuration in ssh/config file used
+#  create SSH connection to the EC2 host, 'EC2 Instance Tests'
+#
+# **Test Case Implementation**: subdirectory, containing server spec
+# files matching regexp '*_spec.rb'. Test runner first searches first
+# local directory `spec/aws-must-templates`, and if not found, tries
+# to locate Test Case Implementation in Gem `aws-must-templates`
+#
+#
 
 - smoke:
    desc: Fails fast if problems with AWS installation
    long_desc: |
 
           Creates a S3 bucket, and no EC2 instances. 
-  
+
    roles:
      - Stack
      - AwsMustTestRunnerProperties
@@ -46,7 +73,7 @@
          * AWS Command Line Interface
          * CloudFormation Helper Scripts. These scripts are used to create
            notification when installation is finished
-         
+
 
    roles:
      - Stack

@@ -37,26 +37,29 @@ namespace :suite do
 
   # **********
   desc "Run all suites"
-  task :all => [ 'suite:clean', 'suite:suites'] 
+  task :all, :gen_opts   do |t,args|
+    Rake::Task['suite:clean'].invoke()
+    Rake::Task['suite:suites'].invoke(args.gen_opts)
+  end
 
   task  :clean do 
 
     files =   FileList[ "#{suite_test_report_dirpath()}/**/*"]
     files.exclude { |f|  File.directory?(f) }
 
-    rm_rf files if files
+    rm_rf files unless files.empty?
 
   end
 
   # **********
   all_suites = test_suites.suite_ids.map{ |id| "suite:" + id }
-  task :suites do 
+  task :suites, :gen_opts  do |t,args|
 
     failed_suites = []
 
     all_suites.each do |t|
       begin
-        Rake::Task[t].invoke
+        Rake::Task[t].invoke( args.gen_opts ) 
         failed_suites << t unless $?.success?
         # # Run in isolation && continue no matter what
         # sh "rake #{t}; true"
@@ -91,8 +94,9 @@ namespace :suite do
     # **********
     # Create stack for a suite
     desc "Create stack #{stack} for suite #{suite_id}"
-    task "#{suite_id}-stack-create"  do
-      json_template="#{aws_must} gen #{stack}.yaml"  
+    task "#{suite_id}-stack-create", :gen_opts  do |t,args|
+      args.with_defaults( :gen_opts => "-m aws-must-templates" )
+      json_template="#{aws_must} gen #{stack}.yaml #{args.gen_opts}"  
       sh "aws cloudformation create-stack --stack-name #{stack} --capabilities CAPABILITY_IAM  --template-body \"$(#{json_template})\"  --disable-rollback"
     end
 
@@ -122,6 +126,11 @@ namespace :suite do
     desc "Delete stack #{stack} for suite #{suite_id}"
     task "#{suite_id}-stack-delete" do
       sh "aws cloudformation delete-stack --stack-name #{stack}"
+    end
+
+    task :report_dir  do 
+      t = suite_test_report_dirpath()
+      sh "mkdir -p #{t}" unless File.exist?(t) 
     end
 
     # **********
@@ -157,7 +166,8 @@ namespace :suite do
     desc "Run all takss for suite '#{suite_id}' - {suite['desc']"
     suite_tasks = 
       [ 
-       "suite:#{suite_id}-stack-create",
+       "suite:report_dir", 
+       [ "suite:#{suite_id}-stack-create", "gen_opts" ],
         "suite:#{suite_id}-stack-wait", 
       ] + 
       ( Rake::Task.task_defined?(  "suite:#{suite_id}-common"  ) ? [  "suite:#{suite_id}-common"  ] : [] )  + 
@@ -165,19 +175,24 @@ namespace :suite do
       ( test_suites.suite_instance_ids( suite_id ).each.map{ |instance_id| "suite:#{suite_id}:" + instance_id }  ) + 
       [ "suite:#{suite_id}-stack-delete" ] 
 
-    task suite_id do
+    task suite_id, :gen_opts do |ta,args|
 
       failed_tasks = []
 
-      suite_tasks.each do |t|
+      suite_tasks.each do |task|
         begin
-          Rake::Task[t].invoke
-          failed_tasks << t unless $?.success?
+          if task.kind_of?( Array )
+            taskname = task.shift
+            Rake::Task[taskname].invoke( *(task.select{ |arg_name| args[arg_name]}.map{ |arg_name| args[arg_name] }) )
+          else
+            Rake::Task[task].invoke( args )
+          end
+          failed_tasks << task unless $?.success?
           # # Run in isolation && continue no matter what
           # sh "rake #{t}; true"
         rescue => e
           puts "#{e.class}: #{e.message}"
-          failed_tasks << t
+          failed_tasks << task
           # puts e.backtrace
           puts "continue with next task"
         end

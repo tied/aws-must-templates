@@ -82,7 +82,7 @@ namespace "dev" do |ns|
       # do not clean test reports
       files.exclude( suite_test_report_dirpath() )
 
-      rm_rf files if files
+      rm_rf files unless files.empty?
 
     end
 
@@ -198,19 +198,20 @@ namespace "dev" do |ns|
       args.with_defaults(:rspec_opts => "")
       sh "bundle exec rspec --format documentation spec/lib"
     end
+
+    desc "Launch guard"
+    task :guard do
+      sh "bundle exec guard"
+    end
+
   end # ns 
 
   desc "Run unit tests"  
   task :rspec => ["dev:rspec:mustache", "dev:rspec:lib" ]
 
-  desc "Launch guard"
-  task :guard do
-    sh "bundle exec guard"
-  end
 
   # ------------------------------------------------------------------
   # Build && delivery
-
 
   desc "Build gempspec"
   task :build do
@@ -228,6 +229,27 @@ namespace "dev" do |ns|
 
   desc "Run all tests suites && create delivery"
   task "full-delivery" => [ "suite:all", "dev:fast-delivery" ]
+
+  # ------------------------------------------------------------------
+  # site
+
+  task :site_cp do
+
+    site_dir         ="#{ENV['HOME']}/apache/site/#{@module_name}"
+
+    def site_cp( site_dir, site_files )
+      site_files.each do |file|
+        site_file="#{site_dir}/#{file}"
+        puts "site_cp=#{file} -->  #{site_file}"
+        sh "cp #{file} #{site_file}" if 
+          !File.exists?(site_file) or File.mtime( file ) > File.mtime(site_file)
+      end
+    end
+
+    site_files = Rake::FileList[ "*.md", "*.yaml" "pics/*.jpg"]
+    site_cp( site_dir, site_files )
+
+  end
 
 end 
 
@@ -273,4 +295,5 @@ end
 def stack_json_template_filepath( stack_id  )
   "generated-docs/cloudformation/#{stack_id}.json"
 end
+
 

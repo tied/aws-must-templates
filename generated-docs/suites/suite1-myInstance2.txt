@@ -1,0 +1,45 @@
+
+AwsCommandLineInterfaceInstalled
+  Command "type aws"
+    exit_status
+      should eq 0
+
+CloudFormationHelperScriptsInstalled
+  Command "type cfn-init"
+    exit_status
+      should eq 0
+  Command "type cfn-signal"
+    exit_status
+      should eq 0
+  Command "type cfn-get-metadata"
+    exit_status
+      should eq 0
+  Command "type cfn-hup"
+    exit_status
+      should eq 0
+
+S3NoAccess
+  When Bucket exists
+    #cannot  list Bucket
+      Command "aws s3 ls"
+        exit_status
+          should not eq 0
+    When Object exists in Bucket
+      #cannot list S3 bucket keys
+        Command "aws s3 ls s3://suite1-mybucket-1bljea5p85p05 --region $(aws s3api get-bucket-location --bucket suite1-mybucket-1bljea5p85p05 --output text)"
+          exit_status
+            should not eq 0
+      #cannot cp S3 bucket object
+        Command "aws s3 cp s3://suite1-mybucket-1bljea5p85p05/ttest22.tmp /tmp/ttest22.tmp --region $(aws s3api get-bucket-location --bucket suite1-mybucket-1bljea5p85p05 --output text)"
+          exit_status
+            should not eq 0
+
+ValidOSVersion
+  Operating system codename 'trusty'
+    Command "lsb_release --c -s"
+      stdout
+        should match /trusty/
+
+Finished in 10.16 seconds (files took 1.02 seconds to load)
+9 examples, 0 failures
+

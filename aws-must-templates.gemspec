@@ -23,11 +23,11 @@ This repo contains templates for generating CloudFormation json -templates
 from YAML -configuration.
 EOF
   s.authors         = ["jarjuk"]
-  s.files           = ["README.md"] | Dir.glob("mustache/**/*")  | Dir.glob("lib/**/*") 
+  s.files           = ["README.md"] | Dir.glob("mustache/**/*")  | Dir.glob("lib/**/*")  | Dir.glob("pics/*.jpg") 
   # s.require_paths   = [ "lib" ]
   s.license       = 'MIT'
 
-  s.add_runtime_dependency 'aws-must',          '~>0.0.12'
+  s.add_runtime_dependency 'aws-must',          '>=0.0.13'
 
 
 end
