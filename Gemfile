@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 
 source 'https://rubygems.org'
-gem 'aws-must', "~>0.0.12.pre"
+gem 'aws-must', "~>0.0.13"
 
 # System tests
 gem 'serverspec'

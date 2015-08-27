@@ -16,11 +16,9 @@ Gem::Specification.new do |s|
   s.date            = Time.now.strftime( "%Y-%m-%d" )  #'2014-09-10'
   s.summary         = "Amazon Cloudformation templates for aws-must'"
   s.description     = <<EOF
-aws-must is a tool, which allows separating infrastructure
-configuration and Amazon related syntax using YAML and Mustache templates.
-
-This repo contains templates for generating CloudFormation json -templates 
-from YAML -configuration.
+  Set of extensible templates for [aws-must](https://github.com/jarjuk/aws-must) tool to generate
+  CloudFormation JSON from a YAML configuration, and a
+  Test Runner for validating correctness of CloudFormation stacks provisioned.
 EOF
   s.authors         = ["jarjuk"]
   s.files           = ["README.md"] | Dir.glob("mustache/**/*")  | Dir.glob("lib/**/*")  | Dir.glob("pics/*.jpg") 
@@ -28,6 +26,11 @@ EOF
   s.license       = 'MIT'
 
   s.add_runtime_dependency 'aws-must',          '>=0.0.13'
+
+  # Test Runner
+  s.add_runtime_dependency 'rake'
+  s.add_runtime_dependency 'rspec'
+  s.add_runtime_dependency 'serverspec'
 
 
 end

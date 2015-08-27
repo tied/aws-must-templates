@@ -1,4 +1,11 @@
 ## 0.1.1-SNAPSHOT/20150827-14:33:09
+
+* Documentation fixes
+  * fixed link to instance test reports `test-suites.md`
+  * use `generated-docs/xref_suite_X_test.pdf` instead of
+    `generated-docs/xref_suite_X_test.eps`
+* Prepare to push to Rubygems
+
 ## 0.1.0/20150827-14:33:07
 
 * Major changes:

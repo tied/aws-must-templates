@@ -1,5 +1,12 @@
 2015-08-27  jj  <jj@horsti>
 
+	* aws-must-templates.gemspec: runtime depencies rake, rspec,
+	serversepc added
+
+	* Rakefile (#version): use relativa link for test reports
+	(rake dev:xref): ,  gerate also pdf file
+	(fast-delivery): added "dev:build", "dev:install"
+	
 	* lib/tasks/suite.rake: added gen_opts
 
 2015-08-26  jj  <jj@horsti>
