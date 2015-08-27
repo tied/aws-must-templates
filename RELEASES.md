@@ -1,4 +1,4 @@
-## 0.1.0-SNAPSHOT/20150820-09:37:28
+## 0.1.0/20150827-14:33:07
 
 * Major changes:
   * adds instruction && support for user to override template impelemtation
