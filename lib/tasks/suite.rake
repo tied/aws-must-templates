@@ -129,8 +129,8 @@ namespace :suite do
     end
 
     task :report_dir  do 
-      t = suite_test_report_dirpath()
-      sh "mkdir -p #{t}" unless File.exist?(t) 
+      report_dir  = suite_test_report_dirpath()
+      sh "mkdir -p #{t}" unless File.exist?(report_dir) 
     end
 
     # **********

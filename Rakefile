@@ -231,7 +231,7 @@ namespace "dev" do |ns|
   end
 
   desc "Finalize delivery"
-  task "fast-delivery" => [ "dev:docs", "rt:release", "rt:push", "dev:build", "dev:install", "rt:snapshot" ]
+  task "fast-delivery" => [ "dev:rspec", "dev:docs", "rt:release", "rt:push", "dev:build", "dev:install", "rt:snapshot" ]
 
   desc "Run all tests suites && create delivery"
   task "full-delivery" => [ "suite:all", "dev:fast-delivery" ]
