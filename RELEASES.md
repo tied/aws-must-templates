@@ -1,3 +1,4 @@
+## 0.1.6-SNAPSHOT/20150828-13:07:01
 ## 0.1.5/20150828-13:06:34
 
 - rake suite:report_dir - fixed
