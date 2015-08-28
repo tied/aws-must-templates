@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 
+# @author jarjuk
 
 # ------------------------------------------------------------------
 # Configuration
@@ -26,7 +27,7 @@ props = {
 
 describe current_test do 
 
-  describe "Stack '#{property[:stack_id]}'" do
+  describe "Stack '#{property[:stack_id]}'", '#stack' do
 
     it "#known in test '#{current_test}''" do 
 

@@ -1,4 +1,13 @@
+## 0.1.3/20150828-10:38:02
+
+* added Dir.glob("spec/**/*") to Gem (could not run tests with)
+* some minor documetation changes
+* add home page in Gem
+
 ## 0.1.2/20150827-15:23:33
+
+* first version to RubyGems
+
 ## 0.1.1/20150827-14:59:40
 
 * Documentation fixes

@@ -1,4 +1,4 @@
-# aws-must-templates - cloudformation templates for aws-must - $Release:0.1.2$
+# aws-must-templates - cloudformation templates for aws-must - $Release:0.1.3$
 
 Set of [extensible](#OVERRIDE)
 [templates](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html)
@@ -181,25 +181,23 @@ To use the **aws-must-templates** Test Runner
 
 ### Setup for Test Runner<a id="SETUP-TEST-RUNNER"/>
 
-Ensure that `Gemfile` includes
-
-	gem 'rake'
-	gem 'rspec'
-	gem 'serverspec'
-	gem 'aws-must-templates'
-
-Run `bundle install`, if new gems were added to the `Gemfile`.
-
 Add following lines to `Rakefile`
 
 	spec = Gem::Specification.find_by_name 'aws-must-templates'
 	load "#{spec.gem_dir}/lib/tasks/suite.rake"
 	
+create an empty `test-suites.yaml`	 -file
+
+	touch test-suites.yaml
+
 and run 	
 
 	bundle exec rake -T suite
 	
-to show new tasks for the Test Runner.
+For an empty test-suites.yaml the result shows
+
+	rake suite:all[gen_opts]  # Run all suites
+
 
 ### Prepare Test Context <a id="TEST-CONTEXT"/>
 
@@ -263,29 +261,30 @@ with the code shown:
     end
 
 
-See [test report](generated-docs/test-suites.md) created when running
-suites defined in [test-suites.yaml](test-suites.yaml), and
-[diagram](generated-docs/xref_suite_X_test.pdf) presenting Test Cases
-used in Test Suites.
+For more information on Test Cases, see
+[test report](generated-docs/test-suites.md) created, when running
+[test-suites](test-suites.yaml) in **aws-must-templates** development,
+and a [diagram](generated-docs/xref_suite_X_test.pdf) for an overview.
+
 
 ### Configure Test Suites <a id="TEST-SUITES"/>
 
-Test suites are configured in `test-suites.yaml`. Test runner search
-this file in current working directory. 
+Test Suites are configured in `test-suites.yaml`. Test Runner searches
+this file in current working directory.
 
 The picture below present main elements used in `test-suites.yaml`.
 
 ![test-suites.yaml elements](./pics/test-suites.jpg)
 
-A Test Suite validates the correctness of a CloudFormation Stack. One
-Test Suite defines tests for multiple EC2 Instances. Each EC2 Instance
-must have a corresponding SSH Connection prepared in
+A Test Suite validates correctness of a CloudFormation Stack. One Test
+Suite defines tests for multiple EC2 Instances. Each EC2 Instance must
+have a corresponding SSH Connection prepared in
 [ssh/config](#TEST-CONTEXT) -file. An EC2 Instance acts in many
 Roles. A Role maps to a [Test Case](#TEST_CASES), and and defines
 values for the Test Case Parameters. The parameter may be a constant,
 or a reference to Stack Parameter, or to Stack Output.
 
-An example Test Case for `mystack` is shown below
+As an example, the Test Suite for `mystack` is 
 
     - mystack:
        desc: Copy of suite1 EC2 instance with s3 access
@@ -297,22 +296,22 @@ An example Test Case for `mystack` is shown below
               - S3ReadAccessAllowed:
                     Bucket: "@Outputs.Bucket"
 
-This configuration validates stack `mystack` by running two Test Cases
+The Suite validates stack `mystack` by running two Test Cases
 `ValidOSVersion` and `S3ReadAccessAllowed` on EC2 instance
 `myInstance`.
 
-Test Case ValidOSVersion was presented [earlier](#TEST_CASES). It uses
-parameter `Codename` to validate operating system version. In this
-configuration, the parameter value is constant `utopic`. Effectively
-this validates that CloudFormation mapping used to
-[override](#OVERRIDE) the default implementation in
+Test Case `ValidOSVersion` was presented [earlier](#TEST_CASES). It
+uses parameter `Codename` to validate operating system version. In
+this configuration, the parameter value is constant
+`utopic`. Effectively this validates that CloudFormation mapping used
+to [override](#OVERRIDE) the default implementation in
 **aws-must-templates** is successfully provisioned.
 
 Test Case `S3ReadAccessAllowed` is passed a parameter, which gets its
 value from stack output variable `Bucket`.
 
-See [test-suites.yaml](test-suites.yaml) in **aws-must-templatest**
-for more detailed explanation, and for more examples.
+See [test-suites.yaml](test-suites.yaml) in **aws-must-templates** for
+a more detailed explanation, and for more examples.
 
 ### Running test suites <a id="RUN-TESTS"/>
 
