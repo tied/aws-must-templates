@@ -1,3 +1,9 @@
+2015-08-28  jj  <jj@horsti>
+
+	* aws-must-templates.gemspec: include Dir.glob("spec/**/*") to files
+
+	* README.md: Setup for Test Runner modified
+
 2015-08-27  jj  <jj@horsti>
 
 	* aws-must-templates.gemspec: runtime depencies rake, rspec,

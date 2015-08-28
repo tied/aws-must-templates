@@ -181,25 +181,23 @@ To use the **aws-must-templates** Test Runner
 
 ### Setup for Test Runner<a id="SETUP-TEST-RUNNER"/>
 
-Ensure that `Gemfile` includes
-
-	gem 'rake'
-	gem 'rspec'
-	gem 'serverspec'
-	gem 'aws-must-templates'
-
-Run `bundle install`, if new gems were added to the `Gemfile`.
-
 Add following lines to `Rakefile`
 
 	spec = Gem::Specification.find_by_name 'aws-must-templates'
 	load "#{spec.gem_dir}/lib/tasks/suite.rake"
 	
+create an empty `test-suites.yaml`	 -file
+
+	touch test-suites.yaml
+
 and run 	
 
 	bundle exec rake -T suite
 	
-to show new tasks for the Test Runner.
+For an empty test-suites.yaml the result shows
+
+	rake suite:all[gen_opts]  # Run all suites
+
 
 ### Prepare Test Context <a id="TEST-CONTEXT"/>
 

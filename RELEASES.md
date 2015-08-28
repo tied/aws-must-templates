@@ -1,5 +1,7 @@
 ## 0.1.3-SNAPSHOT/20150827-15:24:01
 
+* added Dir.glob("spec/**/*") to Gem (could not run tests with)
+* some minor documetation changes
 * add home page in Gem
 
 ## 0.1.2/20150827-15:23:33
