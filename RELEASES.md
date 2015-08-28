@@ -1,4 +1,4 @@
-## 0.1.3-SNAPSHOT/20150827-15:24:01
+## 0.1.3/20150828-10:38:02
 
 * added Dir.glob("spec/**/*") to Gem (could not run tests with)
 * some minor documetation changes
