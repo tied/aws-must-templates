@@ -1,4 +1,4 @@
-## 0.1.4-SNAPSHOT/20150828-10:38:28
+## 0.1.4/20150828-12:46:39
 
 - rake dev:fast-delivery- fixed
 - rake suite:report_dir - fixed
