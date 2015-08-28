@@ -1,5 +1,9 @@
 2015-08-28  jj  <jj@horsti>
 
+	* Rakefile (#fast-delivery): run 'dev:rspsec'
+
+	* lib/tasks/suite.rake (:report_dir): variable name fixed
+
 	* aws-must-templates.gemspec: include Dir.glob("spec/**/*") to files
 
 	* README.md: Setup for Test Runner modified
