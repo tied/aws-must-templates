@@ -60,7 +60,7 @@ namespace :suite do
     all_suites.each do |t|
       begin
         Rake::Task[t].invoke( args.gen_opts ) 
-        failed_suites << t unless $?.success?
+        failed_suites << t unless  ( $?.nil? || $?.success? )
         # # Run in isolation && continue no matter what
         # sh "rake #{t}; true"
       rescue => e
@@ -130,7 +130,7 @@ namespace :suite do
 
     task :report_dir  do 
       report_dir  = suite_test_report_dirpath()
-      sh "mkdir -p #{t}" unless File.exist?(report_dir) 
+      sh "mkdir -p #{report_dir}" unless File.exist?(report_dir) 
     end
 
     # **********
@@ -187,7 +187,7 @@ namespace :suite do
           else
             Rake::Task[task].invoke( args )
           end
-          failed_tasks << task unless $?.success?
+          failed_tasks << task unless ( $?.nil? || $?.success? )
           # # Run in isolation && continue no matter what
           # sh "rake #{t}; true"
         rescue => e
