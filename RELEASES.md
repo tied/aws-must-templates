@@ -1,4 +1,10 @@
 ## 0.1.6-SNAPSHOT/20150828-13:07:01
+
+* Running `rake suite:mystack:myInstance` when no roles defined
+  results to `NoMethodError: undefined method `[]' for nil:NilClass`
+  --> better error message should be outputted
+
+
 ## 0.1.5/20150828-13:06:34
 
 - rake suite:report_dir - fixed
