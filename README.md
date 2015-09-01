@@ -214,7 +214,7 @@ pair
 
 **Prepare ssh-connection configuration**
 
-Test Runner uses SSH connection to access an EC2 instances, and needs
+Test Runner uses SSH connection to access an EC2 instance, and needs
 an entry in `ssh/config` file
 [defining](http://linux.die.net/man/5/ssh_config) user name, and
 ssh-key used in authentication, etc.
