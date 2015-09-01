@@ -86,6 +86,7 @@ module AwsMustTemplates
       def suite_instance_roles( suite_id, instance_id )
         instance = suite_instance( suite_id, instance_id )
         return nil unless instance
+        return [] unless instance[instance_id]
         return [] unless instance[instance_id]["roles"]
         # roles may be a hash or a string
         return instance[instance_id]["roles"]

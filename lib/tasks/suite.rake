@@ -234,7 +234,13 @@ namespace :suite do
           t.ruby_opts= rspec_ruby_opts
 
           # test all roles for the instance
-          t.pattern = test_suites.suite_instance_role_ids( suite_id, instance_id ).map{ |r| spec_pattern( r ) }.join(",")
+          pattern = test_suites.suite_instance_role_ids( suite_id, instance_id ).map{ |r| spec_pattern( r ) }.join(",")
+          raise <<-EOS if pattern.nil? ||  pattern.empty?
+
+              No tests defined for an instance in suite=#{suite_id }, instance=#{instance_id}
+
+          EOS
+          t.pattern = pattern
 
         end
       end # instance_ids
@@ -257,7 +263,7 @@ namespace :suite do
     message =  <<-EOS
 
        Could not locate test spec 
-       in test direcotory '#{user_test}'
+       in test directory '#{user_test}'
     EOS
     message += <<-EOS if user_test != gem_test
        nor in gem test directory '#{gem_test}'

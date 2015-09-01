@@ -1,4 +1,4 @@
-# aws-must-templates - cloudformation templates for aws-must - $Release:0.1.5$
+# aws-must-templates - cloudformation templates for aws-must - $Release:0.1.6$
 
 Set of [extensible](#OVERRIDE)
 [templates](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html)
@@ -6,6 +6,12 @@ for [aws-must](https://github.com/jarjuk/aws-must) tool to generate
 CloudFormation JSON from a YAML configuration, and a
 [Test Runner](#TESTING) for [validating correctness](#TEST_CASES) of
 CloudFormation stacks provisioned.
+
+See blog posts
+[part1](https://jarjuk.wordpress.com/2015/08/18/announcing-aws-must-templates-part1)
+and
+[part2](https://jarjuk.wordpress.com/2015/09/01/announcing-aws-must-templates-part2)
+for background information on this tool.
 
 
 ## The Problem
@@ -214,9 +220,10 @@ pair
 
 **Prepare ssh-connection configuration**
 
-Test Runner uses SSH connection to access an EC2 instances, and needs
-an entry in `ssh/config` file defining user name, and ssh-key used in
-authentication, etc.
+Test Runner uses SSH connection to access an EC2 instance, and needs
+an entry in `ssh/config` file
+[defining](http://linux.die.net/man/5/ssh_config) user name, and
+ssh-key used in authentication, etc.
 
 For example, the SSH configuration below for an EC2 instance
 `myInstance` defines `IdentityFile` parameter matching `demo-key` EC2
