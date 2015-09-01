@@ -1,3 +1,4 @@
+## 0.1.7-SNAPSHOT/20150901-15:01:11
 ## 0.1.6/20150901-15:00:45
 
 * Clarfications in README, link to blog posts
