@@ -1,6 +1,6 @@
 ## 0.1.6-SNAPSHOT/20150828-13:07:01
 
-* Clarfications in README
+* Clarfications in README, link to blog posts
 * Depencecies clarified in `aws-must-templates.gemspec`
 * Running `rake suite:mystack:myInstance` when no roles defined
   results to `NoMethodError: undefined method `[]' for nil:NilClass`
