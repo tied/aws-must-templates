@@ -263,7 +263,7 @@ namespace :suite do
     message =  <<-EOS
 
        Could not locate test spec 
-       in test direcotory '#{user_test}'
+       in test directory '#{user_test}'
     EOS
     message += <<-EOS if user_test != gem_test
        nor in gem test directory '#{gem_test}'
