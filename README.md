@@ -7,6 +7,12 @@ CloudFormation JSON from a YAML configuration, and a
 [Test Runner](#TESTING) for [validating correctness](#TEST_CASES) of
 CloudFormation stacks provisioned.
 
+See blog posts
+[part1](https://jarjuk.wordpress.com/2015/08/18/announcing-aws-must-templates-part1)
+and
+[part2](https://jarjuk.wordpress.com/2015/09/01/announcing-aws-must-templates-part2)
+for background information on this tool.
+
 
 ## The Problem
 
