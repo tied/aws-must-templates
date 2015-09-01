@@ -1,4 +1,4 @@
-## 0.1.6-SNAPSHOT/20150828-13:07:01
+## 0.1.6/20150901-15:00:45
 
 * Clarfications in README, link to blog posts
 * Depencecies clarified in `aws-must-templates.gemspec`
