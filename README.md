@@ -215,8 +215,9 @@ pair
 **Prepare ssh-connection configuration**
 
 Test Runner uses SSH connection to access an EC2 instances, and needs
-an entry in `ssh/config` file defining user name, and ssh-key used in
-authentication, etc.
+an entry in `ssh/config` file
+[defining](http://linux.die.net/man/5/ssh_config) user name, and
+ssh-key used in authentication, etc.
 
 For example, the SSH configuration below for an EC2 instance
 `myInstance` defines `IdentityFile` parameter matching `demo-key` EC2

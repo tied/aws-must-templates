@@ -1,3 +1,10 @@
+2015-09-01  jj  <jj@horsti>
+
+	* lib/tasks/suite.rake (#spec_pattern): fixed typo on error
+	message
+
+	* README.md: added link http://linux.die.net/man/5/ssh_config
+
 2015-08-28  jj  <jj@horsti>
 
 	* Rakefile (#fast-delivery): run 'dev:rspsec'
