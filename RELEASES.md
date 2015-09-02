@@ -1,3 +1,4 @@
+## 0.1.8-SNAPSHOT/20150902-11:46:59
 ## 0.1.7/20150902-11:46:24
 
 * Added task `rake dev:docs:spec`
