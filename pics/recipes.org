@@ -1,0 +1,44 @@
+
+* Define Credentials for S3 Bucket Read Access
+
+The picture below shows an overview of an implementation using
+CloudFormation resources. The implementation defines a *Policy*
+granting permissions on a *Bucket*. The *Policy* is attached to a
+*Role*, which the EC2 accesses via *InstanceProfile* associated to the
+*Role*.
+
+
+#+BEGIN_SRC dot :file ./s3-access-dot.png  :cmdline -Kdot -Tpng
+
+  digraph {
+
+    node      [     fontname = "Courier"
+                fontsize = 8
+                shape = "record"
+
+          ];
+      edge      [
+                fontname = "Bitstream Vera Sans"
+                fontsize = 8
+                // arrowhead = "none"
+          ];
+
+
+     Bucket
+     Role
+     Policy
+     InstanceProfile
+     Instance
+
+     Policy -> Role [label="attach to "]
+     Policy -> Bucket [label="grant permissions"]
+     InstanceProfile -> Role [label="associate role"]
+     Instance -> InstanceProfile [label="access role from"]
+
+  }
+
+#+END_SRC
+
+#+RESULTS:
+[[file:./s3-access-dot.png]]
+

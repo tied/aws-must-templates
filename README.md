@@ -1,4 +1,4 @@
-# aws-must-templates - cloudformation templates for aws-must - $Release:0.1.7$
+# aws-must-templates - cloudformation templates for aws-must - $Release:0.1.8-SNAPSHOT$
 
 Set of [extensible](#OVERRIDE)
 [templates](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html)
@@ -94,6 +94,10 @@ used to validate **aws-must-templates** implementation. For, example
   
 See [test report](generated-docs/test-suites.md) of
 **aws-must-templates** for more information.
+
+See
+[associated diagrams](https://rawgit.com/jarjuk/aws-must-templates/master/pics/recipes.html)
+for an overview on some use cases.
 
 ### Generate CloudFormation JSON templates
 
