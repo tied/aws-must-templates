@@ -1,3 +1,17 @@
+=begin
+
++++start+++
+
+## <a id="S3NoAccess"></a>S3NoAccess<a class='navigator' href='#top'>[top]</a>
+
+Validate no access to S3 bucket `test_parameter( current_test, "Bucket" )`
+
++++close+++
+
+=end
+
+# +++fold-on+++
+
 require 'spec_helper'
 
 # ------------------------------------------------------------------
@@ -66,7 +80,7 @@ describe current_test  do
 
   end
 
-
-
-
 end
+
+
+# +++fold-off+++

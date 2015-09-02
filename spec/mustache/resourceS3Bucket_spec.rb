@@ -44,7 +44,7 @@ describe template_under_test do
     render_str = @aws_must.generate_str( template_under_test, stub_yaml_file( yaml_text ), {} )
 
     # debug
-    puts "render_str=#{render_str}"
+    # puts "render_str=#{render_str}"
     # puts json_sanitize( render_str, nil  )
 
 

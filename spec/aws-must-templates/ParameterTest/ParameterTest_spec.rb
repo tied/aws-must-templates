@@ -1,3 +1,17 @@
+=begin
+
++++start+++
+
+## <a id="ParameterTest"></a>ParameterTest<a class='navigator' href='#top'>[top]</a>
+
+Demonstrate a test accessing `test_parameters`
+
++++close+++
+
+=end
+
+# +++fold-on+++
+
 require 'spec_helper'
 
 
@@ -33,3 +47,5 @@ describe  current_test do |ex|
   end #  describe "Test parameters" do
 
 end
+
+# +++fold-off+++

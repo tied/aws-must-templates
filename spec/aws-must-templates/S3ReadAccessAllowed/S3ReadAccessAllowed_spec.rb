@@ -1,3 +1,18 @@
+=begin
+
++++start+++
+
+## <a id="S3ReadAccessAllowed"></a>S3ReadAccessAllowed<a class='navigator' href='#top'>[top]</a>
+
+Validate that read access to S3 bucket `test_parameter( current_test, "Bucket" )` exists
+
++++close+++
+
+=end
+
+# +++fold-on+++
+
+
 require 'spec_helper'
 
 current_test = "S3ReadAccessAllowed"
@@ -142,3 +157,5 @@ describe current_test do
 
 
 end
+
+# +++fold-off+++

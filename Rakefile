@@ -153,6 +153,15 @@ namespace "dev" do |ns|
 
 
     end
+
+    # Document specs
+    desc "RSPEC documention for spec/aws-must-templates"
+    task "spec" do
+      file = "#{generate_docs_dir}/aws-must-templates-spec.html"
+      spec_glob = "spec/aws-must-templates/**/*_spec.rb"
+      capture_stdout_to( file ) { sh "#{aws_must} ddoc '#{spec_glob}'| markdown" }
+    end
+
     
     # mustache templates --> html documentation
     desc "HTMl documention for mustache templates"
@@ -182,7 +191,7 @@ namespace "dev" do |ns|
   end # ns docs
 
   desc "Generate html-, stack CloudFormation JSON templates into `{generate_docs_dir}` -subdirectory"
-  task :docs => ["dev:docs:mustache", "dev:docs:cf", "dev:docs:tests", "dev:docs:xref" ]
+  task :docs => ["dev:docs:mustache", "dev:docs:spec", "dev:docs:cf", "dev:docs:tests", "dev:docs:xref" ]
 
   # ------------------------------------------------------------------
   # unit tests
