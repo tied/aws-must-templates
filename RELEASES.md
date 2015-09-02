@@ -1,4 +1,4 @@
-## 0.1.7-SNAPSHOT/20150901-15:01:11
+## 0.1.7/20150902-11:46:24
 
 * Added task `rake dev:docs:spec`
 * Use `aws-must.rb >=0.0.14`
