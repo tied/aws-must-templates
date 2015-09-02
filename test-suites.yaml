@@ -95,3 +95,14 @@
                 Codename: trusty
            - S3NoAccess:
               Bucket: "@Outputs.Bucket"
+
+
+- suite2:
+   desc: Example configuration for VPC
+   instances:
+     - myFront1:
+         roles:
+             - RespondsToPing:
+                 Hostname: '@Outputs.myFront1'
+     - myBack1:
+

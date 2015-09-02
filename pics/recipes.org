@@ -39,6 +39,42 @@ granting permissions on a *Bucket*. The *Policy* is attached to a
 
 #+END_SRC
 
+* VPC
+
+#+BEGIN_SRC dot :file ./vpc-local-subnet.png  :cmdline -Kdot -Tpng
+
+  digraph {
+
+    node      [     fontname = "Courier"
+                fontsize = 8
+                shape = "record"
+
+          ];
+    edge      [
+                fontname = "Bitstream Vera Sans"
+                fontsize = 8
+                // arrowhead = "none"
+          ];
+
+    VPC
+    Subnet
+    InternetGateway
+    SecurityGroup
+    Instance
+
+    Subnet -> VPC [label="VpcId"]
+    Subnet -> VPC [label="DependsOn"]
+    InternetGateway -> Subnet [label="Subnet"]
+    InternetGateway -> VPC [label="Vpc"]
+    SecurityGroup -> VPC [label="VpcId"]
+    Instance -> SecurityGroup [label="SecurityGroupIds"]
+    Instance -> Subnet [label="SubnetId"]
+
+   }
+
+#+END_SRC
+
+
 #+RESULTS:
-[[file:./s3-access-dot.png]]
+[[file:./vpc-local-subnet.png]]
 

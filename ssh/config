@@ -10,3 +10,9 @@ host myInstance2
      user ubuntu
      IdentityFile ~/.ssh/demo-key/demo-key
 
+
+host myFront1
+     StrictHostKeyChecking no
+     UserKnownHostsFile=/dev/null
+     user ubuntu
+     IdentityFile ~/.ssh/demo-key/demo-key

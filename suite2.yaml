@@ -1,0 +1,122 @@
+description: Example configuration for VPC
+
+
+parameters:
+
+        -  Name: &Param_InstanceTypeName InstanceType
+           Type: String
+           Description: EC2 reousrce instance type
+           Value: t2.micro
+
+        -  Name: &Param_KeyName KeyName
+           Type: "AWS::EC2::KeyPair::KeyName"
+           Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+           Value: demo-key
+
+        -  Name: &Param_SSHLocation  SSHLocation
+           Type: String
+           Description: The IP address range that can be used to SSH to the EC2 instances
+           Value: "0.0.0.0/0"
+
+# Define anchors for data value
+# Does not generate anything.
+#
+
+data:
+        - SubNets:
+             - VPC: &SubNetVPC 10.44.0.0/16
+             - Public: &SubNetPublic 10.44.0.0/24
+             - Private: &SubNetPrivate 10.44.1.0/24
+
+resources:
+
+        - VPC:
+                 Name: &LocalVPC LocalVPC
+                 CidrBlock: *SubNetVPC
+                 Tags:
+                    - Key: Name
+                      Value: "LocalVPC"
+
+        - Subnet:
+                 Name: &LocalSubnet LocalSubnet
+                 DependsOn: *LocalVPC
+                 MapPublicIpOnLaunch: true
+                 CidrBlock: *SubNetPrivate
+                 VpcId: *LocalVPC
+                 Tags:
+                    - Key: Name
+                      Value: *LocalSubnet
+
+        - InternetGateway: 
+                 Name: &MyInternetGw MyInternetGw
+                 Vpc: *LocalVPC
+                 Subnet: *LocalSubnet
+                 Tags:
+                    - Key: Name
+                      Value: *MyInternetGw
+
+
+        - SecurityGroup:
+                 Name: &DefaultSG MyDefaultSecurityGroup
+                 VpcId:
+                   Ref: *LocalVPC
+                 SecurityGroupIngress:
+
+                      # ssh
+                    - Ref: *Param_SSHLocation
+                      Port: 22
+
+                      # Ping
+                    - Value: 0.0.0.0/0
+                      FromPort: 8
+                      ToPort: -1
+                      IpProtocol: icmp
+
+
+        -  Instance: 
+                 Name: &Instance1 myFront1
+                 CreationPolicy: 
+                     Timeout: PT4M
+
+                 InstanceTypeRef: *Param_InstanceTypeName
+
+                 KeyName: *Param_KeyName
+
+                 Initialize: 
+                   - InstallCFtools: true
+
+                 SubnetId:
+                       - Ref: *LocalSubnet
+
+                 SecurityGroupIds: 
+                       - Ref: *DefaultSG
+
+
+
+
+        # -  Instance: 
+        #          Name: &Instance1 myBack1
+        #          CreationPolicy: 
+        #              Timeout: PT4M
+
+        #          InstanceTypeRef: *Param_InstanceTypeName
+
+        #          KeyName: *Param_KeyName
+
+        #          Initialize: 
+        #            - InstallCFtools: true
+
+        #          SubnetId:
+        #                - Ref: &LocalSubnet
+
+        #          SecurityGroupIds: 
+        #                - Ref: *DefaultSG
+
+
+outputs:
+
+        -  Name: *Instance1
+           Description: Ip of the newly created EC2 instance
+           Attr: 
+                 Ref: *Instance1
+                 Name: PublicIp
