@@ -69,6 +69,7 @@ RSPEC -tests for `aws-must-templates`.
     <ul>
        <li><a href="#AwsCommandLineInterfaceInstalled">AwsCommandLineInterfaceInstalled</a></li>
        <li><a href="#CloudFormationHelperScriptsInstalled">CloudFormationHelperScriptsInstalled</a></li>
+       <li><a href="#RespondsToPing">RespondsToPing</a>: Responds to ping</li>
        <li><a href="#S3NoAccess">S3NoAccess</a></li>
        <li><a href="#S3ReadAccessAllowed">S3ReadAccessAllowed</a></li>
        <li><a href="#ValidOSVersion">ValidOSVersion</a></li>
