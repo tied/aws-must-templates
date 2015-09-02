@@ -95,6 +95,10 @@ used to validate **aws-must-templates** implementation. For, example
 See [test report](generated-docs/test-suites.md) of
 **aws-must-templates** for more information.
 
+See
+[associated diagrams](https://rawgit.com/jarjuk/aws-must-templates/master/pics/recipes.html)
+for an overview on some use cases.
+
 ### Generate CloudFormation JSON templates
 
 Assuming a YAML stack configuration in a file `mystack.yaml`, the

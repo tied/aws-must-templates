@@ -68,7 +68,6 @@ RSPEC -tests for `aws-must-templates`.
     <li>Resuable tests:</li>
     <ul>
        <li><a href="#AwsCommandLineInterfaceInstalled">AwsCommandLineInterfaceInstalled</a></li>
-       <li><a href="#AwsMustTestRunnerProperties">AwsMustTestRunnerProperties</a></li>
        <li><a href="#CloudFormationHelperScriptsInstalled">CloudFormationHelperScriptsInstalled</a></li>
        <li><a href="#S3NoAccess">S3NoAccess</a></li>
        <li><a href="#S3ReadAccessAllowed">S3ReadAccessAllowed</a></li>
@@ -77,8 +76,9 @@ RSPEC -tests for `aws-must-templates`.
 
     <li>Development:</li>
     <ul> 
-       <li><a href="#Stack">Stack</a></li>
+       <li><a href="#AwsMustTestRunnerProperties">AwsMustTestRunnerProperties</a></li>
        <li><a href="#ParameterTest">ParameterTest</a></li>
+       <li><a href="#Stack">Stack</a></li>
     </ul> 
 
 </ul>
