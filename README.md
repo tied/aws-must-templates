@@ -4,8 +4,10 @@ Set of [extensible](#OVERRIDE)
 [templates](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html)
 for [aws-must](https://github.com/jarjuk/aws-must) tool to generate
 CloudFormation JSON from a YAML configuration, and a
-[Test Runner](#TESTING) for [validating correctness](#TEST_CASES) of
-CloudFormation stacks provisioned.
+[Test Runner](#TESTING) with
+[reusable tests](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html)
+for [validating correctness](#TEST_CASES) of CloudFormation stacks
+provisioned.
 
 See blog posts
 [part1](https://jarjuk.wordpress.com/2015/08/18/announcing-aws-must-templates-part1)
@@ -241,10 +243,11 @@ fingerprint of the (temporary) instance used in testing.
 
 ### Implement Test Cases<a id="TEST_CASES"/>
 
-Test Runner searches Test Cases first from sub-directories under
-`spec/aws-must-templates` directory, and if not found, tries to locate
-Test Cases in Gem **aws-must-templates**. This allows user to reuse
-existing test in **aws-must-templates** and implement own Test Cases.
+Test Runner allows user to implement own Test Cases, or to
+[reuse](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html)
+existing tests in **aws-must-templates**.  It first searches Test
+Cases locally under sub-directory `spec/aws-must-templates`, and if
+not found, tries to locate Test Cases in Gem **aws-must-templates**.
 
 Test runner uses Rspec with [serverspec](http://serverspec.org/)
 library.  For example, `ValidOSVersion` Test Case in
