@@ -1,3 +1,16 @@
+=begin
+
++++start+++
+
+## <a id="ValidOSVersion"></a>ValidOSVersion<a class='navigator' href='#top'>[top]</a>
+
+Validate that operating system codename == `test_parameter( current_test, "Codename" )`
+
++++close+++
+
+=end
+
+# +++fold-on+++
 require 'spec_helper'
 
 current_test = "ValidOSVersion"
@@ -14,3 +27,5 @@ describe current_test do
   end
 end
 
+
+# +++fold-off+++

@@ -25,14 +25,17 @@ EOF
   # s.require_paths   = [ "lib" ]
   s.license       = 'MIT'
 
-  s.add_runtime_dependency 'aws-must',         '~> 0.0', '>=0.0.13'
+  s.add_runtime_dependency 'aws-must',         '~> 0.0', '>=0.0.14.pre'
+
 
   s.homepage              = "https://github.com/jarjuk/aws-must-templates"
 
+  s.required_ruby_version = '~> 2'
+
   # Test Runner
-  s.add_runtime_dependency 'rake', '~>10.4', '>=10.4.2'
-  s.add_runtime_dependency 'rspec', '~>3.3', '>=3.3.0'
-  s.add_runtime_dependency 'serverspec',  '~> 2.21', '>=2.21.1'
+  s.add_runtime_dependency 'rake', '~>10.4'
+  s.add_runtime_dependency 'rspec', '~>3.3'
+  s.add_runtime_dependency 'serverspec',  '~> 2.21'
 
 
 end

@@ -1,5 +1,18 @@
 require 'spec_helper'
 
+=begin
+
++++start+++
+
+## <a id="AwsMustTestRunnerProperties"></a>AwsMustTestRunnerProperties<a class='navigator' href='#top'>[top]</a>
+
+Validata that Test Runner works correctly and set properties
+
++++close+++
+
+=end
+
+# +++fold-on+++
 
 
 # ------------------------------------------------------------------
@@ -36,4 +49,6 @@ describe current_test do
 
 
 end
+
+# +++fold-off+++
 

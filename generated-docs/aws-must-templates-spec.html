@@ -1,0 +1,517 @@
+<p><style>
+h1 {
+    color:blue; 
+    font-size: 2.5em;
+   }
+h2 {
+      color:blue;
+      font-size: 1.5em;
+   }
+h3 {
+      color:blue;
+      font-size: 1.5em;
+   }
+.navigator {
+      font-size: 0.5em;
+   }
+body {
+    background-color: LightSlateGray;
+} 
+/* Support fold-on/fold-off toggle */
+div.fold { 
+    width: 90%; padding: .42rem; border-radius: 5px;  margin: 1rem; </p>
+
+<p>}
+div.fold div { 
+       height: 0px; margin: .2rem; overflow: hidden; 
+}
+div.toggle ~ div { height: 0px; margin: .2rem; overflow: hidden; }
+input.toggle:checked ~ div { 
+     height: auto; <br />
+     color: white; 
+     background: #c6a24b;
+     font-family: monospace;
+     white-space: pre; 
+}
+</style></p>
+
+<h1><a id="top"/><a href="https://github.com/jarjuk/aws-must-templates">aws-must-templates</a></h1>
+
+<p>RSPEC -tests for <code>aws-must-templates</code>.</p>
+
+<h2>Table of contents</h2>
+
+<ul>
+    <li>Resuable tests:</li>
+    <ul>
+       <li><a href="#AwsCommandLineInterfaceInstalled">AwsCommandLineInterfaceInstalled</a></li>
+       <li><a href="#AwsMustTestRunnerProperties">AwsMustTestRunnerProperties</a></li>
+       <li><a href="#CloudFormationHelperScriptsInstalled">CloudFormationHelperScriptsInstalled</a></li>
+       <li><a href="#S3NoAccess">S3NoAccess</a></li>
+       <li><a href="#S3ReadAccessAllowed">S3ReadAccessAllowed</a></li>
+       <li><a href="#ValidOSVersion">ValidOSVersion</a></li>
+    </ul> 
+
+    <li>Development:</li>
+    <ul> 
+       <li><a href="#Stack">Stack</a></li>
+       <li><a href="#ParameterTest">ParameterTest</a></li>
+    </ul> 
+
+</ul>
+
+<h2><a id="AwsCommandLineInterfaceInstalled"></a>AwsCommandLineInterfaceInstalled<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validate that command <code>aws</code> is installed.</p>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require  'spec_helper'
+
+current_test = "AwsCommandLineInterfaceInstalled"
+
+describe current_test do
+
+  describe command('type aws') do
+      its( :exit_status ) { should eq 0 }
+  end
+
+
+end
+
+</div></div>
+
+<h2><a id="AwsMustTestRunnerProperties"></a>AwsMustTestRunnerProperties<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validata that Test Runner works correctly and set properties</p>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+
+# ------------------------------------------------------------------
+# Configuration
+# 
+
+current_test = "AwsMustTestRunnerProperties"
+
+# every suite should define these paramentes
+system_properties = [
+                     [:stack_id ],
+                     [:suite_id ],
+                     ["Outputs" ],
+                     ["Parameters" ],
+                    ]
+
+# ------------------------------------------------------------------
+# 
+
+describe current_test do 
+
+  # ------------------------------------------------------------------
+  # 
+  describe "System properties" do
+
+    system_properties.each do | keys |
+
+      describe valid_property( keys ) do
+        its( :value ) { should_not eq nil } 
+      end
+
+    end
+  end
+
+
+end
+
+</div></div>
+
+<h2><a id="CloudFormationHelperScriptsInstalled"></a>CloudFormationHelperScriptsInstalled<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validate that CloudFormation Helper script is installed.</p>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+describe "CloudFormationHelperScriptsInstalled" do 
+
+  describe command('type cfn-init') do
+      its( :exit_status ) { should eq 0 }
+  end
+
+  describe command('type cfn-signal') do
+      its( :exit_status ) { should eq 0 }
+  end
+
+  describe command('type cfn-get-metadata') do
+      its( :exit_status ) { should eq 0 }
+  end
+
+  describe command('type cfn-hup') do
+      its( :exit_status ) { should eq 0 }
+  end
+
+end
+
+
+</div></div>
+
+<h2><a id="ParameterTest"></a>ParameterTest<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Demonstrate a test accessing <code>test_parameters</code></p>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+
+current_test = "ParameterTest"
+
+describe  current_test do |ex|
+
+
+  # ------------------------------------------------------------------
+  # test parameters
+  parameter1 = test_parameter( current_test, "param1" )
+  parameter2 = test_parameter( current_test, "param2" )
+  parameter3 = test_parameter( current_test, "param3" )
+
+
+  # ------------------------------------------------------------------
+  # Test paramters defined
+
+  describe "Test parameter definition" do
+
+    describe parameter1 do
+      its( :definition_in_test_suite ) { should_not  eq nil }
+    end
+
+    describe parameter2 do
+      its( :definition_in_test_suite ) { should_not eq nil }
+    end
+
+    describe parameter3 do
+      its( :definition_in_test_suite ) { should_not eq nil }
+    end
+
+  end #  describe "Test parameters" do
+
+end
+
+</div></div>
+
+<h2><a id="S3NoAccess"></a>S3NoAccess<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validate no access to S3 bucket <code>test_parameter( current_test, "Bucket" )</code></p>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+# ------------------------------------------------------------------
+# config
+
+current_test = "S3NoAccess"
+
+# ------------------------------------------------------------------
+# Tests
+
+describe current_test  do 
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  bucket_name = test_parameter( current_test, "Bucket" )
+
+  # ------------------------------------------------------------------
+  # Context NO access granted
+
+  context "When Bucket exists" do 
+
+    before(:all) do
+      cmd =  "aws s3 ls s3://#{bucket_name.value}"
+      `#{cmd}`
+      raise "Error in '#{cmd}' " unless $? == 0
+    end
+
+    describe "#cannot  list Bucket" do 
+      describe command('aws s3 ls') do
+        its( :exit_status ) { should_not eq 0 }
+      end
+    end
+
+    test_file="ttest22.tmp"
+
+
+    context "When Object exists in Bucket" do 
+
+      # File copy succeed --> bucket exists
+      before() do
+        cmd =  "echo tst | aws s3 cp - s3://#{bucket_name.value}/#{test_file}"
+        `#{cmd}`
+        raise "Error in '#{cmd}' " unless $? == 0
+      end
+
+      after(:all) do
+        cmd = "aws s3 rm  s3://#{bucket_name.value}/#{test_file}"
+        `#{cmd}`
+        raise "Error in '#{cmd}' " unless $? == 0
+      end
+
+      describe "#cannot list S3 bucket keys" do 
+        describe command( "aws s3 ls s3://#{bucket_name.value} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)") do
+          its( :exit_status ) { should_not eq 0 }
+        end
+      end
+
+      describe "#cannot cp S3 bucket object" do 
+        describe command("aws s3 cp s3://#{bucket_name.value}/#{test_file} /tmp/#{test_file} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)") do
+          its( :exit_status ) { should_not eq 0 }
+        end
+      end
+
+    end # conttext
+
+  end
+
+end
+
+
+</div></div>
+
+<h2><a id="S3ReadAccessAllowed"></a>S3ReadAccessAllowed<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validate that read access to S3 bucket <code>test_parameter( current_test, "Bucket" )</code> exists</p>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+
+require 'spec_helper'
+
+current_test = "S3ReadAccessAllowed"
+
+describe current_test do
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  bucket_name = test_parameter( current_test, "Bucket" )
+
+  # bucket_name =  stack_output( 'Bucket' ).value 
+
+  # ------------------------------------------------------------------
+  # constanst used in test
+
+  test_file="ttest.tmp"
+
+  # ------------------------------------------------------------------
+  # Test paramters defined
+
+  describe "Test parameter definition" do
+
+    describe bucket_name do
+      its( :definition_in_test_suite ) { should_not  eq nil }
+    end
+
+  end
+
+  describe "Test parameter values" do
+
+    describe bucket_name do
+      its( :value ) { should_not  eq nil }
+    end
+
+  end
+
+
+  # # ------------------------------------------------------------------
+  # # Stack parameters && outputs
+
+  # describe "Stack" do 
+
+  #   it "#defines bucket_name"  do
+  #     expect( bucket_name ).not_to eql( nil )
+  #   end
+
+  # end
+
+  # ------------------------------------------------------------------
+  # aws Command line interface installed
+
+  context "Operating system context" do 
+
+    describe "Aws Commad Line Interface (CLI) is installed" do 
+      describe command('type aws') do
+        its( :exit_status ) { should eq 0 }
+      end
+    end
+
+  end
+
+  # ------------------------------------------------------------------
+  # Context
+
+  context "When read access to a S3 bucket granted" do 
+
+    describe "Can list S3 buckets" do 
+      describe command('aws s3 ls') do
+        its( :exit_status ) { should eq 0 }
+      end
+    end
+
+    describe "Can list S3 bucket keys" do 
+      default_ls = "aws s3 ls s3://#{bucket_name.value}"
+      region_ls  = "aws s3 ls s3://#{bucket_name.value} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)"
+      describe command( "#{default_ls} || #{region_ls}" ) do
+        its ( :exit_status ) { should eq 0 }
+      end
+    end
+
+
+    context "When an Object exists in S3 bucket" do 
+
+      before(:context) do
+        cmd =  "echo tst | aws s3 cp - s3://#{bucket_name.value}/#{test_file}"
+        `#{cmd}`
+        raise "Error in '#{cmd}' " unless $? == 0
+      end
+
+      after(:context) do
+        cmd = "aws s3 rm  s3://#{bucket_name.value}/#{test_file}"
+        `#{cmd}`
+        raise "Error in '#{cmd}' " unless $? == 0
+      end
+
+      # Using "serverspec" style here
+      describe "Can read the Object from a S3 bucket" do 
+        default_cp = "aws s3 cp s3://#{bucket_name.value}/#{test_file} /tmp/#{test_file}"
+        region_cp = "aws s3 cp s3://#{bucket_name.value}/#{test_file} /tmp/#{test_file} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)"
+        describe command( "#{default_cp} || #{region_cp}" ) do
+          its( :exit_status ) { should eq 0 }
+        end
+
+      end
+
+      # using subject + expect style
+      describe "Cannot modify (= delete) the  Object in bucket" do
+
+        describe  command("aws s3 rm s3://#{bucket_name.value}/#{test_file} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)") do
+          its ( :exit_status )  { should_not eql 0 }
+        end
+
+      end
+
+    end # context test_file in bucket
+
+    # subject + it is_expected one liner
+    describe "Cannot write to bucket" do 
+
+      describe "Create an Object in bucket should fail" do
+        describe command("aws s3 cp /etc/hosts  s3://#{bucket_name.value}/#{test_file} --region $(aws s3api get-bucket-location --bucket #{bucket_name.value} --output text)") do
+          its( :exit_status ) { should_not eql 0  }
+        end
+      end
+    end
+  end
+
+  # ------------------------------------------------------------------
+  # 
+
+  context "When bucket does not exists" do 
+
+    describe "Cannot list S3 bucket keys" do 
+
+      describe command( "aws s3 ls s3://DASKLjwKLJ4534Buckert --region $(aws s3api get-bucket-location --bucket #{@bucket_name} --output text)") do
+        its( :exit_status ) { should_not eq 0 }
+      end
+    end
+
+  end
+
+
+end
+
+</div></div>
+
+<h2><a id="Stack"></a>Stack<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validate (and document in test report!) properties in
+<code>property[:stack_id]</code></p>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+
+# @author jarjuk
+
+# ------------------------------------------------------------------
+# Configuration
+# 
+
+current_test = "Stack"
+
+props = {
+  "smoke" => [
+             stack_parameter( "DummyParameter" ),
+             stack_output( "Bucket" ),
+             stack_output( "BucketName" ),
+             ],
+  "suite1" => [
+             stack_output( "Bucket" ),
+             stack_parameter( "InstanceType" ),
+             stack_parameter( "KeyName" ),
+             stack_parameter( "SSHLocation" )
+   ],
+}
+# ------------------------------------------------------------------
+# 
+
+describe current_test do 
+
+  describe "Stack '#{property[:stack_id]}'", '#stack' do
+
+    it "#known in test '#{current_test}''" do 
+
+      expect( props[property[:stack_id]]).not_to eql( nil ) 
+
+    end
+
+    # Validate configurations
+
+    props[property[:stack_id]] && props[property[:stack_id]].each do | stack_property |
+      describe stack_property  do
+        its( :value ) { should_not eq nil } 
+      end
+    end
+
+  end
+
+end
+
+
+</div></div>
+
+<h2><a id="ValidOSVersion"></a>ValidOSVersion<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validate that operating system codename == <code>test_parameter( current_test, "Codename" )</code></p>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+require 'spec_helper'
+
+current_test = "ValidOSVersion"
+
+describe current_test do
+
+  # defined in test-suites.yaml
+  codename = test_parameter( current_test, "Codename" )
+
+  describe "Operating system codename '#{codename.value}'" do
+    describe command('lsb_release --c -s') do
+      its( :stdout ) { should match /#{codename.value}/ }
+    end
+  end
+end
+
+
+</div></div>

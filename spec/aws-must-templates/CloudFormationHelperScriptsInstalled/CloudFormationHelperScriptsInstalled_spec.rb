@@ -1,3 +1,17 @@
+=begin
+
++++start+++
+
+## <a id="CloudFormationHelperScriptsInstalled"></a>CloudFormationHelperScriptsInstalled<a class='navigator' href='#top'>[top]</a>
+
+Validate that CloudFormation Helper script is installed.
+
++++close+++
+
+=end
+
+# +++fold-on+++
+
 require 'spec_helper'
 
 describe "CloudFormationHelperScriptsInstalled" do 
@@ -19,3 +33,6 @@ describe "CloudFormationHelperScriptsInstalled" do
   end
 
 end
+
+
+# +++fold-off+++

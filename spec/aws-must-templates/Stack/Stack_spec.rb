@@ -1,3 +1,18 @@
+=begin
+
++++start+++
+
+## <a id="Stack"></a>Stack<a class='navigator' href='#top'>[top]</a>
+
+Validate (and document in test report!) properties in
+`property[:stack_id]`
+
++++close+++
+
+=end
+
+# +++fold-on+++
+
 require 'spec_helper'
 
 
@@ -47,3 +62,5 @@ describe current_test do
 
 end
 
+
+# +++fold-off+++
