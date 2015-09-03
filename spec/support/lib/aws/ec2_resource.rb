@@ -32,6 +32,10 @@ module Serverspec
         describe_instance_attribute("instanceType").instance_type.value
       end
 
+      def public_ip_address
+        describe_instance.public_ip_address
+      end
+
       def instance_id
         # use 'instanceType'  return also instace_id
         describe_instance_attribute("instanceType").instance_id
@@ -43,6 +47,19 @@ module Serverspec
         @ec2Client = Aws::EC2::Client.new
         return @ec2Client
       end
+
+      def describe_instance
+        describe_instances.reservations.first.instances.first
+      end
+      
+      def describe_instances
+        options = {
+          dry_run: false,
+          instance_ids: [ @instanceId ]
+        }
+        client.describe_instances( options )
+      end
+
 
       
       def describe_instance_status

@@ -1,0 +1,24 @@
+
+Ec2PublicIp
+  instance 'i-92770c3f'
+    Public IP
+      ec2: 'i-92770c3f'
+        public_ip_address
+          should eql nil
+
+Ec2StatusNormal
+  instance 'i-92770c3f'
+    works
+    ec2: 'i-92770c3f'
+      availability_zone
+        should not eq nil
+    ec2: 'i-92770c3f'
+      system_status_ok?
+        should eq true
+    ec2: 'i-92770c3f'
+      instance_state_running?
+        should eq true
+
+Finished in 0.94142 seconds (files took 1.06 seconds to load)
+5 examples, 0 failures
+

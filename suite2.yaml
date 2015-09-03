@@ -24,33 +24,44 @@ parameters:
 
 data:
         - SubNets:
-             - VPC: &SubNetVPC 10.44.0.0/16
-             - Public: &SubNetPublic 10.44.0.0/24
-             - Private: &SubNetPrivate 10.44.1.0/24
+             - VPC: &SubNetVPC 10.0.0.0/16
+             - Public: &SubNetPublic 10.0.0.0/24
+             - Private: &SubNetPrivate 10.0.1.0/24
 
 resources:
 
         - VPC:
-                 Name: &LocalVPC LocalVPC
+                 Name: &MyVPC MyVPC
                  CidrBlock: *SubNetVPC
                  Tags:
                     - Key: Name
-                      Value: "LocalVPC"
+                      Value: "MyVPC"
 
         - Subnet:
-                 Name: &LocalSubnet LocalSubnet
-                 DependsOn: *LocalVPC
+                 Name: &PublicSubnet PublicSubnet
+                 DependsOn: *MyVPC
                  MapPublicIpOnLaunch: true
-                 CidrBlock: *SubNetPrivate
-                 VpcId: *LocalVPC
+                 CidrBlock: *SubNetPublic
+                 VpcId: *MyVPC
                  Tags:
                     - Key: Name
-                      Value: *LocalSubnet
+                      Value: *PublicSubnet
+
+        - Subnet:
+                 Name: &PrivateSubnet PrivateSubnet
+                 DependsOn: *MyVPC
+                 MapPublicIpOnLaunch: false
+                 CidrBlock: *SubNetPrivate
+                 VpcId: *MyVPC
+                 Tags:
+                    - Key: Name
+                      Value: *PrivateSubnet
+
 
         - InternetGateway: 
                  Name: &MyInternetGw MyInternetGw
-                 Vpc: *LocalVPC
-                 Subnet: *LocalSubnet
+                 Vpc: *MyVPC
+                 Subnet: *PublicSubnet
                  Tags:
                     - Key: Name
                       Value: *MyInternetGw
@@ -65,7 +76,7 @@ resources:
         - SecurityGroup:
                  Name: &DefaultSG MyDefaultSecurityGroup
                  VpcId:
-                   Ref: *LocalVPC
+                   Ref: *MyVPC
                  SecurityGroupIngress:
 
                       # ssh
@@ -81,42 +92,44 @@ resources:
 
         -  Instance: 
                  Name: &Instance1 myFront1
-                 CreationPolicy: 
-                     Timeout: PT4M
 
                  InstanceTypeRef: *Param_InstanceTypeName
 
                  KeyName: *Param_KeyName
 
+                 CreationPolicy: 
+                     Timeout: PT8M
+
                  Initialize: 
                    - InstallCFtools: true
 
                  SubnetId:
-                       - Ref: *LocalSubnet
+                       - Ref: *PublicSubnet
 
                  SecurityGroupIds: 
                        - Ref: *DefaultSG
 
 
+        -  Instance: 
+                 Name: &Instance2 myBack1
 
+                 InstanceTypeRef: *Param_InstanceTypeName
 
-        # -  Instance: 
-        #          Name: &Instance1 myBack1
-        #          CreationPolicy: 
-        #              Timeout: PT4M
+                 KeyName: *Param_KeyName
 
-        #          InstanceTypeRef: *Param_InstanceTypeName
+                 # Fails because no internet connection to download 
+                 # cfn-tools
+                 # CreationPolicy: 
+                 #     Timeout: PT8M
 
-        #          KeyName: *Param_KeyName
+                 # Initialize: 
+                 #   - InstallCFtools: true
 
-        #          Initialize: 
-        #            - InstallCFtools: true
+                 SubnetId:
+                       - Ref: *PrivateSubnet
 
-        #          SubnetId:
-        #                - Ref: &LocalSubnet
-
-        #          SecurityGroupIds: 
-        #                - Ref: *DefaultSG
+                 SecurityGroupIds: 
+                       - Ref: *DefaultSG
 
 
 outputs:
@@ -127,9 +140,19 @@ outputs:
                  Ref: *Instance1
                  Name: PublicIp
 
+        # -  Name: *Instance2
+        #    Description: Ip of the newly created EC2 instance
+        #    Attr: 
+        #          Ref: *Instance2
+        #          Name: PublicIp
+
         -  Name: InstanceId1
            Description: Ip of the newly created EC2 instance
            Ref: *Instance1
+
+        -  Name: InstanceId2
+           Description: Ip of the newly created EC2 instance
+           Ref: *Instance2
 
         -  Name: *MyInternetGw
            Description: Id of InternetGateway

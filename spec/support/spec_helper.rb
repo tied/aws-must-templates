@@ -80,8 +80,15 @@ raise "Stack '#{stack_id}' status='#{stack_json["StackStatus"]} is not ready (=#
 
 if instance_id then
   # find output parameter defining hostname (or ip address)
-  hostname_in_stack=stack_json["Outputs"].select {|a| a["OutputKey"] == output_key_for_hostname }.first["OutputValue"]
-  raise "Could not find OutputKey '#{output_key_for_hostname}' in stack '#{stack}' for instance_id '#{instance_id}'" unless hostname_in_stack
+  instance_in_stack = stack_json["Outputs"].select {|a| a["OutputKey"] == output_key_for_hostname }
+  if instance_in_stack && !instance_in_stack.empty?
+    hostname_in_stack=instance_in_stack.first["OutputValue"]
+  else
+    warn "Could not find hostname/ip address in stack '#{stack_id}' Outputs to access instance_id '#{instance_id}' - using instance_id for access"
+    hostname_in_stack = instance_id
+  end
+
+  raise "Could not find OutputKey '#{output_key_for_hostname}' in stack '#{stack_id}' for instance_id '#{instance_id}'" unless hostname_in_stack
 end
 
 # create a hash, which is accessible in spec tests are 'property' 

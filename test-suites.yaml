@@ -98,7 +98,19 @@
 
 
 - suite2:
-   desc: Example configuration for VPC
+   desc: VPC with Public and Private Subnets (NAT)
+   long_desc: |
+
+         Create VPC with Public and Private Subnets (NAT)
+         based on [scenario 2](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Scenario2.html)
+
+         Resource:
+         * VPC using address range 10.0.0.0/16 
+         * Public subnet 10.0.0.0/24 
+         * Private Subnet 10.0.1.0/24.
+
+   roles: 
+
    instances:
      - myFront1:
          roles:
@@ -110,5 +122,19 @@
              - Ec2InstanceType:
                  InstanceId: "@Outputs.InstanceId1"
                  InstanceType: "@Parameters.InstanceType"
+             - Ec2PublicIp:
+                 InstanceId: "@Outputs.InstanceId1"
+                 PublicIp:   "@Outputs.myFront1"
+                 # PublicIp:   192.168.1.1
+                 # PublicIp:   defined
+
      - myBack1:
+         roles:    
+             - Ec2StatusNormal:
+                 InstanceId: "@Outputs.InstanceId2"
+             - Ec2PublicIp:
+                 InstanceId: "@Outputs.InstanceId2"
+                 PublicIp:   nil
+                 # PublicIp:   192.168.1.1
+                 # PublicIp:   defined
 

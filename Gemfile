@@ -6,8 +6,12 @@ gem 'aws-must', ">=0.0.14.pre"
 # System tests
 gem 'serverspec'
 
+gem 'rake'
+
 # Unit tests
 gem 'rspec'
+gem 'aws-sdk', '~> 2'
+
 
 # Guard
 gem 'guard'
