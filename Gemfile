@@ -8,9 +8,10 @@ gem 'serverspec'
 
 gem 'rake'
 
-# Unit tests
+# Testing
 gem 'rspec'
 gem 'aws-sdk', '~> 2'
+gem 'netaddr', '~>1.5'
 
 
 # Guard

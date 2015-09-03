@@ -45,6 +45,7 @@ GEM
       net-ssh (>= 2.6.5)
     net-ssh (2.9.2)
     net-telnet (0.1.1)
+    netaddr (1.5.0)
     notiffany (0.0.7)
       nenv (~> 0.1)
       shellany (~> 0.0)
@@ -101,6 +102,7 @@ DEPENDENCIES
   guard
   guard-rspec
   guard-shell
+  netaddr (~> 1.5)
   rake
   rb-readline
   redcarpet

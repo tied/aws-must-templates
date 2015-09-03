@@ -4,9 +4,12 @@
 
 ## <a id="Ec2PublicIp"></a>Ec2PublicIp<a class='navigator' href='#top'>[top]</a>
 
-Validates that EC2 `InstanceId` has a public ip associated
+Validates EC2 `InstanceId` public ip `:public_ip_address`
+using test paramter `PublicIp`. Can also validate that
+`public_ip_address` is not set.
 
-* `:public_ip_address` == `PublicIp` 
+Validates EC2 `InstanceId` public ip `:public_ip_address` using test
+paramter `CidrBlock`, unless `CidrBlock` empty or string "`none`".
 
 **Parameters**
 
@@ -16,6 +19,10 @@ Validates that EC2 `InstanceId` has a public ip associated
    * `none`: should not be defined (=alias nil)
    * V4 address regexp: should eql 
    * `defined`: should not be nill
+* `test_parameter( current_test, "CidrBlock" )` valid values
+   * "" (empty string) : do not check for CidrBlock
+   * "none" : do not check for CidrBlock
+   * anything other: check for CidrBlock
 
 +++close+++
 
@@ -33,8 +40,9 @@ describe current_test do
   # test parameters
 
   instance = test_parameter( current_test, "InstanceId" )
-
   public_ip = test_parameter( current_test, "PublicIp" )
+  cidr_block = test_parameter( current_test, "CidrBlock" )
+
 
   # ------------------------------------------------------------------
   # tests
@@ -44,8 +52,9 @@ describe current_test do
     describe "Public IP" do
     
       case public_ip.value
+
       when /\A(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\Z/ 
-        describe ec2_resource( instance ) do
+        describe ec2_resource_attribute( instance, "public_ip_address" ) do
           its( :public_ip_address  ) { should eql public_ip.value }
         end
       when "none", "nil"
@@ -60,6 +69,19 @@ describe current_test do
         raise "Invalid value '#{public_ip.value}' in parameter '#{public_ip}'"
       end # case
     end # public ip
+
+    # validate CidrBlock
+    if !cidr_block.value.empty? && cidr_block.value != "none" then
+
+      describe "CidrBlock" do
+        describe ec2_resource_attribute( instance, "public_ip_address" ) do
+          it "#valid cidr #{cidr_block.value}" do
+            expect( subject.cidr_valid_ip(  subject.public_ip_address, cidr_block.value ) ).to eql( true )
+          end
+        end
+      end
+    end
+
   end # instance
 
 

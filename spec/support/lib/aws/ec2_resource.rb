@@ -2,18 +2,23 @@ require 'aws-sdk'
 require 'serverspec'
 
 
+require_relative "./mixin_cidr"
+
+
 module Serverspec
   module Type
 
     class Ec2Resource < Base
 
-      def initialize( instanceId )
+      def initialize( instanceId, attribute=nil )
         raise 'must set a instanceId' if instanceId.nil?
         @instanceId = instanceId
+        # parameter `attribute` controls output in `to_s`
+        @attribute  = attribute
       end
 
       def to_s
-        "ec2: '#{@instanceId}'"
+        "ec2: '#{@instanceId}'" + (@attribute ? ", #{@attribute}: #{self.send( @attribute )}"  :"" )
       end
 
       def availability_zone 
@@ -34,6 +39,16 @@ module Serverspec
 
       def public_ip_address
         describe_instance.public_ip_address
+      end
+
+      def private_ip_address
+        describe_instance.private_ip_address
+      end
+
+      # true if private_ip belongs to cidr
+      def private_ip_address_valid_cidr?( cidr )
+        private_ip = describe_instance.private_ip_address
+        cidr_valid_ip( private_ip, cidr )
       end
 
       def instance_id
@@ -59,8 +74,6 @@ module Serverspec
         }
         client.describe_instances( options )
       end
-
-
       
       def describe_instance_status
         options = {
@@ -78,17 +91,25 @@ module Serverspec
           instance_id:  @instanceId,
           attribute: attribute
         }
-
         client.describe_instance_attribute(options)
       end
 
-
+      # valid
+      include Serverspec::Type::CIDR
 
     end # class Vpc < Base
 
     def ec2_resource( instanceId )
       Ec2Resource.new( instanceId.kind_of?(Serverspec::Type::ValidProperty) ? instanceId.value : instanceId )
     end
+
+    # resource output includes also attribute value
+    def ec2_resource_attribute( instanceId, attribute )
+      Ec2Resource.new( instanceId.kind_of?(Serverspec::Type::ValidProperty) ? instanceId.value : instanceId,
+                       attribute.kind_of?(Serverspec::Type::ValidProperty) ? attribute.value : attribute
+                       )
+    end
+
 
   end # module Type
 end

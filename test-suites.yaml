@@ -98,6 +98,7 @@
 
 
 - suite2:
+
    desc: VPC with Public and Private Subnets (NAT)
    long_desc: |
 
@@ -110,6 +111,14 @@
          * Private Subnet 10.0.1.0/24.
 
    roles: 
+
+   # Just define anchor valued, does not generate anything
+   suite2_data: 
+        - SubNets:
+             - VPC: &SubNetVPC 10.0.0.0/16
+             - Public: &SubNetPublic 10.0.0.0/24
+             - Private: &SubNetPrivate 10.0.1.0/24
+
 
    instances:
      - myFront1:
@@ -125,6 +134,7 @@
              - Ec2PublicIp:
                  InstanceId: "@Outputs.InstanceId1"
                  PublicIp:   "@Outputs.myFront1"
+                 CidrBlock:  none
                  # PublicIp:   192.168.1.1
                  # PublicIp:   defined
 
@@ -132,6 +142,9 @@
          roles:    
              - Ec2StatusNormal:
                  InstanceId: "@Outputs.InstanceId2"
+             - Ec2PrivateIp:
+                 InstanceId: "@Outputs.InstanceId2"
+                 CidrBlock:   *SubNetPrivate
              - Ec2PublicIp:
                  InstanceId: "@Outputs.InstanceId2"
                  PublicIp:   nil
