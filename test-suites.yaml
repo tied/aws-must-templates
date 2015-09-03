@@ -104,5 +104,11 @@
          roles:
              - RespondsToPing:
                  Hostname: '@Outputs.myFront1'
+             - CloudFormationHelperScriptsInstalled
+             - Ec2StatusNormal:
+                 InstanceId: "@Outputs.InstanceId1"
+             - Ec2InstanceType:
+                 InstanceId: "@Outputs.InstanceId1"
+                 InstanceType: "@Parameters.InstanceType"
      - myBack1:
 

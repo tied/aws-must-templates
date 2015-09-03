@@ -55,6 +55,12 @@ resources:
                     - Key: Name
                       Value: *MyInternetGw
 
+        - S3Bucket:
+                 Name: &Bucket MyBucket
+                 DeletionPolicy: Delete
+                 CreationPolicy:
+                      Timeout: PT2M
+
 
         - SecurityGroup:
                  Name: &DefaultSG MyDefaultSecurityGroup
@@ -120,3 +126,12 @@ outputs:
            Attr: 
                  Ref: *Instance1
                  Name: PublicIp
+
+        -  Name: InstanceId1
+           Description: Ip of the newly created EC2 instance
+           Ref: *Instance1
+
+        -  Name: *MyInternetGw
+           Description: Id of InternetGateway
+           Ref: *MyInternetGw
+
