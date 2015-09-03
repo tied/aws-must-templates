@@ -23,7 +23,7 @@ Validates that status of `InstanceId` EC2  status for `describe_instance_status`
 
 require 'spec_helper'
 
-current_test = "Ec2StatusNormal"
+current_test = File.basename File.dirname  __FILE__ 
 
 describe current_test do
 

@@ -15,7 +15,7 @@ Validate that read access to S3 bucket `test_parameter( current_test, "Bucket" )
 
 require 'spec_helper'
 
-current_test = "S3ReadAccessAllowed"
+current_test = File.basename File.dirname  __FILE__ 
 
 describe current_test do
 

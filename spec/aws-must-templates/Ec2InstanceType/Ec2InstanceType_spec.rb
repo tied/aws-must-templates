@@ -22,7 +22,7 @@ Validates `InstanceType`  of EC2 `InstanceId` as returned by  `describe_instance
 
 require 'spec_helper'
 
-current_test = "Ec2InstanceType"
+current_test = File.basename File.dirname  __FILE__ 
 
 describe current_test do
 

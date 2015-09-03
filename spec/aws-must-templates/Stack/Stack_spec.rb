@@ -22,7 +22,7 @@ require 'spec_helper'
 # Configuration
 # 
 
-current_test = "Stack"
+current_test = File.basename File.dirname  __FILE__ 
 
 props = {
   "smoke" => [

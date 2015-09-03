@@ -14,7 +14,7 @@ Validate that host  `test_parameter( current_test, "Hostname" )`  answers to pin
 
 require 'spec_helper'
 
-current_test = "RespondsToPing"
+current_test = File.basename File.dirname  __FILE__ 
 
 describe current_test do
 

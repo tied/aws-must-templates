@@ -15,7 +15,7 @@ Demonstrate a test accessing `test_parameters`
 require 'spec_helper'
 
 
-current_test = "ParameterTest"
+current_test = File.basename File.dirname  __FILE__ 
 
 describe  current_test do |ex|
 

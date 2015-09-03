@@ -13,7 +13,7 @@ Validate that operating system codename == `test_parameter( current_test, "Coden
 # +++fold-on+++
 require 'spec_helper'
 
-current_test = "ValidOSVersion"
+current_test = File.basename File.dirname  __FILE__ 
 
 describe current_test do
 
