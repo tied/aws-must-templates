@@ -110,3 +110,21 @@ Finished in 0.00336 seconds (files took 1.06 seconds to load)
 
 * [myInstance](suites/suite1-myInstance.txt)
 * [myInstance2](suites/suite1-myInstance2.txt)
+## suite2 - VPC with Public and Private Subnets (NAT)
+
+
+Create VPC with Public and Private Subnets (NAT)
+based on [scenario 2](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Scenario2.html)
+
+Resource:
+* VPC using address range 10.0.0.0/16 
+* Public subnet 10.0.0.0/24 
+* Private Subnet 10.0.1.0/24.
+
+
+
+
+### Instance Test Reports
+
+* [myFront1](suites/suite2-myFront1.txt)
+* [myBack1](suites/suite2-myBack1.txt)

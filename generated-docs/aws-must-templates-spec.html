@@ -45,8 +45,12 @@ input.toggle:checked ~ div {
     <li>Resuable tests:</li>
     <ul>
        <li><a href="#AwsCommandLineInterfaceInstalled">AwsCommandLineInterfaceInstalled</a></li>
-       <li><a href="#AwsMustTestRunnerProperties">AwsMustTestRunnerProperties</a></li>
        <li><a href="#CloudFormationHelperScriptsInstalled">CloudFormationHelperScriptsInstalled</a></li>
+       <li><a href="#Ec2InstanceType">Ec2InstanceType</a></li>
+       <li><a href="#Ec2PublicIp">Ec2PublicIp</a></li>
+       <li><a href="#Ec2PrivateIp">Ec2PrivateIp</a></li>
+       <li><a href="#Ec2StatusNormal">Ec2StatusNormal</a></li>
+       <li><a href="#RespondsToPing">RespondsToPing</a>: Responds to ping</li>
        <li><a href="#S3NoAccess">S3NoAccess</a></li>
        <li><a href="#S3ReadAccessAllowed">S3ReadAccessAllowed</a></li>
        <li><a href="#ValidOSVersion">ValidOSVersion</a></li>
@@ -54,8 +58,9 @@ input.toggle:checked ~ div {
 
     <li>Development:</li>
     <ul> 
-       <li><a href="#Stack">Stack</a></li>
+       <li><a href="#AwsMustTestRunnerProperties">AwsMustTestRunnerProperties</a></li>
        <li><a href="#ParameterTest">ParameterTest</a></li>
+       <li><a href="#Stack">Stack</a></li>
     </ul> 
 
 </ul>
@@ -68,7 +73,7 @@ input.toggle:checked ~ div {
 
 require  'spec_helper'
 
-current_test = "AwsCommandLineInterfaceInstalled"
+current_test = File.basename File.dirname  __FILE__ 
 
 describe current_test do
 
@@ -92,7 +97,7 @@ end
 # Configuration
 # 
 
-current_test = "AwsMustTestRunnerProperties"
+current_test = File.basename File.dirname  __FILE__ 
 
 # every suite should define these paramentes
 system_properties = [
@@ -156,6 +161,250 @@ end
 
 </div></div>
 
+<h2><a id="Ec2InstanceType"></a>Ec2InstanceType<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validates <code>InstanceType</code>  of EC2 <code>InstanceId</code> as returned by  <code>describe_instance_attribute</code> </p>
+
+<ul>
+<li><code>:instance_type</code> == <code>InstanceType</code></li>
+<li><code>:instance_id</code> == <code>InstanceId</code>  # no brainer</li>
+</ul>
+
+<p><strong>Parameters</strong></p>
+
+<ul>
+<li><code>test_parameter( current_test, "InstanceId" )</code> </li>
+<li><code>test_parameter( current_test, "InstanceType" )</code> </li>
+</ul>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe current_test do
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  instance = test_parameter( current_test, "InstanceId" )
+  instanceType = test_parameter( current_test, "InstanceType" )
+
+  # ------------------------------------------------------------------
+  # tests
+  describe "instance '#{instance.value}'" do
+
+
+    describe ec2_resource( instance ) do
+      its( :instance_type  ) { should eq instanceType.value }
+    end
+
+    describe ec2_resource( instance ) do
+      its( :instance_id  ) { should eq instance.value }
+    end
+
+  end
+
+
+end
+
+</div></div>
+
+<h2><a id="Ec2PrivateIp"></a>Ec2PrivateIp<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validates EC2 <code>InstanceId</code> public ip <code>:public_ip_address</code> using
+test paramter <code>CidrBlock</code></p>
+
+<p><strong>Parameters</strong></p>
+
+<ul>
+<li><code>test_parameter( current_test, "InstanceId" )</code> : mandatory</li>
+<li><code>test_parameter( current_test, "CidrBlock" )</code> : mandatory, should be valid Cidr</li>
+</ul>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe current_test do
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  instance = test_parameter( current_test, "InstanceId" )
+  cidr_block = test_parameter( current_test, "CidrBlock" )
+
+  # ------------------------------------------------------------------
+  # tests
+  describe "instance '#{instance.value}'" do
+
+    describe ec2_resource_attribute( instance, "private_ip_address" ) do
+      it { should_not eql nil }
+
+      it "#valid cidr #{cidr_block.value}" do
+        expect( subject.private_ip_address_valid_cidr?( cidr_block.value ) ).to eql( true )
+      end
+    end
+
+  end # instance
+
+
+end
+
+</div></div>
+
+<h2><a id="Ec2PublicIp"></a>Ec2PublicIp<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validates EC2 <code>InstanceId</code> public ip <code>:public_ip_address</code>
+using test paramter <code>PublicIp</code>. Can also validate that
+<code>public_ip_address</code> is not set.</p>
+
+<p><strike>
+Validates EC2 <code>InstanceId</code> public ip <code>:public_ip_address</code> using test
+paramter <code>CidrBlock</code>, unless <code>CidrBlock</code> empty or string "<code>none</code>".
+</strike></p>
+
+<p><strong>Parameters</strong></p>
+
+<ul>
+<li><code>test_parameter( current_test, "InstanceId" )</code> </li>
+<li><code>test_parameter( current_test, "PublicIp" )</code> valid values
+<ul>
+<li><code>nil</code>  : should not be defined</li>
+<li><code>none</code>: should not be defined (=alias nil)</li>
+<li>V4 address regexp: should eql </li>
+<li><code>defined</code>: should not be nill
+<strike></li>
+</ul></li>
+<li><code>test_parameter( current_test, "CidrBlock" )</code> valid values
+<ul>
+<li>"" (empty string) : do not check for CidrBlock</li>
+<li>"none" : do not check for CidrBlock</li>
+<li>anything other: check for CidrBlock
+</strike></li>
+</ul></li>
+</ul>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe current_test do
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  instance = test_parameter( current_test, "InstanceId" )
+  public_ip = test_parameter( current_test, "PublicIp" )
+  # cidr_block = test_parameter( current_test, "CidrBlock" )
+
+
+  # ------------------------------------------------------------------
+  # tests
+  describe "instance '#{instance.value}'" do
+
+
+    describe "Public IP" do
+
+      case public_ip.value
+
+      when /\A(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\Z/ 
+        describe ec2_resource_attribute( instance, "public_ip_address" ) do
+          its( :public_ip_address  ) { should eql public_ip.value }
+        end
+      when "none", "nil"
+        describe ec2_resource( instance ) do
+          its( :public_ip_address  ) { should eql nil }
+        end
+      when "defined"
+        describe ec2_resource( instance ) do
+          its( :public_ip_address  ) { should_not  eql nil }
+        end
+      else
+        raise "Invalid value '#{public_ip.value}' in parameter '#{public_ip}'"
+      end # case
+    end # public ip
+
+    # # validate CidrBlock
+    # if !cidr_block.value.empty? && cidr_block.value != "none" then
+
+    #   describe "CidrBlock" do
+    #     describe ec2_resource_attribute( instance, "public_ip_address" ) do
+    #       it "#valid cidr #{cidr_block.value}" do
+    #         expect( subject.cidr_valid_ip(  subject.public_ip_address, cidr_block.value ) ).to eql( true )
+    #       end
+    #     end
+    #   end
+    # end # if validate CidrBlock
+
+  end # instance
+
+
+end
+
+</div></div>
+
+<h2><a id="Ec2StatusNormal"></a>Ec2StatusNormal<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validates that status of <code>InstanceId</code> EC2  status for <code>describe_instance_status</code> normal:</p>
+
+<ul>
+<li><code>:system_status_ok?</code></li>
+<li><code>:instance_state_running?</code></li>
+</ul>
+
+<p><strong>Parameters</strong></p>
+
+<ul>
+<li><code>test_parameter( current_test, "InstanceId" )</code> </li>
+</ul>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe current_test do
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  instance = test_parameter( current_test, "InstanceId" )
+
+  # ------------------------------------------------------------------
+  # tests
+  describe "instance '#{instance.value}'" do
+
+    it "works" do 
+      expect( 1 ).to eql( 1 )
+    end
+
+    describe ec2_resource( instance ) do
+      its( :availability_zone  ) { should_not eq nil }
+    end
+
+    describe ec2_resource( instance ) do
+      its( :system_status_ok?  ) { should eq true }
+    end
+
+    describe ec2_resource( instance ) do
+      its( :instance_state_running?  ) { should eq true }
+    end
+
+
+  end
+
+
+end
+
+</div></div>
+
 <h2><a id="ParameterTest"></a>ParameterTest<a class='navigator' href='#top'>[top]</a></h2>
 
 <p>Demonstrate a test accessing <code>test_parameters</code></p>
@@ -165,7 +414,7 @@ end
 require 'spec_helper'
 
 
-current_test = "ParameterTest"
+current_test = File.basename File.dirname  __FILE__ 
 
 describe  current_test do |ex|
 
@@ -200,6 +449,45 @@ end
 
 </div></div>
 
+<h2><a id="RespondsToPing"></a>RespondsToPing<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validate that host  <code>test_parameter( current_test, "Hostname" )</code>  answers to ping</p>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe current_test do
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  hostname = test_parameter( current_test, "Hostname" )
+  timeout = 20 # seconds
+  testcount = 3 # times
+
+  # ------------------------------------------------------------------
+  # tests
+
+  describe "ping '#{hostname.value}'" do
+
+    it "#reponds within #{timeout} seconds with #{testcount} test counts" do 
+      # -W:  Time to wait for a response, in seconds
+      # -c:  Stop after sending count ECHO_REQUEST packets. With deadline
+      # -option, ping waits for count ECHO_REPLY packets, until the
+      # -timeout expires
+
+      cmd = "ping #{hostname.value} -W 20 -c 3"
+      # puts cmd `#{cmd}` 
+      raise "Error in '#{cmd}' " unless $? == 0 end
+  end
+
+end
+
+</div></div>
+
 <h2><a id="S3NoAccess"></a>S3NoAccess<a class='navigator' href='#top'>[top]</a></h2>
 
 <p>Validate no access to S3 bucket <code>test_parameter( current_test, "Bucket" )</code></p>
@@ -211,7 +499,7 @@ require 'spec_helper'
 # ------------------------------------------------------------------
 # config
 
-current_test = "S3NoAccess"
+current_test = File.basename File.dirname  __FILE__ 
 
 # ------------------------------------------------------------------
 # Tests
@@ -288,7 +576,7 @@ end
 
 require 'spec_helper'
 
-current_test = "S3ReadAccessAllowed"
+current_test = File.basename File.dirname  __FILE__ 
 
 describe current_test do
 
@@ -449,7 +737,7 @@ require 'spec_helper'
 # Configuration
 # 
 
-current_test = "Stack"
+current_test = File.basename File.dirname  __FILE__ 
 
 props = {
   "smoke" => [
@@ -499,7 +787,7 @@ end
 <div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
 require 'spec_helper'
 
-current_test = "ValidOSVersion"
+current_test = File.basename File.dirname  __FILE__ 
 
 describe current_test do
 

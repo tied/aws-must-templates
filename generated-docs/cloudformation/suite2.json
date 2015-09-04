@@ -6,6 +6,12 @@
       },
       "Description": "Id of InternetGateway"
     },
+    "InstanceId2": {
+      "Value": {
+        "Ref": "myBack1"
+      },
+      "Description": "Ip of the newly created EC2 instance"
+    },
     "InstanceId1": {
       "Value": {
         "Ref": "myFront1"
@@ -23,6 +29,73 @@
     }
   },
   "Resources": {
+    "myBack1": {
+      "Properties": {
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "\n",
+              [
+                "#!/bin/bash\n",
+                "set -x\n",
+                "set -e\n",
+                "set -o pipefail\n",
+                "LOG=/tmp/install.log\n",
+                "echo $(date): User data script started  > $LOG\n",
+                "echo $(date): User data script started\n",
+                "function finish() {\n",
+                "    echo \"$(date): installation finished\"  \n",
+                "    echo \"$(date): installation finished\"  >> $LOG \n",
+                "}\n",
+                "function error() {\n",
+                "    local lineno=$1\n",
+                "    local error=1\n",
+                "    echo \"$(date): installation finished in ERROR $error on line $lineno\"  \n",
+                "    echo \"$(date): installation finished in ERROR $error on line $lineno\" >> $LOG \n",
+                "    exit 1\n",
+                "}\n",
+                "trap finish EXIT\n",
+                "trap 'error ${LINENO}' ERR\n"
+              ]
+            ]
+          }
+        },
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "SubnetId": {
+          "Ref": "PrivateSubnet"
+        },
+        "SecurityGroupIds": [
+          {
+            "Ref": "MyDefaultSecurityGroup"
+          }
+        ],
+        "Tags": [],
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "ImageId": {
+          "Fn::FindInMap": [
+            "AWSRegionArch2AMI",
+            {
+              "Ref": "AWS::Region"
+            },
+            {
+              "Fn::FindInMap": [
+                "AWSInstanceType2Arch",
+                {
+                  "Ref": "InstanceType"
+                },
+                "Arch"
+              ]
+            }
+          ]
+        }
+      },
+      "Metadata": {},
+      "Type": "AWS::EC2::Instance"
+    },
     "myFront1": {
       "Properties": {
         "UserData": {
@@ -147,7 +220,7 @@
       },
       "CreationPolicy": {
         "ResourceSignal": {
-          "Timeout": "PT4M"
+          "Timeout": "PT8M"
         }
       },
       "Type": "AWS::EC2::Instance"

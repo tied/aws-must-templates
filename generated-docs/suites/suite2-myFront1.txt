@@ -1,8 +1,57 @@
 
+CloudFormationHelperScriptsInstalled
+  Command "type cfn-init"
+    exit_status
+      should eq 0
+  Command "type cfn-signal"
+    exit_status
+      should eq 0
+  Command "type cfn-get-metadata"
+    exit_status
+      should eq 0
+  Command "type cfn-hup"
+    exit_status
+      should eq 0
+
+Ec2InstanceType
+  instance 'i-41166dec'
+    ec2: 'i-41166dec'
+      instance_type
+        should eq "t2.micro"
+    ec2: 'i-41166dec'
+      instance_id
+        should eq "i-41166dec"
+
+Ec2PrivateIp
+  instance 'i-41166dec'
+    ec2: 'i-41166dec', private_ip_address: 10.0.0.138
+      should not eql nil
+      #valid cidr 10.0.0.0/24
+
+Ec2PublicIp
+  instance 'i-41166dec'
+    Public IP
+      ec2: 'i-41166dec', public_ip_address: 52.19.131.1
+        public_ip_address
+          should eql "52.19.131.1"
+
+Ec2StatusNormal
+  instance 'i-41166dec'
+    works
+    ec2: 'i-41166dec'
+      availability_zone
+        should not eq nil
+    ec2: 'i-41166dec'
+      system_status_ok?
+        should eq true
+    ec2: 'i-41166dec'
+      instance_state_running?
+        should eq true
+
 RespondsToPing
-  ping '52.18.222.197'
+  ping '52.19.131.1'
     #reponds within 20 seconds with 3 test counts
 
-Finished in 0.00063 seconds (files took 1.07 seconds to load)
-1 example, 0 failures
+Finished in 4.52 seconds (files took 1.95 seconds to load)
+14 examples, 0 failures
 
