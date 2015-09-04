@@ -1,3 +1,8 @@
+2015-09-04  jj  <jj@horsti>
+
+	* mustache/resourceInstance.mustache: Changed Tags attribute to
+	use "Tags" section key (prev. "tags" )
+
 2015-09-01  jj  <jj@horsti>
 
 	* lib/tasks/suite.rake (#spec_pattern): fixed typo on error

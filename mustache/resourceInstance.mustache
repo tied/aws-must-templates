@@ -14,7 +14,7 @@ Create an EC2 instance
 * Instance type (mandatory)
   * `InstanceType` : The instance type, such as t2.micro. 
   * `InstanceTyperef` : Reference to instance type
-* `tags` : array of tag sub-documents for EC2 instance
+* `Tags` : array of tag sub-documents for EC2 instance
 * `SecurityGroupIds`: array of [commonValue.mustache](#commonValue.mustache)
 
 
@@ -35,7 +35,7 @@ Create an EC2 instance
           "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
                       { "Fn::FindInMap" : [ "AWSInstanceType2Arch", {{> commonInstanceType }}, "Arch" ] } ] }
           , "InstanceType" : {{> commonInstanceType}} {{! InstanceType OR InstanceTypeRef }}
-          , "Tags" : [ {{#tags}}{{>tag}}{{/tags}} ]
+          , "Tags" : [ {{# Tags }}{{> commonKeyValue }}{{_comma}}{{/ Tags }}]
           , "SecurityGroupIds" : [ 
                 {{# SecurityGroupIds }}
                     {{> commonValue }}{{_comma}}
