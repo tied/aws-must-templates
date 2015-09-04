@@ -5,5 +5,5 @@ require_relative "lib/stack_parameter.rb"
 require_relative "lib/test_parameter.rb"
 
 # AWS
-require_relative 'aws/aws'
+require_relative 'lib/aws/aws'
 
