@@ -131,10 +131,12 @@
              - Ec2InstanceType:
                  InstanceId: "@Outputs.InstanceId1"
                  InstanceType: "@Parameters.InstanceType"
+             - Ec2PrivateIp:
+                 InstanceId: "@Outputs.InstanceId1"
+                 CidrBlock:   *SubNetPublic
              - Ec2PublicIp:
                  InstanceId: "@Outputs.InstanceId1"
                  PublicIp:   "@Outputs.myFront1"
-                 CidrBlock:  none
                  # PublicIp:   192.168.1.1
                  # PublicIp:   defined
 
@@ -147,7 +149,7 @@
                  CidrBlock:   *SubNetPrivate
              - Ec2PublicIp:
                  InstanceId: "@Outputs.InstanceId2"
-                 PublicIp:   nil
+                 PublicIp:   "none"
                  # PublicIp:   192.168.1.1
                  # PublicIp:   defined
 
