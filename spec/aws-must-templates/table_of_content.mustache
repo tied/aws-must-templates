@@ -1,12 +1,10 @@
-=begin
-
-First file in directory listing. 
+{{! 
 
 ==================================================================
-STYLE section
+Style section
 ==================================================================
 
-+++start+++
+}}
 
 <style>
 h1 {
@@ -44,19 +42,14 @@ input.toggle:checked ~ div {
      white-space: pre; 
 }
 </style>
-+++close+++
 
 
-
-=end
-
-=begin
-
+{{!
 ==================================================================
 CONTENT section
 ==================================================================
+}}
 
-+++start+++
 
 # <a id="top"/><a href="https://github.com/jarjuk/aws-must-templates">aws-must-templates</a>
 
@@ -65,28 +58,10 @@ RSPEC -tests for `aws-must-templates`.
 ## Table of contents
 
 <ul>
-    <li>Resuable tests:</li>
-    <ul>
-       <li><a href="#AwsCommandLineInterfaceInstalled">AwsCommandLineInterfaceInstalled</a></li>
-       <li><a href="#CloudFormationHelperScriptsInstalled">CloudFormationHelperScriptsInstalled</a></li>
-       <li><a href="#Ec2InstanceType">Ec2InstanceType</a></li>
-       <li><a href="#Ec2PublicIp">Ec2PublicIp</a></li>
-       <li><a href="#Ec2PrivateIp">Ec2PrivateIp</a></li>
-       <li><a href="#Ec2StatusNormal">Ec2StatusNormal</a></li>
-       <li><a href="#RespondsToPing">RespondsToPing</a>: Responds to ping</li>
-       <li><a href="#S3NoAccess">S3NoAccess</a></li>
-       <li><a href="#S3ReadAccessAllowed">S3ReadAccessAllowed</a></li>
-       <li><a href="#ValidOSVersion">ValidOSVersion</a></li>
-    </ul> 
-
-    <li>Development:</li>
-    <ul> 
-       <li><a href="#AwsMustTestRunnerProperties">AwsMustTestRunnerProperties</a></li>
-       <li><a href="#ParameterTest">ParameterTest</a></li>
-       <li><a href="#Stack">Stack</a></li>
-    </ul> 
-
+ {{# files}}
+     <li><a href="#{{basedir}}">{{basedir}}</a></li>
+ {{/ files}}
 </ul>
 
-+++close++++
-=end
+
+

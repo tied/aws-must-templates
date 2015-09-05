@@ -159,7 +159,8 @@ namespace "dev" do |ns|
     task "spec" do
       file = "#{generate_docs_dir}/aws-must-templates-spec.html"
       spec_glob = "spec/aws-must-templates/**/*_spec.rb"
-      capture_stdout_to( file ) { sh "#{aws_must} ddoc '#{spec_glob}'| markdown" }
+      table_of_contents_template = "spec/aws-must-templates/table_of_content"
+      capture_stdout_to( file ) { sh "#{aws_must} ddoc '#{spec_glob}' --table_of_content=#{table_of_contents_template}| markdown" }
     end
 
     
