@@ -30,6 +30,7 @@ data:
 
 resources:
 
+
         - VPC:
                  Name: &MyVPC MyVPC
                  CidrBlock: *SubNetVPC
@@ -65,12 +66,6 @@ resources:
                  Tags:
                     - Key: Name
                       Value: *MyInternetGw
-
-        - S3Bucket:
-                 Name: &Bucket MyBucket
-                 DeletionPolicy: Delete
-                 CreationPolicy:
-                      Timeout: PT2M
 
 
         - SecurityGroup:
@@ -109,6 +104,10 @@ resources:
                  SecurityGroupIds: 
                        - Ref: *DefaultSG
 
+                 Tags:
+                    - Key: Name
+                      Value: *Instance1
+
 
         -  Instance: 
                  Name: &Instance2 myBack1
@@ -130,6 +129,11 @@ resources:
 
                  SecurityGroupIds: 
                        - Ref: *DefaultSG
+
+                 Tags:
+                    - Key: Name
+                      Value: *Instance2
+
 
 
 outputs:

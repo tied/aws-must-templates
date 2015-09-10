@@ -139,9 +139,14 @@
                  PublicIp:   "@Outputs.myFront1"
                  # PublicIp:   192.168.1.1
                  # PublicIp:   defined
+             - ValidOSVersion:
+                 Codename: trusty
+
 
      - myBack1:
          roles:    
+             - ValidOSVersion:
+                 Codename: trusty
              - Ec2StatusNormal:
                  InstanceId: "@Outputs.InstanceId2"
              - Ec2PrivateIp:
