@@ -1,3 +1,8 @@
+2015-09-10  jj  <jj@horsti>
+
+	* mustache/resourceInstance.mustache: Tags array: always defines
+	Key/Value pair with Key="Name"
+
 2015-09-05  jj  <jj@horsti>
 
 	* Rakefile (dev:docs:spec): added option  --template

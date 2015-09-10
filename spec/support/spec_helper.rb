@@ -15,17 +15,7 @@ require_relative "../../lib/test-suites/test_suites.rb"
 describe_stacks_command  = 
   "aws cloudformation describe-stacks"    # read json using aws cli
 
-# EC2 intstance with Name tag
-describe_named_instances = 
-  "aws ec2 describe-instances --filters 'Name=tag-key,Values=Name'"
-
-# # EC2 with a given name
-# # `describe ec2 describe-instance --filters "Name=tag:Name,Values=#{instance_id}"
-# describe_ec2_instance_cmd =
-#   "aws  ec2 describe-instances --filters 'Name=tag:Name,Values=#{instance_id}'"
-
-
-# SSH client configuration must be in CWD (=user directory)
+# SSH client configuration to use
 ssh_config_file = "ssh/config.aws"
                                           # file to use
 # stack states
@@ -34,91 +24,42 @@ SUCESS_STATES  = ["CREATE_COMPLETE", "UPDATE_COMPLETE"]
 FAILURE_STATES = ["CREATE_FAILED", "DELETE_FAILED", "UPDATE_ROLLBACK_FAILED", "ROLLBACK_FAILED", "ROLLBACK_COMPLETE","ROLLBACK_FAILED","UPDATE_ROLLBACK_COMPLETE","UPDATE_ROLLBACK_FAILED"]
 END_STATES     = SUCESS_STATES + FAILURE_STATES
 
-# ------------------------------------------------------------------
-# Return instance from named_'ec2_instances' with tag
-# Name='instance_id', nil otherwise
-
-def find_named_ec2_instance( named_ec2_instances, instance_id )
-  instances =  named_ec2_instances["Reservations"].map { |rsv|  rsv['Instances'].first }
-  # puts "instances=#{instances}"
-  instance = instances.select{ |i| i['Tags'].select{ |t| t['Key'] == "Name" && t['Value']==instance_id }.any?}.first
-  return instance
-end
-
-# return array of instances with pubcli dns
-def find_instances_with_public_dnsname( named_ec2_instances )
-  instances =  named_ec2_instances["Reservations"].map { |rsv|  rsv['Instances'].first }
-  return instances.select{ |i| !i['PublicDnsName'].nil? && !i['PublicDnsName'].empty? }
-end
-
-# ------------------------------------------------------------------
-# return hostname from first match
-#
-# * try to locate 'instance_id' in 'named_ec2_instances'
-#    * Use PublicDnsName if defined
-#    * Use PrivatecDnsName
-# * instance_id
-
-
-def find_hostname( instance_id, stack_json, named_ec2_instances )
-
-  # described_instances = JSON.parse( %x{ #{describe_ec2_instance_cmd} } )
-  ec2_instance = find_named_ec2_instance( named_ec2_instances, instance_id )
-
-  if ec2_instance then 
-    return ec2_instance['PublicDnsName'] unless (ec2_instance['PublicDnsName'].nil? || ec2_instance['PublicDnsName'].empty?)
-    return ec2_instance['PrivateDnsName'] unless (ec2_instance['PrivateDnsName'].nil? || ec2_instance['PrivateDnsName'].empty?)
-  end
-
-  # * instance_id
-  return instance_id
-
-end
 
 # return ssh options for 'hostname_for_instance'
-def read_ssh_options( hostname_for_instance, ssh_config_file, named_ec2_instances )
+def read_ssh_options( instance_id, ssh_config_file, options_init )
 
 
-  instances_with_public_dnsname = find_instances_with_public_dnsname( named_ec2_instances )
+  raise <<-EOS unless File.exist?( ssh_config_file )
 
-  # puts "instances_with_public_dnsname=#{instances_with_public_dnsname}"
-  ssh_config_file_tmp = "#{ssh_config_file}.tmp"
+   Could not find ssh configuration file in '#{ssh_config_file}'.
 
-  File.open( ssh_config_file_tmp, 'w' ) do |f|
+   Serverspec uses ssh to connect to #{instance_id}, but no configuration found!
 
-    # First part defines 'HostName' = PublicDnsName for each 'instance_id'
-    f.write( "# instances which have 'PublicDnsName' value and have 'Name' tag\n\n")
+  EOS
 
 
-    instances_with_public_dnsname.each do |i|
+  # start search for an instance id
+  host = instance_id
+  while true do
 
-      instance_id = i['Tags'].select{ |t| t['Key'] == 'Name'}.first['Value']
-      public_dnsname  = i['PublicDnsName']
-      f.write( "host #{instance_id}\n")
-      f.write( "    HostName #{public_dnsname}\n\n")
-    end # instances
-    f.write( "\n\n\n" )
+    options = Net::SSH::Config.for( host, [ ssh_config_file ] )
 
-    # append manually managed ssh-config
-    f.write( "# file #{ssh_config_file} appended\n")
+    # options[:user] ||= Etc.getlogin
 
-    File.open( ssh_config_file, "r" ).each do |line|
-      
-      f.write( line )
+    # options[:host_name] = instance_id
 
-    end # appedn lines in ssh_config
+    # OpenSSH logger
+    # options[:verbose] = :info # :debug, :info, :warn, :error, :fatal
+    
+    break if options[:host_name].nil?
+    
+    # ssh client config mapped gave new 'HostName' for 'Host' --> reread configs
+    host = options[:host_name]
 
-  end # file wrei
+  end
 
-  # use temp file here, which has HostNames populated with aws PublicDnsNames
-  options = Net::SSH::Config.for( hostname_for_instance, [ ssh_config_file_tmp ] )
-
-  options[:host_name] = hostname_for_instance
-
-  options[:user] ||= Etc.getlogin
-
-  # OpenSSH logger
-  options[:verbose] = :info # :debug, :info, :warn, :error, :fatal
+  # 
+  options[:host_name] ||= host
 
   return options
 
@@ -183,15 +124,8 @@ EOS
 raise "Stack '#{stack_id}' status='#{stack_json["StackStatus"]} is not ready (=#{SUCESS_STATES}) '" unless SUCESS_STATES.include?( stack_json["StackStatus"] )
 
 # ------------------------------------------------------------------
-# Read EC2 instances
-named_ec2_instances = JSON.parse( %x{ #{describe_named_instances} } )
+# hash in accessible in spec tests with name 'property' 
 
-# ------------------------------------------------------------------
-
-hostname_for_instance = find_hostname( instance_id, stack_json, named_ec2_instances )
-puts "Using HostName '#{hostname_for_instance}' for instance_id '#{instance_id}'"
-
-# create a hash, which is accessible in spec tests are 'property' 
 properties = {
   "Outputs" =>  stack_json["Outputs"] ? stack_json["Outputs"].inject( {} ) { |r,e| r[e["OutputKey"]] = e["OutputValue"] ; r  } : {},
   "Parameters" => stack_json["Parameters"] ? stack_json["Parameters"].inject( {} ) { |r,e| r[e["ParameterKey"]] = e["ParameterValue"] ; r  }: {},
@@ -211,28 +145,10 @@ set_property properties
 
 # CloudFormatio instance resources are defined in 'ssh_config_file' 
 
-raise <<-EOS unless File.exist?( ssh_config_file )
-
-   Could not find ssh configuration file in '#{ssh_config_file}'.
-
-   Serverspec uses ssh to connect to #{instance_id}, but no configuration found!
-
-EOS
-
-# #options = Net::SSH::Config.for( instance_id, [ ssh_config_file ] )
-# options = Net::SSH::Config.for( hostname_for_instance, [ ssh_config_file ] )
-# puts "instance_id #{instance_id}-->#{hostname_for_instance}--> options=#{options}"
-
-# options[:host_name] = hostname_for_instance
-
-# options[:user] ||= Etc.getlogin
-# options[:verbose] = :info # :debug, :info, :warn, :error, :fatal
-
-options = read_ssh_options( hostname_for_instance, ssh_config_file, named_ec2_instances )
-puts "instance_id #{instance_id}-->#{hostname_for_instance}--> options=#{options}"
+options = read_ssh_options( instance_id, ssh_config_file, {} )
+# puts "instance_id #{instance_id}--> options=#{options}"
 
 set :host,        options[:host_name]#  || instance_id
-
 set :ssh_options, options
 
 # Disable sudo
