@@ -1,0 +1,31 @@
+{{!
+
+
++++start+++
+
+## <a id="commonXGressRule.mustache"></a>commonXGressRule.mustache<a class='navigator' href='#top'>[top]</a>
+
+Common template to output SecurityGroupIngress or SecurityGroupEgress rules.
+
+**Attributes**: 
+
+* `IpProtocol`: default tcp
+* `FromPort`: default to `Port`
+* `ToPort`: defaults to `Port`
+* CidrIp given as commonValue, [commonValue.mustache](#commonValue.mustache)
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+{
+   "IpProtocol" : {{#IpProtocol}}"{{IpProtocol}}"{{/IpProtocol}}{{^IpProtocol}}"tcp"{{/IpProtocol}},
+   "FromPort" : "{{#FromPort}}{{FromPort}}{{/FromPort}}{{^FromPort}}{{Port}}{{/FromPort}}",
+   "ToPort" : "{{#ToPort}}{{ToPort}}{{/ToPort}}{{^ToPort}}{{Port}}{{/ToPort}}",
+   "CidrIp" : {{> commonValue }}
+}
+
+
+{{! +++fold-off+++ }}
