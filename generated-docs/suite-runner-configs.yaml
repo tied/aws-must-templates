@@ -1,0 +1,29 @@
+---
+# Test Runner suite-runner-default
+#  ------------------------------------------------------------------
+# 
+# copy this file to cwd with the name 'suite-runner-configs.yaml' and
+# add following lines to Rakefile
+#
+#    suite_runner_configs= "suite-runner-configs.yaml"
+#    $suite_runner_configs = File.exist?(suite_runner_configs) ? YAML.load_file( suite_runner_configs ) : {}
+#
+#    spec = Gem::Specification.find_by_name 'aws-must-templates'
+#    load "#{spec.gem_dir}/lib/tasks/suite.rake"
+#
+#  ------------------------------------------------------------------
+
+# SSH Client Configuration file where EC2 Instance Tag Name/DNS Name
+# mapping is synchronized
+ssh_config_file: ssh/config.aws
+
+# Name of file, which is used to seed 'ssh_config_file', if
+# 'ssh_config_file' file does not exist
+ssh_config_init: ssh/config.init
+
+# http://docs.aws.amazon.com/sdkforruby/api/index.html#Configuration
+# "The SDK searches the following locations for a region: ENV['AWS_REGION']"
+# 
+# Test runner sets ENV['AWS_REGION'] if following property is set
+#
+aws_region: 

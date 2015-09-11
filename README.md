@@ -195,18 +195,29 @@ To use the **aws-must-templates** Test Runner
 
 Add following lines to `Rakefile`
 
+    # name of configuration file
+    suite_runner_configs= "suite-runner-configs.yaml"
+
+    # Override configuration in 'suite.rake' 
+    $suite_runner_configs = File.exist?(suite_runner_configs) ? YAML.load_file( suite_runner_configs ) : {}
+
 	spec = Gem::Specification.find_by_name 'aws-must-templates'
 	load "#{spec.gem_dir}/lib/tasks/suite.rake"
 	
-create an empty `test-suites.yaml`	 -file
+Take a look at
+[default Test Runner Options](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/suite-runner-configs.yaml),
+and modify settings in `suite-runner-configs.yaml` to override default
+values.
+	
+Create an empty `test-suites.yaml`	 -file
 
 	touch test-suites.yaml
 
 and run 	
 
-	bundle exec rake -T suite
+	rake -T suite
 	
-For an empty test-suites.yaml the result shows
+For an empty `test-suites.yaml`, the result shows
 
 	rake suite:all[gen_opts]  # Run all suites
 
@@ -226,24 +237,38 @@ pair
 
 **Prepare ssh-connection configuration**
 
-Test Runner uses SSH connection to access an EC2 instance, and needs
-an entry in `ssh/config` file
-[defining](http://linux.die.net/man/5/ssh_config) user name, and
-ssh-key used in authentication, etc.
+Test Runner uses
+[SSH Client Configuration](http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man5/ssh_config.5?query=ssh_config&sec=5)
+in `ssh/config.aws` file. Configuration file `ssh/config.aws` is
+created automatically, using `ssh/config.init`, if it does not exist.
 
-For example, the SSH configuration below for an EC2 instance
-`myInstance` defines `IdentityFile` parameter matching `demo-key` EC2
-key used in **aws-must-templates** test suites.
+For example, the following configuration in `ssh/config.init`
+instructs OpenSSH to use user name `ubuntu` and SSH private key in
+`~/.ssh/demo-key/demo-key` for all hosts.
 
-     host myInstance
-         StrictHostKeyChecking no
-         UserKnownHostsFile=/dev/null
-         user ubuntu
-         IdentityFile ~/.ssh/demo-key/demo-key
+    Host *
+        user ubuntu
+        StrictHostKeyChecking no
+        UserKnownHostsFile=/dev/null
+        IdentityFile ~/.ssh/demo-key/demo-key
 
 Parameters `UserKnownHostsFile` and `StrictHostKeyChecking` prevent
 ssh from updating your default `.ssh/known_hosts` file with the
 fingerprint of the (temporary) instance used in testing.
+
+Once configuration in `ssh/config.init` is in place, running
+
+	rake suite:ec2-sync
+
+updates EC2 instance metadata in `ssh/config.aws`
+	
+**Notice** You may change defaults
+[defaults](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/suite-runner-configs.yaml)
+in [suite-runner-configs.yaml](#SETUP-TEST-RUNNER).
+
+See
+[blog post](https://jarjuk.wordpress.com/2015/09/08/using-openssh-on-aws-platform/#more-273https://jarjuk.wordpress.com/2015/09/08/using-openssh-on-aws-platform)
+for more information on using OpenSSH on AWS platform.
 
 ### Implement Test Cases<a id="TEST_CASES"/>
 
@@ -334,6 +359,13 @@ a more detailed explanation, and for more examples.
 
 **NOTICE** It advisable to check on AWS console that all stack
   resources are deleted successfully after running test suites.
+  
+**Notice** Some of tests included in **aws-must-templates** use AWS
+  [SDK for Ruby - Version 2](http://docs.aws.amazon.com/sdkforruby/api/index.html). The
+  SDK searches `ENV['AWS_REGION']` for a region information. You have
+  the option to set the environment variable, or configure property
+  `aws_region` in [suite-runner-configs.yaml](#SETUP-TEST-RUNNER).
+  
 
 To run test suite `mystack` defined in in `test-suites.yml` using
 default templates in **aws-must-templates** use the command

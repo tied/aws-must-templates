@@ -9,14 +9,16 @@ require 'rake'
 require 'rspec/core/rake_task'
 
 # ------------------------------------------------------------------
-# configuration extesions
+# configuration extesions (see task 'suite-runner-configs' for documentation)
 
+default_suite_runner_configs = {
+  'ssh_config_file' => "ssh/config.aws",
+  'ssh_config_init' => "ssh/config.init",
+  'aws_region'      => nil,
+}
 
-suite_runner_configs = {
-  :ssh_config_file => "ssh/config.aws",     # Configuration file for OpenSSH
-  :ssh_config_init => "ssh/config.init",    # Fixed configuration used in init
-} || ($suite_runner_configs ? $suite_runner_configs : {} )
-
+suite_runner_configs = 
+  default_suite_runner_configs.merge( $suite_runner_configs ? $suite_runner_configs : {} )
 
 # ------------------------------------------------------------------
 # test-suites.yaml
@@ -43,6 +45,45 @@ END_STATES     = SUCESS_STATES + FAILURE_STATES
 
 namespace :suite do
 
+  # **********
+  # desc "Outpu configuration"
+  task "suite-runner-configs" do
+
+    # puts( default_suite_runner_configs.to_yaml)
+    doc = <<EOS
+---
+# Test Runner suite-runner-default
+#  ------------------------------------------------------------------
+# 
+# copy this file to cwd with the name 'suite-runner-configs.yaml' and
+# add following lines to Rakefile
+#
+#    suite_runner_configs= "suite-runner-configs.yaml"
+#    $suite_runner_configs = File.exist?(suite_runner_configs) ? YAML.load_file( suite_runner_configs ) : {}
+#
+#    spec = Gem::Specification.find_by_name 'aws-must-templates'
+#    load "\#{spec.gem_dir}/lib/tasks/suite.rake"
+#
+#  ------------------------------------------------------------------
+
+# SSH Client Configuration file where EC2 Instance Tag Name/DNS Name
+# mapping is synchronized
+ssh_config_file: #{default_suite_runner_configs['ssh_config_file']}
+
+# Name of file, which is used to seed 'ssh_config_file', if
+# 'ssh_config_file' file does not exist
+ssh_config_init: #{default_suite_runner_configs['ssh_config_init']}
+
+# http://docs.aws.amazon.com/sdkforruby/api/index.html#Configuration
+# "The SDK searches the following locations for a region: ENV['AWS_REGION']"
+# 
+# Test runner sets ENV['AWS_REGION'] if following property is set
+#
+aws_region: #{default_suite_runner_configs['aws_region']}
+EOS
+    puts doc
+  end
+
   # suite_properties.each{  |a| a.keys.first }
 
   # **********
@@ -65,8 +106,9 @@ namespace :suite do
   desc "Syncrronize ec2 instance metadata to "
   task "ec2-sync" do
     aws_ssh_resolver="aws-ssh-resolver.rb"
-    sh "#{aws_ssh_resolver} aws --ssh-config-file #{suite_runner_configs[:ssh_config_file]} --ssh-config-init #{suite_runner_configs[:ssh_config_init]}"
+    sh "#{aws_ssh_resolver} aws --ssh-config-file #{suite_runner_configs['ssh_config_file']} --ssh-config-init #{suite_runner_configs['ssh_config_init']}"
   end
+
 
   # **********
   all_suites = test_suites.suite_ids.map{ |id| "suite:" + id }
@@ -108,9 +150,16 @@ namespace :suite do
     # find the stack name for suite
     stack = test_suites.get_suite_stack_id( suite_id )
 
-    desc "#{suite_id} - syncrhornize #{suite_runner_configs[:ssh_config_file]}"
+    desc "#{suite_id} - syncrhornize #{suite_runner_configs['ssh_config_file']}"
     task "#{suite_id}-sync", :gen_opts  do |t,args|
       ssh_client_config_synchronize( suite_runner_configs )
+    end
+
+    # json
+    task "#{suite_id}-json", :gen_opts  do |t,args|
+      args.with_defaults( :gen_opts => "-m aws-must-templates" )
+      json_template="#{aws_must} gen #{stack}.yaml #{args.gen_opts}"  
+      sh "#{json_template}"
     end
 
 
@@ -166,16 +215,19 @@ namespace :suite do
     # Test common roles for suite
     desc "#{suite_id} - common roles"
     RSpec::Core::RakeTask.new( "#{suite_id}-common" ) do |t|
-      puts "------------------------------------------------------------------"
-      puts "suite=#{suite_id }"
 
-      # see spec/spec_helper.rb
-      ENV['TARGET_SUITE_ID'] = suite_id
+      set_rspec_task( t, suite_runner_configs, test_suites, suite_id )
+
+      # puts "------------------------------------------------------------------"
+      # puts "suite=#{suite_id }"
+
+      # # see spec/spec_helper.rb
+      # ENV['TARGET_SUITE_ID'] = suite_id
 
       # test all roles for the instance
-      t.rspec_opts = rspec_opts( suite_id )
-      t.fail_on_error = false       
-      t.ruby_opts= rspec_ruby_opts
+      # t.rspec_opts = rspec_opts( suite_id )
+      # t.fail_on_error = false       
+      # t.ruby_opts= rspec_ruby_opts
       # t.pattern = suite["roles"].map {  |r|  spec_pattern( r ) }.join(",")
       t.pattern = test_suites.suite_role_ids( suite_id ).map{ |r| spec_pattern( r ) }.join(",")
 
@@ -192,7 +244,7 @@ namespace :suite do
        "suite:report_dir", 
        [ "suite:#{suite_id}-stack-create", "gen_opts" ],
        "suite:#{suite_id}-stack-wait", 
-       "suite:sync-ec2", 
+       "suite:#{suite_id}-sync", 
       ] + 
       ( Rake::Task.task_defined?(  "suite:#{suite_id}-common"  ) ? [  "suite:#{suite_id}-common"  ] : [] )  + 
       ( test_suites.suite_instance_ids( suite_id ).each.map{ |instance_id| "suite:#{suite_id}:" + instance_id }  ) + 
@@ -245,25 +297,7 @@ namespace :suite do
         desc "#{suite_id} - test instance '#{instance_id}'"
         RSpec::Core::RakeTask.new( instance_id ) do |t|
 
-          puts "------------------------------------------------------------------"
-          puts "suite=#{suite_id }, instance=#{instance_id}"
-
-          # see spec/spec_helper.rb
-          ENV['TARGET_SUITE_ID'] = suite_id
-          ENV['TARGET_INSTANCE_ID'] = instance_id
-
-          t.rspec_opts = rspec_opts( suite_id, instance_id )
-          t.fail_on_error = false
-          t.ruby_opts= rspec_ruby_opts
-
-          # test all roles for the instance
-          pattern = test_suites.suite_instance_role_ids( suite_id, instance_id ).map{ |r| spec_pattern( r ) }.join(",")
-          raise <<-EOS if pattern.nil? ||  pattern.empty?
-
-              No tests defined for an instance in suite=#{suite_id }, instance=#{instance_id}
-
-          EOS
-          t.pattern = pattern
+          set_rspec_task( t, suite_runner_configs, test_suites, suite_id, instance_id )
 
         end
       end # instance_ids
@@ -315,12 +349,39 @@ namespace :suite do
     "generated-docs/suites"
   end
 
-  # read ec2 instance metadata && update :ssh_config_file
+  # read ec2 instance metadata && update 'ssh_config_file'
   def ssh_client_config_synchronize( suite_runner_configs )
     aws_ssh_resolver="aws-ssh-resolver.rb"
-    sh "#{aws_ssh_resolver} aws --ssh-config-file #{suite_runner_configs[:ssh_config_file]} --ssh-config-init #{suite_runner_configs[:ssh_config_init]}"
+    sh "#{aws_ssh_resolver} aws --ssh-config-file #{suite_runner_configs['ssh_config_file']} --ssh-config-init #{suite_runner_configs['ssh_config_init']}"
   end
 
+  def set_rspec_task( t, suite_runner_configs, test_suites, suite_id, instance_id=nil  )
+
+    puts "------------------------------------------------------------------"
+    puts "suite=#{suite_id } #{instance_id ? ' instance:  ' + instance_id : ''}"
+
+    # see spec/spec_helper.rb
+    ENV['TARGET_SUITE_ID'] = suite_id
+    ENV['TARGET_INSTANCE_ID'] = instance_id if instance_id
+    ENV['AWS_REGION'] = suite_runner_configs["aws_region"] if suite_runner_configs["aws_region"]
+
+    t.rspec_opts = rspec_opts( suite_id, instance_id )
+    t.fail_on_error = false
+    t.ruby_opts= rspec_ruby_opts
+
+    # test all roles for the instance
+    pattern = (instance_id ? 
+               test_suites.suite_instance_role_ids( suite_id, instance_id ).map{ |r| spec_pattern( r ) }.join(",") :
+               test_suites.suite_role_ids( suite_id ).map{ |r| spec_pattern( r ) }.join(",") )
+
+    raise <<-EOS if pattern.nil? ||  pattern.empty?
+
+              No tests defined for an instance in suite=#{suite_id } #{instance_id ? ' for instance ' + instance_id : ''}
+
+          EOS
+    t.pattern = pattern
+
+  end
 
   
 end # ns suite

@@ -10,7 +10,7 @@ GEM
       jmespath (~> 1.0)
     aws-sdk-resources (2.1.19)
       aws-sdk-core (= 2.1.19)
-    aws-ssh-resolver (0.0.4.pre)
+    aws-ssh-resolver (0.0.3)
       json
       thor (~> 0.18)
     coderay (1.1.0)
@@ -103,7 +103,7 @@ PLATFORMS
 DEPENDENCIES
   aws-must
   aws-sdk (~> 2)
-  aws-ssh-resolver (= 0.0.4.pre)
+  aws-ssh-resolver
   guard
   guard-rspec
   guard-shell

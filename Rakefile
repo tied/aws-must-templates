@@ -50,11 +50,13 @@ test_suites = AwsMustTemplates::TestSuites::TestSuites.new
 # ------------------------------------------------------------------
 # suite namespace
 
+# name of configuration file
+suite_runner_configs= "suite-runner-configs.yaml"
+
+# Override configuration in 'suite.rake' 
+$suite_runner_configs = File.exist?(suite_runner_configs) ? YAML.load_file( suite_runner_configs ) : {}
+
 import "./lib/tasks/suite.rake"
-
-# suite_properties = AwsMustTemplates::Common::init_suites
-# stacks = AwsMustTemplates::Common::init_stacks( suite_properties )
-
 
 # ------------------------------------------------------------------
 # usage 
@@ -104,6 +106,14 @@ namespace "dev" do |ns|
       sh "dot #{dot_file} -T pdf > #{pdf_file}"
 
     end # task :xref
+
+    # default suite.rake configurations
+    desc "Test cases vs. test suites"
+    task "suite-runner-configs"  do
+
+      file = "#{generate_docs_dir}/suite-runner-configs.yaml"
+      sh "rake suite:suite-runner-configs > #{file}"
+    end
 
 
     # tests
@@ -192,7 +202,7 @@ namespace "dev" do |ns|
   end # ns docs
 
   desc "Generate html-, stack CloudFormation JSON templates into `{generate_docs_dir}` -subdirectory"
-  task :docs => ["dev:docs:mustache", "dev:docs:spec", "dev:docs:cf", "dev:docs:tests", "dev:docs:xref" ]
+  task :docs => ["dev:docs:mustache", "dev:docs:suite-runner-configs", "dev:docs:spec", "dev:docs:cf", "dev:docs:tests", "dev:docs:xref" ]
 
   # ------------------------------------------------------------------
   # unit tests

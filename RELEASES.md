@@ -1,8 +1,33 @@
-## 0.1.8-SNAPSHOT/20150902-11:46:59
+## 0.2.1-SNAPSHOT/20150902-11:46:59
 
-* new server spec tests
+
+
+* Template chanages
+  * [mustache/resourceInstance.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceInstance.mustache): Tags array: always defines
+	Key/Value pair with Key="Name"
+
+* Lots of new [serverspec tests](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html)
   * [RespondsToPing](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#RespondsToPing)
-* added [diagrams](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html)
+  * [Ec2InstanceType](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2InstanceType)
+  * [Ec2PrivateIp](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2PrivateIp)
+  * [Ec2PublicIp](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2PublicIp)
+  * [Ec2StatusNormal](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2StatusNormal)
+
+
+* Test Runner
+  * `rake suite:<instance_id>-sync`: rake task to sychronize
+    synchronize EC2 Tag Name/DNS Name to SSH client configuration file
+    into `ssh/config.aws`
+  * missing region -fixed
+  
+* Documetation   
+  * added [diagrams](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html)
+
+* Implementation changes
+  * use [aws-ssh-resolver](https://github.com/jarjuk/aws-ssh-resolver)
+    to synchronize EC2 Tag Name/DNS Name to SSH client configuration
+    file in `ssh/config.aws`, use `ssh/config.init` to initialize
+	
 
 ## 0.1.7/20150902-11:46:24
 
