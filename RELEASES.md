@@ -12,6 +12,7 @@
   * [Ec2PrivateIp](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2PrivateIp)
   * [Ec2PublicIp](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2PublicIp)
   * [Ec2StatusNormal](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2StatusNormal)
+  * [NetworkCanPing](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#NetworkCanPing)
 
 
 * Test Runner
