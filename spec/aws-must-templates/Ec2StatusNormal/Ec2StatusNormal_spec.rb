@@ -6,6 +6,7 @@
 
 Validates that status of `InstanceId` EC2  status for `describe_instance_status` normal:
 
+* defefines `:availability_zone`
 * `:system_status_ok?`
 * `:instance_state_running?`
 
@@ -35,10 +36,6 @@ describe current_test do
   # ------------------------------------------------------------------
   # tests
   describe "instance '#{instance.value}'" do
-
-    it "works" do 
-      expect( 1 ).to eql( 1 )
-    end
 
     describe ec2_resource( instance ) do
       its( :availability_zone  ) { should_not eq nil }
