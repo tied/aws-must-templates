@@ -23,6 +23,8 @@ Dispatches resource sub-type templates based resource Type propertys
 * `InternetGateway`: 
 * `Subnet`: 
 * `User`: creates [User](#resourceUser.mustache)
+* `RouteTable`: creates [resourceRouteTable.mustache](#resourceRouteTable.mustache)
+* `Route`: creates [resourceRoute.mustache](#resourceRoute.mustache)
 
 
 +++close+++
@@ -45,6 +47,8 @@ Dispatches resource sub-type templates based resource Type propertys
 {{# Subnet }}{{> resourceSubnet }}{{/ Subnet }}
 {{# InternetGateway }}{{> resourceInternetGateway }}{{/ InternetGateway }}
 {{# User }}{{> resourceUser  }}{{/ User }}
+{{# RouteTable }}{{> resourceRouteTable  }}{{/ RouteTable }}
+{{# Route }}{{> resourceRoute  }}{{/ Route }}
 
 
 
