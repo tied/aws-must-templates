@@ -28,8 +28,8 @@ describe template_under_test do
       "Properties" : {
         "GroupDescription" : "Enable SSH access via port 22"
         
-        , "SecurityGroupIngress" : [ 
-        ]
+        , "SecurityGroupIngress" : [ ]
+        , "SecurityGroupEgress" : [ ]
       }
      }
 
