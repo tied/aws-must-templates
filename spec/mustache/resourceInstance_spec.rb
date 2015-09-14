@@ -21,7 +21,7 @@ describe template_under_test do
   it "#default'" do
 
     expect_str= <<-EOS
-           "koe" : {"Type":"AWS::EC2::Instance", "Metadata":{}, "Properties":{"ImageId":{"Fn::FindInMap":["AWSRegionArch2AMI", {"Ref":"AWS::Region"}, {"Fn::FindInMap":["AWSInstanceType2Arch", "commonInstanceType-partial called", "Arch"]}]}, "InstanceType":"commonInstanceType-partial called", "Tags":[], "SecurityGroupIds":[], "UserData":{}}}
+           "koe" : {"Type":"AWS::EC2::Instance", "Metadata":{}, "Properties":{"ImageId":{"Fn::FindInMap":["AWSRegionArch2AMI", {"Ref":"AWS::Region"}, {"Fn::FindInMap":["AWSInstanceType2Arch", "commonInstanceType-partial called", "Arch"]}]}, "InstanceType":"commonInstanceType-partial called", "Tags":[{"Key":"Name", "Value":"koe"}], "SecurityGroupIds":[], "UserData":{}}}
     EOS
 
     yaml_text = <<-EOF
