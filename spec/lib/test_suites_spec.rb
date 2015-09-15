@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require_relative "spec_helper.rb"
 
 require 'yaml'
@@ -316,12 +317,84 @@ describe "AwsMustTemplates::TestSuites::TestSuites" do
       expect { AwsMustTemplates::TestSuites::TestSuites.new }.to raise_error( /No such file/ )
     end 
 
+    # ------------------------------------------------------------------
+    # load ruby/object
+
+    context "Loads ruby/object" do
+
+      # **********
+      # Define test class constructed in YAML
+
+      module Tst
+        class A
+          attr_reader :apu
+          def initialize( apu )
+            @apu=apu
+          end
+          def to_s
+            puts "A=#{@a}"
+          end
+          def ==(a)
+            # puts "self.apu=#{self.apu} vs. a.apu=#{a.apu} #{self.apu == a.apu}"
+            self.apu == a.apu
+          end
+          def init_with( coder )
+            @apu = coder['apu']
+          end
+        end
+      end; 
+      
+      # **********
+      before :each do
+
+        yaml_content =  <<-EOS
+        - tst-suite1:
+             desc: Fails fast if problems with AWS installation
+             roles:
+               - Test1:
+                   param1: A
+               - Test2:
+                   param2: !ruby/regexp '/^igw.*/'
+               - Test3:
+                   param3: !ruby/object:Tst::A
+                       apu: hei
+
+        EOS
+        yaml = YAML.load( yaml_content )
+        # puts "\nyaml=#{yaml}\n"
+        expect( YAML ).to receive(:load_file).with(AwsMustTemplates::TestSuites::SUITE_CONFIGS).and_return( yaml )
+        @test_suites = AwsMustTemplates::TestSuites::TestSuites.new
+
+        @expected = { "param1" => "A", "param2" => "igw-AAA", "param3" => Tst::A.new( "hei")  }
+
+      end # before
+
+      # **********
+      # Tests
+
+      it "#loads suite from YAML" do
+        expect( @test_suites.suite_ids()).to eql( ['tst-suite1'] )
+      end 
+
+      it "#includes fixed parameter" do
+        expect( @test_suites.suite_roles( "tst-suite1" ).first["Test1"] ).to include( {  "param1" =>"A", } )
+      end 
+
+      it "#defines include matcher for fixed string " do
+        expect( @expected  ).to include( @test_suites.suite_roles( "tst-suite1" ).first["Test1"] )
+      end 
+
+      it "#defines include matcher for regexp" do
+        expect(  @expected ).to include( @test_suites.suite_roles( "tst-suite1" )[1]["Test2"] )
+      end 
+
+      it "#defines include matcher Object" do
+        expect(  @expected ).to include( @test_suites.suite_roles( "tst-suite1" )[2]["Test3"] )
+      end 
+
+    end # context load/ruby object
   end
   
-
-  it "#works" do
-    expect( 1 ).to eql( 1 )
-  end 
 
   # ------------------------------------------------------------------
   # helpers
