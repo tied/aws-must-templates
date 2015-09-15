@@ -121,19 +121,23 @@ Templates for `aws-must` tool.
 
     <ul> 
 
-        <li><a href="#commonInstanceType.mustache">commonInstanceType.mustache</a>: Output value for `InstanceType` -attribute</li> 
-
-        <li><a href="#commonValue.mustache">commonValue.mustache</a>: Common template to output value (Value/Ref/Attr/StackRef)</li> 
-
-        <li><a href="#commonKeyValue.mustache">commonKeyValue.mustache</a>: Common template output key value pairs</li> 
-
-        <li> <a href="#commonDependsOn.mustache">commonDependsOn.mustache</a>: </li>
+        <li> <a href="#commonCfnSignal.mustache">commonCfnSignal.mustache</a>: </li>
 
         <li> <a href="#commonCreationPolicy.mustache">commonCreationPolicy.mustache</a>: </li>
 
-        <li> <a href="#commonCfnSignal.mustache">commonCfnSignal.mustache</a>: </li>
+        <li> <a href="#commonDependsOn.mustache">commonDependsOn.mustache</a>: </li>
+
+        <li><a href="#commonInstanceType.mustache">commonInstanceType.mustache</a>: Output value for `InstanceType` -attribute</li> 
+
+        <li><a href="#commonKeyValue.mustache">commonKeyValue.mustache</a>: Common template output key value pairs</li> 
+
+        <li> <a href="#commonRef.mustache">commonRef.mustache</a>: reference</li>
 
         <li> <a href="#commonStackRef.mustache">commonStackRef.mustache</a>: </li>
+
+        <li><a href="#commonValue.mustache">commonValue.mustache</a>: Common template to output value (Value/Ref/Attr/StackRef)</li> 
+
+        <li> <a href="#commonXGressRule.mustache">commonXGressRule.mustache</a>: SecurityGroupIngress/SecurityGroupEgress rules</li>
 
     </ul> 
 
@@ -229,13 +233,15 @@ INCLUDED templates
 
 > output
 
+> commonCfnSignal
+> commonCreationPolicy
 > commonDependsOn
 > commonInstanceType
-> commonCreationPolicy
-> commonCfnSignal
-> commonValue
 > commonKeyValue
+> commonRef
 > commonStackRef
+> commonValue
+> commonXGressRule
 
 +++close+++
 
