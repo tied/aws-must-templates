@@ -21,7 +21,9 @@ describe template_under_test do
 
   describe "Attributes" do  
 
-    it "#default'" do
+    # ------------------------------------------------------------------
+
+    it "#string'" do
 
       expect_str = <<-EOS
         , "DependsOn" : "heivaan"
@@ -37,12 +39,65 @@ describe template_under_test do
       render_str = @aws_must.generate_str( template_under_test, stub_yaml_file( yaml_text ), {} )
 
       # debug
-      # puts "render_str=#{render_str}"
+      # puts "render_str1=#{render_str}"
       # puts json_sanitize( dummy_element + render_str, nil  )
 
       expect( json_sanitize( dummy_element + render_str, nil )).to eql( json_sanitize( dummy_element + expect_str, nil  ))
 
     end
+
+    # ------------------------------------------------------------------
+
+    it "#array" do
+
+      expect_str = <<-EOS
+           , "DependsOn" : ["hei", "maailma"]
+      EOS
+
+      yaml_text = <<-EOF
+           DependsOn: 
+            - hei
+            - maailma
+      EOF
+
+      # debug
+      # puts json_sanitize( dummy_element + expect_str, nil  )
+
+      render_str = @aws_must.generate_str( template_under_test, stub_yaml_file( yaml_text ), {} )
+
+      # debug
+      # puts "render_str2=#{render_str}"
+      # puts json_sanitize( dummy_element + render_str, nil  )
+
+      expect( json_sanitize( dummy_element + render_str, nil )).to eql( json_sanitize( dummy_element + expect_str, nil  ))
+
+    end
+
+    # ------------------------------------------------------------------
+
+    it "#empty" do
+
+      expect_str = <<-EOS
+      EOS
+
+      yaml_text = <<-EOF
+              apu: koe
+      EOF
+
+      # debug
+      # puts json_sanitize( dummy_element + expect_str, nil  )
+
+      render_str = @aws_must.generate_str( template_under_test, stub_yaml_file( yaml_text ), {} )
+
+      # debug
+      # puts "render_str2=#{render_str}"
+      # puts json_sanitize( dummy_element + render_str, nil  )
+
+      expect( json_sanitize( dummy_element + render_str, nil )).to eql( json_sanitize( dummy_element + expect_str, nil  ))
+
+    end
+
+
 
 
   end # describe "Attributes" do  

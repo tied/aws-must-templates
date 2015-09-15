@@ -3,8 +3,23 @@
 
 
 * Template chanages
+  * [mustache/commonDependsOn.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#commonDependsOn.mustache): support array of resources
   * [mustache/resourceInstance.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceInstance.mustache): Tags array: always defines
 	Key/Value pair with Key="Name"
+  *
+    [mustache/resourceSubnet.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceSubnet.mustache):
+    support `RoutetableAssociation` attribute
+  * [mustache/resourceSecurityGroup.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceSecurityGroup.mustache): Support for SecurityGroupEgress
+     use  [commonXGressRule.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#commonXGressRule.mustache)
+  
+  * refractored
+    * [commonValue.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#commonValue.mustache) includes
+      [commonRef.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#commonRef.mustache)
+
+  * 
+  * new templates
+    * [resourceRoute.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceRoute.mustache) 
+    * [resourceRouteTable.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceRoute.mustache) 
 
 * Lots of new [serverspec tests](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html)
   * [RespondsToPing](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#RespondsToPing)

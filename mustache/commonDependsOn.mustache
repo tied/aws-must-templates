@@ -10,7 +10,19 @@ Common template to output key and value for `DependsOn`
 
 **Attributes**: 
 
-* `DependsOn` : resource name on which dependency defined
+* `DependsOn` : resource name/array on which dependency defined
+
+Example depends on `resource1`
+
+       DependsOn: resource1
+
+
+Example depends on `resource1`, `resource2`
+
+       DependsOn: 
+	       - resource1
+   	       - resource2
+	   
 
 +++close+++
 
@@ -18,8 +30,18 @@ Common template to output key and value for `DependsOn`
 
 {{! +++fold-on+++ }}
 
+{{! Array context define 'any?' }}
+{{# DependsOn.any? }} 
+   , "DependsOn" :  {{{DependsOn}}}
+{{/ DependsOn.any? }} 
 
-{{# DependsOn }}, "DependsOn" : "{{DependsOn}}"  {{/ DependsOn }} 
+
+{{! String does not define 'any?' }}
+{{^ DependsOn.any? }} 
+{{# DependsOn }} 
+   , "DependsOn" :  "{{{DependsOn}}}"  
+{{/ DependsOn }} 
+{{/ DependsOn.any? }} 
 
 
 {{! +++fold-off+++ }}
