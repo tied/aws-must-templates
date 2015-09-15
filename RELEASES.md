@@ -10,7 +10,8 @@
     [mustache/resourceSubnet.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceSubnet.mustache):
     support `RoutetableAssociation` attribute
   * [mustache/resourceSecurityGroup.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceSecurityGroup.mustache): Support for SecurityGroupEgress
-     use  [commonXGressRule.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#commonXGressRule.mustache)
+     use  [commonXGressRule.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#commonXGressRule.mustache), support 
+	 * Tags array: always defines Key/Value pair with Key="Name"
   
   * refractored
     * [commonValue.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#commonValue.mustache) includes

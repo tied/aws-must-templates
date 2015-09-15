@@ -14,6 +14,8 @@ Create an EC2 Security Group
 * `VpcId`: The Reference name physical ID of the VPC.  given as commonValue, [commonValue.mustache](#commonValue.mustache)
 * `SecurityGroupIngress`: create array of ingress rules with [commonXGressRule.mustache](#commonXGressRule.mustache)
 * `SecurityGroupEgress`: create array of ingress rules with [commonXGressRule.mustache](#commonXGressRule.mustache) template
+* `Tags` :  { "Key": "Name", "Name": ``} + array of tag Key- value subdocuments
+
 
 +++close+++
 
@@ -26,6 +28,9 @@ Create an EC2 Security Group
       "Properties" : {
         "GroupDescription" : "Enable SSH access via port 22"
         {{# VpcId }}, "VpcId": {{> commonValue }} {{/ VpcId }}
+        , "Tags" : [ { "Key":  "Name", "Value": "{{Name}}" }
+                     {{# Tags }},{{> commonKeyValue }}{{_comma}}{{/ Tags }}
+          ]
         , "SecurityGroupEgress" : [ 
                 {{# SecurityGroupEgress }}
                      {{> commonXGressRule }}{{_comma}}
