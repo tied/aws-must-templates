@@ -16,6 +16,11 @@ Create an EC2 instance
   * `InstanceTyperef` : Reference to instance type
 * `Tags` :  { "Key": "Name", "Name": ``} + array of tag Key- value subdocuments
 * `SecurityGroupIds`: array of [commonValue.mustache](#commonValue.mustache)
+* `SourceDestCheck`: String, (defaults: "true") Controls whether
+   source/destination checking is enabled on the instance. Also
+   determines if an instance in a VPC will perform network address
+   translation (NAT). For the instance to perform NAT, the value must
+   be "false".
 
 
 +++close+++
@@ -38,6 +43,7 @@ Create an EC2 instance
           , "Tags" : [ { "Key":  "Name", "Value": "{{Name}}" }
                        {{# Tags }},{{> commonKeyValue }}{{_comma}}{{/ Tags }}
             ]
+		  ,  "SourceDestCheck": {{# SourceDestCheck }}{{SourceDestCheck}}{{/ SourceDestCheck }}{{^ SourceDestCheck }}true{{/ SourceDestCheck }}
           , "SecurityGroupIds" : [ 
                 {{# SecurityGroupIds }}
                     {{> commonValue }}{{_comma}}

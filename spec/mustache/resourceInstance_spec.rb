@@ -18,10 +18,23 @@ describe template_under_test do
 
   end
 
+
+  # ------------------------------------------------------------------
+  # default
   it "#default'" do
 
     expect_str= <<-EOS
-           "koe" : {"Type":"AWS::EC2::Instance", "Metadata":{}, "Properties":{"ImageId":{"Fn::FindInMap":["AWSRegionArch2AMI", {"Ref":"AWS::Region"}, {"Fn::FindInMap":["AWSInstanceType2Arch", "commonInstanceType-partial called", "Arch"]}]}, "InstanceType":"commonInstanceType-partial called", "Tags":[{"Key":"Name", "Value":"koe"}], "SecurityGroupIds":[], "UserData":{}}}
+           "koe" : {"Type":"AWS::EC2::Instance"
+                     , "Metadata":{}
+                     , "Properties":{
+                           "ImageId":{"Fn::FindInMap":["AWSRegionArch2AMI", {"Ref":"AWS::Region"}, {"Fn::FindInMap":["AWSInstanceType2Arch", "commonInstanceType-partial called", "Arch"]}]}
+                         , "InstanceType":"commonInstanceType-partial called"
+                         , "Tags":[{"Key":"Name", "Value":"koe"}]
+                         , "SecurityGroupIds":[]
+                         , "UserData":{}
+                         , "SourceDestCheck": true
+                     }
+                   }
     EOS
 
     yaml_text = <<-EOF
@@ -45,6 +58,50 @@ describe template_under_test do
     expect( json_sanitize( render_str, nil )).to eql( json_sanitize( expect_str, nil  ))
 
   end
+
+  # ------------------------------------------------------------------
+  # default
+
+  it "#SourceDestCheck" do
+
+    expect_str= <<-EOS
+           "koesource_dest_check" : {
+               "Type":"AWS::EC2::Instance"
+              , "Metadata":{}
+              , "Properties":{
+                    "ImageId":{"Fn::FindInMap":["AWSRegionArch2AMI", {"Ref":"AWS::Region"}, {"Fn::FindInMap":["AWSInstanceType2Arch", "commonInstanceType-partial called", "Arch"]}]}
+                    , "InstanceType":"commonInstanceType-partial called"
+                    , "Tags":[{"Key":"Name", "Value":"koesource_dest_check"}]
+                    , "SecurityGroupIds":[]
+                    , "UserData":{}
+                    , "SourceDestCheck": false
+               }
+            }
+    EOS
+
+    yaml_text = <<-EOF
+      Name: koesource_dest_check
+      InstanceType: t2.micro
+      SourceDestCheck: "false"
+    EOF
+
+    # debug
+    # puts json_sanitize( expect_str, nil  )
+
+    # stub partials 
+    expect_any_instance_of( AwsMust::Template ).to receive( :partial ).with( :commonInstanceType ).twice.and_return( '"commonInstanceType-partial called"' )
+    expect_any_instance_of( AwsMust::Template ).to receive( :partial ).with( :resourceInstanceInitialize ).and_return( '{}' )
+
+    render_str = @aws_must.generate_str( template_under_test, stub_yaml_file( yaml_text ), {} )
+    
+    # debug
+    # puts "render_str=#{render_str}"
+    # puts json_sanitize( render_str, nil  )
+
+    expect( json_sanitize( render_str, nil )).to eql( json_sanitize( expect_str, nil  ))
+
+  end
+
 
 
 end

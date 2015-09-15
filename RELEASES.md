@@ -5,7 +5,7 @@
 * Template chanages
   * [mustache/commonDependsOn.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#commonDependsOn.mustache): support array of resources
   * [mustache/resourceInstance.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceInstance.mustache): Tags array: always defines
-	Key/Value pair with Key="Name"
+	Key/Value pair with Key="Name", support "SourceDestCheck" attribute
   *
     [mustache/resourceSubnet.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceSubnet.mustache):
     support `RoutetableAssociation` attribute
