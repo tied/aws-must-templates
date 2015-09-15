@@ -4,29 +4,15 @@
 
 ## <a id="Ec2PublicIp"></a>Ec2PublicIp<a class='navigator' href='#top'>[top]</a>
 
-Validates EC2 `InstanceId` public ip `:public_ip_address`
-using test paramter `PublicIp`. Can also validate that
-`public_ip_address` is not set.
-
-<strike>
-Validates EC2 `InstanceId` public ip `:public_ip_address` using test
-paramter `CidrBlock`, unless `CidrBlock` empty or string "`none`".
-</strike>
+Validates that EC2 `InstanceId` `:public_ip_address` (none/defined/CidrBlock)
 
 **Parameters**
 
 * `test_parameter( current_test, "InstanceId" )` 
 * `test_parameter( current_test, "PublicIp" )` valid values
-   * `nil`  : should not be defined
-   * `none`: should not be defined (=alias nil)
-   * V4 address regexp: should eql 
+   * `nil` OR `none`  : should not be defined
+   * V4 address public_ip_address belong to CidrBlock
    * `defined`: should not be nill
-<strike>
-* `test_parameter( current_test, "CidrBlock" )` valid values
-   * "" (empty string) : do not check for CidrBlock
-   * "none" : do not check for CidrBlock
-   * anything other: check for CidrBlock
-</strike>
 
 +++close+++
 

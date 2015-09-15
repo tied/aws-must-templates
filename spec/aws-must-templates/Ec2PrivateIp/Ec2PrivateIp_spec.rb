@@ -4,8 +4,8 @@
 
 ## <a id="Ec2PrivateIp"></a>Ec2PrivateIp<a class='navigator' href='#top'>[top]</a>
 
-Validates EC2 `InstanceId` public ip `:public_ip_address` using
-test paramter `CidrBlock`
+Validates EC2 `InstanceId` public ip 'private_ip_address' is with
+`CidrBlock`
 
 **Parameters**
 
