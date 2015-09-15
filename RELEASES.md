@@ -1,8 +1,12 @@
 ## 0.2.1-SNAPSHOT/20150902-11:46:59
 
 
-
 * Template chanages
+  *
+	[mustache/resourceInternetGateway.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceInternetGateway.mustache)
+	 * Attachement defined using `Attachment` subdocument, 
+	 * Tags array: always defines Key/Value pair with Key="Name", support "SourceDestCheck" attribute
+	
   * [mustache/commonDependsOn.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#commonDependsOn.mustache): support array of resources
   * [mustache/resourceInstance.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceInstance.mustache): Tags array: always defines
 	Key/Value pair with Key="Name", support "SourceDestCheck" attribute
@@ -17,7 +21,7 @@
     * [commonValue.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#commonValue.mustache) includes
       [commonRef.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#commonRef.mustache)
 
-  * 
+
   * new templates
     * [resourceRoute.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceRoute.mustache) 
     * [resourceRouteTable.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceRoute.mustache) 

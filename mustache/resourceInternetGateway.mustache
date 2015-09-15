@@ -14,9 +14,12 @@ access on `Vpc` && `Subnet`
 **Attributes**: context=  `./resources/InstanceSecurityGroup`
 
 * `Name` : of the Internet Gateway
-   * `Vpc`: reference to VPC where to atttace
    * `Subnet`: reference to VPC where to attach route to InternetGateway
    * `Tags`: (optional) as [commonKeyValue.mustache](#commonKeyValue.mustache)
+   * `Attachment` : sub document defining attachment to vpc
+       * `AttachmentName` of the attachment resource
+       * `Vpc`: reference to VPC where to atttace
+
 
 
 +++close+++
@@ -25,28 +28,34 @@ access on `Vpc` && `Subnet`
 
 {{! +++fold-on+++ }}
 
-
 {{! Create internet gateway }}
 "{{Name}}" : {
     "Type" : "AWS::EC2::InternetGateway",
     "Properties" : {
-       "Tags" : [ {{# Tags }}{{> commonKeyValue }}{{_comma}}{{/ Tags }}]
+     	"Tags" : [ { "Key":  "Name", "Value": "{{Name}}" }
+                     {{# Tags }},{{> commonKeyValue }}{{_comma}}{{/ Tags }}
+            ]
     }
- },
+ }
 
+
+{{# Attachment }}
 {{! Attache the internet gateway created to VPC }}
-"Attach{{Vpc}}" : {
+, "{{AttachmentName}}" : {
       "Type" : "AWS::EC2::VPCGatewayAttachment",
       "Properties" : {
         "VpcId" : { "Ref" : "{{Vpc}}" },
-        "InternetGatewayId" : { "Ref" : "{{Name}}" }
+		{{! reference to internet gateway name }}
+        "InternetGatewayId" : {{# .. }} {{# Name }} {{> commonRef }}{{/ Name }}{{/ .. }}
     }
-}, 
+} 
+
+{{/ Attachment }}
 
 
 {{! Create a route table for VPC }}
 
-"RouteTable{{Vpc}}" : {
+, "RouteTable{{Vpc}}" : {
       "Type" : "AWS::EC2::RouteTable",
       "Properties" : {
         "VpcId" : { "Ref" : "{{ Vpc }}" },
@@ -55,12 +64,12 @@ access on `Vpc` && `Subnet`
 		         , {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } 
 				 ]
       }
-    },
+}
 
 
 {{! Add a route to internet gateway created }}
 
-"Route{{Vpc}}" : {
+, "Route{{Vpc}}" : {
     "Type" : "AWS::EC2::Route",
      "DependsOn" : "Attach{{Vpc}}",
       "Properties" : {
@@ -68,11 +77,11 @@ access on `Vpc` && `Subnet`
           , "DestinationCidrBlock" : "0.0.0.0/0"
           , "GatewayId" : { "Ref" : "{{Name}}" }
      }
-},
+}
 
 {{! Associates a subnet with a route table. }}
 
-"RouteTableAssociation{{Subnet}}" : {
+, "RouteTableAssociation{{Subnet}}" : {
     "Type" : "AWS::EC2::SubnetRouteTableAssociation"
    , "Properties" : {
          "SubnetId" : { "Ref" : "{{Subnet}}" }
