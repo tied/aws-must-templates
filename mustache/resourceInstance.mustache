@@ -15,6 +15,7 @@ Create an EC2 instance
   * `InstanceType` : The instance type, such as t2.micro. 
   * `InstanceTyperef` : Reference to instance type
 * `Tags` :  { "Key": "Name", "Name": ``} + array of tag Key- value subdocuments
+* `DependsOn`: see [commonDependsOn.mustache](#commonDependsOn.mustache)
 * `SecurityGroupIds`: array of [commonValue.mustache](#commonValue.mustache)
 * `SourceDestCheck`: String, (defaults: "true") Controls whether
    source/destination checking is enabled on the instance. Also
@@ -32,6 +33,7 @@ Create an EC2 instance
     "{{Name}}" : {
       "Type" : "AWS::EC2::Instance"
       {{> commonCreationPolicy }}
+      {{> commonDependsOn }}
 	  , "Metadata": {
 	        {{> resourceInstanceMetadata }}
 

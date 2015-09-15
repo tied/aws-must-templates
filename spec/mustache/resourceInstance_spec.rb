@@ -13,6 +13,7 @@ describe template_under_test do
 
     # hide partials
     allow_any_instance_of( AwsMust::Template ).to receive( :partial ).with( any_args ).and_return( "" )
+    allow_any_instance_of( AwsMust::Template ).to receive( :partial ).with( /common/ ).and_call_original
     # verify that template_under_test actually used
     expect_any_instance_of( AwsMust::Template ).to receive( :get_template ).with( template_under_test  ).and_call_original
 
@@ -25,6 +26,7 @@ describe template_under_test do
 
     expect_str= <<-EOS
            "koe" : {"Type":"AWS::EC2::Instance"
+                     , "DependsOn": "riippuu"
                      , "Metadata":{}
                      , "Properties":{
                            "ImageId":{"Fn::FindInMap":["AWSRegionArch2AMI", {"Ref":"AWS::Region"}, {"Fn::FindInMap":["AWSInstanceType2Arch", "commonInstanceType-partial called", "Arch"]}]}
@@ -40,6 +42,7 @@ describe template_under_test do
     yaml_text = <<-EOF
       Name: koe
       InstanceType: t2.micro
+      DependsOn: riippuu
     EOF
 
     # debug
