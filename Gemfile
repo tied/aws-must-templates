@@ -13,7 +13,7 @@ gem 'rake'
 gem 'rspec'
 gem 'aws-sdk', '~> 2'
 gem 'netaddr', '~>1.5'
-
+# gem 'serverspec-aws-resources', :github => 'stelligent/serverspec-aws-resources'
 
 # Guard
 gem 'guard'

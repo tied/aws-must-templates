@@ -7,11 +7,9 @@
 Validates `InstanceType`  of EC2 `InstanceId` as returned by  `describe_instance_attribute` 
 
 * `:instance_type` == `InstanceType`
-* `:instance_id` == `InstanceId`  # no brainer
 
 **Parameters**
 
-- `test_parameter( current_test, "InstanceId" )` 
 - `test_parameter( current_test, "InstanceType" )` 
 
 +++close+++
@@ -29,7 +27,7 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instance = test_parameter( current_test, "InstanceId" )
+  instance = suite_value( :instance_id )   # set in spec_helper
   instanceType = test_parameter( current_test, "InstanceType" )
 
   # ------------------------------------------------------------------
@@ -37,12 +35,8 @@ describe current_test do
   describe "instance '#{instance.value}'" do
 
 
-    describe ec2_resource( instance ) do
+    describe ec2_named_resource( instance ) do
       its( :instance_type  ) { should eq instanceType.value }
-    end
-
-    describe ec2_resource( instance ) do
-      its( :instance_id  ) { should eq instance.value }
     end
 
   end

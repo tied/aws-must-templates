@@ -37,7 +37,7 @@ ParameterTest
         should not eq nil
 
 Stack
-  Stack 'smoke'
+  Stack 'smoke' #stack
     #known in test 'Stack''
     Stack parameter 'DummyParameter'
       value
@@ -49,7 +49,7 @@ Stack
       value
         should not eq nil
 
-Finished in 0.00642 seconds (files took 1.17 seconds to load)
+Finished in 0.00673 seconds (files took 1.21 seconds to load)
 11 examples, 0 failures
 
 </pre>
@@ -85,7 +85,7 @@ EC2 installation uses UserData script to install
 <pre>
 
 Stack
-  Stack 'suite1'
+  Stack 'suite1' #stack
     #known in test 'Stack''
     Stack output 'Bucket'
       value
@@ -100,7 +100,7 @@ Stack
       value
         should not eq nil
 
-Finished in 0.00336 seconds (files took 1.06 seconds to load)
+Finished in 0.0033 seconds (files took 1.15 seconds to load)
 5 examples, 0 failures
 
 </pre>
@@ -122,9 +122,27 @@ Resource:
 * Private Subnet 10.0.1.0/24.
 
 
+### Stack Parameters and Outputs
+
+<pre>
+
+AllwaysOk
+  Success
+    #works
+
+Vpc
+  vpc 'MyVPC'
+    vpc: 'MyVPC'
+      #is available Vpc
+
+Finished in 0.67967 seconds (files took 1.13 seconds to load)
+2 examples, 0 failures
+
+</pre>
 
 
 ### Instance Test Reports
 
+* [myNat](suites/suite2-myNat.txt)
 * [myFront1](suites/suite2-myFront1.txt)
 * [myBack1](suites/suite2-myBack1.txt)

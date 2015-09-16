@@ -1,30 +1,45 @@
 
 Ec2PrivateIp
-  instance 'i-92770c3f'
-    ec2: 'i-92770c3f', private_ip_address: 10.0.1.68
-      should not eql nil
+  instance 'myBack1'
+    ec2: instanceName=myBack1, private_ip_address: 10.0.1.130
       #valid cidr 10.0.1.0/24
 
 Ec2PublicIp
-  instance 'i-92770c3f'
+  instance 'myBack1'
     Public IP
-      ec2: 'i-92770c3f'
+      ec2: instanceName=myBack1
         public_ip_address
           should eql nil
 
+Ec2Routes
+  ec2: instanceName=myBack1
+    subnet_id
+      should not eq nil
+    instance subnect
+      implement route {:gateway_id=>"local", :state=>"active", :destination_cidr_block=>"10.0.0.0/16"}
+      implement route {:destination_cidr_block=>"0.0.0.0/0", :state=>"active", :instance_id=>/^i-.*/}
+
 Ec2StatusNormal
-  instance 'i-92770c3f'
-    works
-    ec2: 'i-92770c3f'
-      availability_zone
-        should not eq nil
-    ec2: 'i-92770c3f'
-      system_status_ok?
+  instanceName 'myBack1'
+    ec2: instanceName=myBack1
+      system_status_not_impaired?
         should eq true
-    ec2: 'i-92770c3f'
+    ec2: instanceName=myBack1
       instance_state_running?
         should eq true
 
-Finished in 0.59896 seconds (files took 2.42 seconds to load)
-7 examples, 0 failures
+NetworkCanPing
+  ping  3 times to 'www.google.com', wait response within 20 seconds
+    Command "ping www.google.com -W 20 -c 3"
+      exit_status
+        should eq 0
+
+ValidOSVersion
+  Operating system codename 'trusty'
+    Command "lsb_release --c -s"
+      stdout
+        should match /trusty/
+
+Finished in 18.98 seconds (files took 2.16 seconds to load)
+9 examples, 0 failures
 

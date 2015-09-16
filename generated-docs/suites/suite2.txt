@@ -1,0 +1,13 @@
+
+AllwaysOk
+  Success
+    #works
+
+Vpc
+  vpc 'MyVPC'
+    vpc: 'MyVPC'
+      #is available Vpc
+
+Finished in 0.67967 seconds (files took 1.13 seconds to load)
+2 examples, 0 failures
+

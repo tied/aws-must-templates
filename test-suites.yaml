@@ -82,6 +82,9 @@
          roles:
            - AwsCommandLineInterfaceInstalled:
            - CloudFormationHelperScriptsInstalled
+           - Ec2StatusNormal:
+           - Ec2PublicIp:
+                 PublicIp:   "defined"
            - ValidOSVersion:
                 Codename: trusty
            - S3ReadAccessAllowed:
@@ -90,6 +93,9 @@
      - myInstance2:
          roles:
            - AwsCommandLineInterfaceInstalled
+           - Ec2StatusNormal:
+           - Ec2PublicIp:
+                 PublicIp:   "defined"
            - CloudFormationHelperScriptsInstalled
            - ValidOSVersion:
                 Codename: trusty
@@ -111,6 +117,9 @@
          * Private Subnet 10.0.1.0/24.
 
    roles: 
+        - AllwaysOk
+        - Vpc:
+            VpcName: MyVPC
 
    # Just define anchor valued, does not generate anything
    suite2_data: 
@@ -121,40 +130,65 @@
 
 
    instances:
+
+     - myNat:
+         roles:
+             - RespondsToPing:
+                 Hostname: '@Outputs.myNat'
+             - Ec2StatusNormal
+             - Ec2InstanceType:
+                 InstanceType: "@Parameters.InstanceType"
+             - Ec2PublicIp:
+                 PublicIp:   defined
+             - Ec2PrivateIp:
+                 CidrBlock:   *SubNetPublic
+
      - myFront1:
          roles:
              - RespondsToPing:
                  Hostname: '@Outputs.myFront1'
-             - CloudFormationHelperScriptsInstalled
              - Ec2StatusNormal:
-                 InstanceId: "@Outputs.InstanceId1"
              - Ec2InstanceType:
-                 InstanceId: "@Outputs.InstanceId1"
                  InstanceType: "@Parameters.InstanceType"
              - Ec2PrivateIp:
-                 InstanceId: "@Outputs.InstanceId1"
                  CidrBlock:   *SubNetPublic
+             - Ec2Routes:
+                 Routes:   
+                   - :gateway_id: local
+                     :state: active
+                     :destination_cidr_block: *SubNetVPC
+                   - :destination_cidr_block: "0.0.0.0/0"
+                     :state: active
+                     :gateway_id: !ruby/regexp '/^igw.*/'
              - Ec2PublicIp:
-                 InstanceId: "@Outputs.InstanceId1"
                  PublicIp:   "@Outputs.myFront1"
                  # PublicIp:   192.168.1.1
                  # PublicIp:   defined
              - ValidOSVersion:
                  Codename: trusty
+             - NetworkCanPing:
+                 Destination: www.google.com
 
 
      - myBack1:
          roles:    
              - ValidOSVersion:
                  Codename: trusty
-             - Ec2StatusNormal:
-                 InstanceId: "@Outputs.InstanceId2"
+             - Ec2StatusNormal
              - Ec2PrivateIp:
-                 InstanceId: "@Outputs.InstanceId2"
                  CidrBlock:   *SubNetPrivate
              - Ec2PublicIp:
-                 InstanceId: "@Outputs.InstanceId2"
                  PublicIp:   "none"
                  # PublicIp:   192.168.1.1
                  # PublicIp:   defined
+             - Ec2Routes:
+                 Routes:   
+                   - :gateway_id: local
+                     :state: active
+                     :destination_cidr_block: *SubNetVPC
+                   - :destination_cidr_block: "0.0.0.0/0"
+                     :state: active
+                     :instance_id: !ruby/regexp '/^i-.*/'
+             - NetworkCanPing:
+                 Destination: www.google.com
 

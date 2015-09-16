@@ -1,0 +1,35 @@
+
+Ec2InstanceType
+  instance 'myNat'
+    ec2: instanceName=myNat
+      instance_type
+        should eq "t2.micro"
+
+Ec2PrivateIp
+  instance 'myNat'
+    ec2: instanceName=myNat, private_ip_address: 10.0.0.225
+      #valid cidr 10.0.0.0/24
+
+Ec2PublicIp
+  instance 'myNat'
+    Public IP
+      ec2: instanceName=myNat
+        public_ip_address
+          should not eql nil
+
+Ec2StatusNormal
+  instanceName 'myNat'
+    ec2: instanceName=myNat
+      system_status_not_impaired?
+        should eq true
+    ec2: instanceName=myNat
+      instance_state_running?
+        should eq true
+
+RespondsToPing
+  ping '54.76.100.38'
+    #reponds within 20 seconds with 3 test counts
+
+Finished in 1.49 seconds (files took 2.26 seconds to load)
+6 examples, 0 failures
+

@@ -9,7 +9,7 @@ Validates EC2 `InstanceId` public ip 'private_ip_address' is with
 
 **Parameters**
 
-* `test_parameter( current_test, "InstanceId" )` : mandatory
+* `instance = suite_value( :instance_id )` : name of instance being tested
 * `test_parameter( current_test, "CidrBlock" )` : mandatory, should be valid Cidr
 
 +++close+++
@@ -27,15 +27,14 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instance = test_parameter( current_test, "InstanceId" )
+  instance = suite_value( :instance_id )  # set in spec_helper
   cidr_block = test_parameter( current_test, "CidrBlock" )
 
   # ------------------------------------------------------------------
   # tests
   describe "instance '#{instance.value}'" do
 
-    describe ec2_resource_attribute( instance, "private_ip_address" ) do
-      it { should_not eql nil }
+    describe ec2_named_resource_attribute( instance, "private_ip_address" ) do
 
       it "#valid cidr #{cidr_block.value}" do
         expect( subject.private_ip_address_valid_cidr?( cidr_block.value ) ).to eql( true )

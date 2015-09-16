@@ -1,57 +1,55 @@
 
-CloudFormationHelperScriptsInstalled
-  Command "type cfn-init"
-    exit_status
-      should eq 0
-  Command "type cfn-signal"
-    exit_status
-      should eq 0
-  Command "type cfn-get-metadata"
-    exit_status
-      should eq 0
-  Command "type cfn-hup"
-    exit_status
-      should eq 0
-
 Ec2InstanceType
-  instance 'i-41166dec'
-    ec2: 'i-41166dec'
+  instance 'myFront1'
+    ec2: instanceName=myFront1
       instance_type
         should eq "t2.micro"
-    ec2: 'i-41166dec'
-      instance_id
-        should eq "i-41166dec"
 
 Ec2PrivateIp
-  instance 'i-41166dec'
-    ec2: 'i-41166dec', private_ip_address: 10.0.0.138
-      should not eql nil
+  instance 'myFront1'
+    ec2: instanceName=myFront1, private_ip_address: 10.0.0.179
       #valid cidr 10.0.0.0/24
 
 Ec2PublicIp
-  instance 'i-41166dec'
+  instance 'myFront1'
     Public IP
-      ec2: 'i-41166dec', public_ip_address: 52.19.131.1
+      ec2: instanceName=myFront1, public_ip_address: 52.19.214.34
         public_ip_address
-          should eql "52.19.131.1"
+          should eql "52.19.214.34"
+
+Ec2Routes
+  ec2: instanceName=myFront1
+    subnet_id
+      should not eq nil
+    instance subnect
+      implement route {:gateway_id=>"local", :state=>"active", :destination_cidr_block=>"10.0.0.0/16"}
+      implement route {:destination_cidr_block=>"0.0.0.0/0", :state=>"active", :gateway_id=>/^igw.*/}
 
 Ec2StatusNormal
-  instance 'i-41166dec'
-    works
-    ec2: 'i-41166dec'
-      availability_zone
-        should not eq nil
-    ec2: 'i-41166dec'
-      system_status_ok?
+  instanceName 'myFront1'
+    ec2: instanceName=myFront1
+      system_status_not_impaired?
         should eq true
-    ec2: 'i-41166dec'
+    ec2: instanceName=myFront1
       instance_state_running?
         should eq true
 
+NetworkCanPing
+  ping  3 times to 'www.google.com', wait response within 20 seconds
+    Command "ping www.google.com -W 20 -c 3"
+      exit_status
+        should eq 0
+
 RespondsToPing
-  ping '52.19.131.1'
+  ping '52.19.214.34'
     #reponds within 20 seconds with 3 test counts
 
-Finished in 4.52 seconds (files took 1.95 seconds to load)
-14 examples, 0 failures
+ValidOSVersion
+  Operating system codename 'trusty'
+    Command "lsb_release --c -s"
+      stdout
+        should match /trusty/
+
+Finished in 6.53 seconds (files took 2.38 seconds to load)
+11 examples, 0 failures
 

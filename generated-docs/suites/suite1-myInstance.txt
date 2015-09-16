@@ -18,6 +18,22 @@ CloudFormationHelperScriptsInstalled
     exit_status
       should eq 0
 
+Ec2PublicIp
+  instance 'myInstance'
+    Public IP
+      ec2: instanceName=myInstance
+        public_ip_address
+          should not eql nil
+
+Ec2StatusNormal
+  instanceName 'myInstance'
+    ec2: instanceName=myInstance
+      system_status_not_impaired?
+        should eq true
+    ec2: instanceName=myInstance
+      instance_state_running?
+        should eq true
+
 S3ReadAccessAllowed
   Test parameter definition
     Test parameter 'Bucket' for role 'S3ReadAccessAllowed'
@@ -38,21 +54,21 @@ S3ReadAccessAllowed
         exit_status
           should eq 0
     Can list S3 bucket keys
-      Command "aws s3 ls s3://suite1-mybucket-1bljea5p85p05 || aws s3 ls s3://suite1-mybucket-1bljea5p85p05 --region $(aws s3api get-bucket-location --bucket suite1-mybucket-1bljea5p85p05 --output text)"
+      Command "aws s3 ls s3://suite1-mybucket-797jcqsn0q0 || aws s3 ls s3://suite1-mybucket-797jcqsn0q0 --region $(aws s3api get-bucket-location --bucket suite1-mybucket-797jcqsn0q0 --output text)"
         exit_status
           should eq 0
     When an Object exists in S3 bucket
       Can read the Object from a S3 bucket
-        Command "aws s3 cp s3://suite1-mybucket-1bljea5p85p05/ttest.tmp /tmp/ttest.tmp || aws s3 cp s3://suite1-mybucket-1bljea5p85p05/ttest.tmp /tmp/ttest.tmp --region $(aws s3api get-bucket-location --bucket suite1-mybucket-1bljea5p85p05 --output text)"
+        Command "aws s3 cp s3://suite1-mybucket-797jcqsn0q0/ttest.tmp /tmp/ttest.tmp || aws s3 cp s3://suite1-mybucket-797jcqsn0q0/ttest.tmp /tmp/ttest.tmp --region $(aws s3api get-bucket-location --bucket suite1-mybucket-797jcqsn0q0 --output text)"
           exit_status
             should eq 0
       Cannot modify (= delete) the  Object in bucket
-        Command "aws s3 rm s3://suite1-mybucket-1bljea5p85p05/ttest.tmp --region $(aws s3api get-bucket-location --bucket suite1-mybucket-1bljea5p85p05 --output text)"
+        Command "aws s3 rm s3://suite1-mybucket-797jcqsn0q0/ttest.tmp --region $(aws s3api get-bucket-location --bucket suite1-mybucket-797jcqsn0q0 --output text)"
           exit_status
             should not eql 0
     Cannot write to bucket
       Create an Object in bucket should fail
-        Command "aws s3 cp /etc/hosts  s3://suite1-mybucket-1bljea5p85p05/ttest.tmp --region $(aws s3api get-bucket-location --bucket suite1-mybucket-1bljea5p85p05 --output text)"
+        Command "aws s3 cp /etc/hosts  s3://suite1-mybucket-797jcqsn0q0/ttest.tmp --region $(aws s3api get-bucket-location --bucket suite1-mybucket-797jcqsn0q0 --output text)"
           exit_status
             should not eql 0
   When bucket does not exists
@@ -67,6 +83,6 @@ ValidOSVersion
       stdout
         should match /trusty/
 
-Finished in 32.12 seconds (files took 1.14 seconds to load)
-15 examples, 0 failures
+Finished in 27.57 seconds (files took 1.21 seconds to load)
+18 examples, 0 failures
 

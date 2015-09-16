@@ -1,44 +1,20 @@
 {
-  "Outputs": {
-    "BucketName": {
-      "Value": {
-        "Fn::GetAtt": [
-          "MyBucket",
-          "DomainName"
-        ]
-      },
-      "Description": "The DNS name of the specified bucket."
-    },
-    "Bucket": {
-      "Value": {
-        "Ref": "MyBucket"
-      },
-      "Description": "Reference to S3 bucket"
-    }
-  },
-  "Resources": {
-    "MyBucket": {
-      "Properties": {},
-      "DeletionPolicy": "Delete",
-      "CreationPolicy": {
-        "ResourceSignal": {
-          "Timeout": "PT2M"
-        }
-      },
-      "Type": "AWS::S3::Bucket"
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "",
+  "Parameters": {
+    "DummyParameter": {
+      "Description": "Dummy paramter, not used",
+      "Type": "String",
+      "Default": "input paramter value"
     }
   },
   "Mappings": {
+    "AWSInstanceType2Arch": {
+      "t2.micro": {
+        "Arch": "64"
+      }
+    },
     "AWSRegionArch2AMI": {
-      "us-west-2": {
-        "64": "ami-57e8d767"
-      },
-      "us-gov-west-1": {
-        "64": "ami-51513172"
-      },
-      "us-west-1": {
-        "64": "ami-61b25925"
-      },
       "ap-northeast-1": {
         "64": "ami-90815290"
       },
@@ -62,21 +38,45 @@
       },
       "us-east-1": {
         "64": "ami-83c525e8"
+      },
+      "us-west-1": {
+        "64": "ami-61b25925"
+      },
+      "us-gov-west-1": {
+        "64": "ami-51513172"
+      },
+      "us-west-2": {
+        "64": "ami-57e8d767"
+      }
+    }
+  },
+  "Resources": {
+    "MyBucket": {
+      "Type": "AWS::S3::Bucket",
+      "CreationPolicy": {
+        "ResourceSignal": {
+          "Timeout": "PT2M"
+        }
+      },
+      "DeletionPolicy": "Delete",
+      "Properties": {}
+    }
+  },
+  "Outputs": {
+    "Bucket": {
+      "Description": "Reference to S3 bucket",
+      "Value": {
+        "Ref": "MyBucket"
       }
     },
-    "AWSInstanceType2Arch": {
-      "t2.micro": {
-        "Arch": "64"
+    "BucketName": {
+      "Description": "The DNS name of the specified bucket.",
+      "Value": {
+        "Fn::GetAtt": [
+          "MyBucket",
+          "DomainName"
+        ]
       }
     }
-  },
-  "Parameters": {
-    "DummyParameter": {
-      "Default": "input paramter value",
-      "Type": "String",
-      "Description": "Dummy paramter, not used"
-    }
-  },
-  "Description": "",
-  "AWSTemplateFormatVersion": "2010-09-09"
+  }
 }

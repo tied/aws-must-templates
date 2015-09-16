@@ -260,6 +260,7 @@ EOS
             taskname = task.shift
             Rake::Task[taskname].invoke( *(task.select{ |arg_name| args[arg_name]}.map{ |arg_name| args[arg_name] }) )
           else
+            taskname = task
             Rake::Task[task].invoke( args )
           end
           failed_tasks << task unless ( $?.nil? || $?.success? )
@@ -267,7 +268,7 @@ EOS
           # sh "rake #{t}; true"
         rescue => e
           puts "#{e.class}: #{e.message}"
-          failed_tasks << task
+          failed_tasks << taskname
           # puts e.backtrace
           puts "continue with next task"
         end

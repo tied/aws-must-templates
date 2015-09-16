@@ -12,8 +12,7 @@ Validates that status of `InstanceId` EC2  status for `describe_instance_status`
 
 **Parameters**
 
-- `test_parameter( current_test, "InstanceId" )` 
-
+* `instance = suite_value( :instance_id )` : name of instance being tested
 
 
 +++close+++
@@ -31,27 +30,25 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instance = test_parameter( current_test, "InstanceId" )
+  instanceName = suite_value( :instance_id )
+
+  expected = [
+              { :prop => :system_status_not_impaired?, :expect => true },
+              { :prop => :instance_state_running?, :expect => true  } 
+             ]
 
   # ------------------------------------------------------------------
   # tests
-  describe "instance '#{instance.value}'" do
 
-    describe ec2_resource( instance ) do
-      its( :availability_zone  ) { should_not eq nil }
+  describe "instanceName '#{instanceName.value}'" do
+
+    expected.each do |prop|
+      describe ec2_named_resource( instanceName ) do
+        its( prop[:prop] ) { should eq prop[:expect] }
+      end
     end
 
-    describe ec2_resource( instance ) do
-      its( :system_status_ok?  ) { should eq true }
-    end
-
-    describe ec2_resource( instance ) do
-      its( :instance_state_running?  ) { should eq true }
-    end
-
-
-  end
-
+  end # describe instanceId
 
 end
 

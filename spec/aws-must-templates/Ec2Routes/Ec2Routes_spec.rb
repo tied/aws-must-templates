@@ -8,7 +8,7 @@ Validates that routes in EC2 `InstanceId`
 
 **Parameters**
 
-* `test_parameter( current_test, "InstanceId" )` 
+* `instance = suite_value( :instance_id )` : name of instance being tested
 * `test_parameter( current_test, "Routes" )` : and array of route definitions
 
 For example: Validata that 'Instance1' in output section defines two
@@ -41,24 +41,23 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instanceId = test_parameter( current_test, "InstanceId" )
+  instance = suite_value( :instance_id )
   routes = test_parameter( current_test, "Routes" )
 
 
   # ------------------------------------------------------------------
   # tests
 
-  describe ec2_resource( instanceId ) do
+  describe ec2_named_resource( instance ) do
 
     its( :subnet_id ) { should_not eq nil }
 
     context "instance subnect " do
 
       before :all do
-        @instance = ec2_resource( instanceId )
+        @instance = ec2_named_resource( instance )
         @implemented_routes = @instance.subnet_routes()
       end
-
 
       # iterate 'expacted routes'
       routes.value.each_with_index do |expected_route,i|

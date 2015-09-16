@@ -26,6 +26,8 @@
   * new templates
     * [resourceRoute.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceRoute.mustache) 
     * [resourceRouteTable.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceRoute.mustache) 
+	* [mappingAmazonVpcNat.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#mappingAmazonVpcNat.mustache) 
+
 
 * Lots of new [serverspec tests](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html)
   * [RespondsToPing](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#RespondsToPing)

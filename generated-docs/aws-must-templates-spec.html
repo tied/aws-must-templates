@@ -42,28 +42,52 @@ input.toggle:checked ~ div {
 <h2>Table of contents</h2>
 
 <ul>
-    <li>Resuable tests:</li>
-    <ul>
-       <li><a href="#AwsCommandLineInterfaceInstalled">AwsCommandLineInterfaceInstalled</a></li>
-       <li><a href="#CloudFormationHelperScriptsInstalled">CloudFormationHelperScriptsInstalled</a></li>
-       <li><a href="#Ec2InstanceType">Ec2InstanceType</a></li>
-       <li><a href="#Ec2PublicIp">Ec2PublicIp</a></li>
-       <li><a href="#Ec2PrivateIp">Ec2PrivateIp</a></li>
-       <li><a href="#Ec2StatusNormal">Ec2StatusNormal</a></li>
-       <li><a href="#RespondsToPing">RespondsToPing</a>: Responds to ping</li>
-       <li><a href="#S3NoAccess">S3NoAccess</a></li>
-       <li><a href="#S3ReadAccessAllowed">S3ReadAccessAllowed</a></li>
-       <li><a href="#ValidOSVersion">ValidOSVersion</a></li>
-    </ul> 
-
-    <li>Development:</li>
-    <ul> 
-       <li><a href="#AwsMustTestRunnerProperties">AwsMustTestRunnerProperties</a></li>
-       <li><a href="#ParameterTest">ParameterTest</a></li>
-       <li><a href="#Stack">Stack</a></li>
-    </ul> 
-
+     <li><a href="#AllwaysOk">AllwaysOk</a></li>
+     <li><a href="#AwsCommandLineInterfaceInstalled">AwsCommandLineInterfaceInstalled</a></li>
+     <li><a href="#AwsMustTestRunnerProperties">AwsMustTestRunnerProperties</a></li>
+     <li><a href="#CloudFormationHelperScriptsInstalled">CloudFormationHelperScriptsInstalled</a></li>
+     <li><a href="#Ec2InstanceType">Ec2InstanceType</a></li>
+     <li><a href="#Ec2PrivateIp">Ec2PrivateIp</a></li>
+     <li><a href="#Ec2PublicIp">Ec2PublicIp</a></li>
+     <li><a href="#Ec2Routes">Ec2Routes</a></li>
+     <li><a href="#Ec2StatusNormal">Ec2StatusNormal</a></li>
+     <li><a href="#NetworkCanPing">NetworkCanPing</a></li>
+     <li><a href="#ParameterTest">ParameterTest</a></li>
+     <li><a href="#RespondsToPing">RespondsToPing</a></li>
+     <li><a href="#S3NoAccess">S3NoAccess</a></li>
+     <li><a href="#S3ReadAccessAllowed">S3ReadAccessAllowed</a></li>
+     <li><a href="#Stack">Stack</a></li>
+     <li><a href="#ValidOSVersion">ValidOSVersion</a></li>
+     <li><a href="#Vpc">Vpc</a></li>
 </ul>
+
+<h2><a id="AllwaysOk"></a>AllwaysOk<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Make at least one test succeed.</p>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe  current_test do 
+
+
+  # ------------------------------------------------------------------
+  # Test paramters defined
+
+  describe "Success" do
+
+    it "#works" do
+      expect( 1 ).to eql( 1 )
+    end
+  end
+
+end
+
+</div></div>
 
 <h2><a id="AwsCommandLineInterfaceInstalled"></a>AwsCommandLineInterfaceInstalled<a class='navigator' href='#top'>[top]</a></h2>
 
@@ -167,13 +191,11 @@ end
 
 <ul>
 <li><code>:instance_type</code> == <code>InstanceType</code></li>
-<li><code>:instance_id</code> == <code>InstanceId</code>  # no brainer</li>
 </ul>
 
 <p><strong>Parameters</strong></p>
 
 <ul>
-<li><code>test_parameter( current_test, "InstanceId" )</code> </li>
 <li><code>test_parameter( current_test, "InstanceType" )</code> </li>
 </ul>
 
@@ -188,7 +210,7 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instance = test_parameter( current_test, "InstanceId" )
+  instance = suite_value( :instance_id )   # set in spec_helper
   instanceType = test_parameter( current_test, "InstanceType" )
 
   # ------------------------------------------------------------------
@@ -196,12 +218,8 @@ describe current_test do
   describe "instance '#{instance.value}'" do
 
 
-    describe ec2_resource( instance ) do
+    describe ec2_named_resource( instance ) do
       its( :instance_type  ) { should eq instanceType.value }
-    end
-
-    describe ec2_resource( instance ) do
-      its( :instance_id  ) { should eq instance.value }
     end
 
   end
@@ -213,13 +231,13 @@ end
 
 <h2><a id="Ec2PrivateIp"></a>Ec2PrivateIp<a class='navigator' href='#top'>[top]</a></h2>
 
-<p>Validates EC2 <code>InstanceId</code> public ip <code>:public_ip_address</code> using
-test paramter <code>CidrBlock</code></p>
+<p>Validates EC2 <code>InstanceId</code> public ip 'private<em>ip</em>address' is with
+<code>CidrBlock</code></p>
 
 <p><strong>Parameters</strong></p>
 
 <ul>
-<li><code>test_parameter( current_test, "InstanceId" )</code> : mandatory</li>
+<li><code>instance = suite_value( :instance_id )</code> : name of instance being tested</li>
 <li><code>test_parameter( current_test, "CidrBlock" )</code> : mandatory, should be valid Cidr</li>
 </ul>
 
@@ -234,15 +252,14 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instance = test_parameter( current_test, "InstanceId" )
+  instance = suite_value( :instance_id )  # set in spec_helper
   cidr_block = test_parameter( current_test, "CidrBlock" )
 
   # ------------------------------------------------------------------
   # tests
   describe "instance '#{instance.value}'" do
 
-    describe ec2_resource_attribute( instance, "private_ip_address" ) do
-      it { should_not eql nil }
+    describe ec2_named_resource_attribute( instance, "private_ip_address" ) do
 
       it "#valid cidr #{cidr_block.value}" do
         expect( subject.private_ip_address_valid_cidr?( cidr_block.value ) ).to eql( true )
@@ -258,33 +275,17 @@ end
 
 <h2><a id="Ec2PublicIp"></a>Ec2PublicIp<a class='navigator' href='#top'>[top]</a></h2>
 
-<p>Validates EC2 <code>InstanceId</code> public ip <code>:public_ip_address</code>
-using test paramter <code>PublicIp</code>. Can also validate that
-<code>public_ip_address</code> is not set.</p>
-
-<p><strike>
-Validates EC2 <code>InstanceId</code> public ip <code>:public_ip_address</code> using test
-paramter <code>CidrBlock</code>, unless <code>CidrBlock</code> empty or string "<code>none</code>".
-</strike></p>
+<p>Validates that EC2 <code>InstanceId</code> <code>:public_ip_address</code> (none/defined/CidrBlock)</p>
 
 <p><strong>Parameters</strong></p>
 
 <ul>
-<li><code>test_parameter( current_test, "InstanceId" )</code> </li>
+<li><code>instance = suite_value( :instance_id )</code> : name of instance being tested</li>
 <li><code>test_parameter( current_test, "PublicIp" )</code> valid values
 <ul>
-<li><code>nil</code>  : should not be defined</li>
-<li><code>none</code>: should not be defined (=alias nil)</li>
-<li>V4 address regexp: should eql </li>
-<li><code>defined</code>: should not be nill
-<strike></li>
-</ul></li>
-<li><code>test_parameter( current_test, "CidrBlock" )</code> valid values
-<ul>
-<li>"" (empty string) : do not check for CidrBlock</li>
-<li>"none" : do not check for CidrBlock</li>
-<li>anything other: check for CidrBlock
-</strike></li>
+<li><code>nil</code> OR <code>none</code>  : should not be defined</li>
+<li>V4 address public<em>ip</em>address belong to CidrBlock</li>
+<li><code>defined</code>: should not be nill</li>
 </ul></li>
 </ul>
 
@@ -299,9 +300,8 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instance = test_parameter( current_test, "InstanceId" )
+  instance = suite_value( :instance_id )  # set in spec_help
   public_ip = test_parameter( current_test, "PublicIp" )
-  # cidr_block = test_parameter( current_test, "CidrBlock" )
 
 
   # ------------------------------------------------------------------
@@ -314,15 +314,15 @@ describe current_test do
       case public_ip.value
 
       when /\A(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\Z/ 
-        describe ec2_resource_attribute( instance, "public_ip_address" ) do
+        describe ec2_named_resource_attribute( instance, "public_ip_address" ) do
           its( :public_ip_address  ) { should eql public_ip.value }
         end
       when "none", "nil"
-        describe ec2_resource( instance ) do
+        describe ec2_named_resource( instance ) do
           its( :public_ip_address  ) { should eql nil }
         end
       when "defined"
-        describe ec2_resource( instance ) do
+        describe ec2_named_resource( instance ) do
           its( :public_ip_address  ) { should_not  eql nil }
         end
       else
@@ -330,17 +330,81 @@ describe current_test do
       end # case
     end # public ip
 
-    # # validate CidrBlock
-    # if !cidr_block.value.empty? && cidr_block.value != "none" then
 
-    #   describe "CidrBlock" do
-    #     describe ec2_resource_attribute( instance, "public_ip_address" ) do
-    #       it "#valid cidr #{cidr_block.value}" do
-    #         expect( subject.cidr_valid_ip(  subject.public_ip_address, cidr_block.value ) ).to eql( true )
-    #       end
-    #     end
-    #   end
-    # end # if validate CidrBlock
+  end # instance
+
+
+end
+
+</div></div>
+
+<h2><a id="Ec2Routes"></a>Ec2Routes<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validates that routes in EC2 <code>InstanceId</code></p>
+
+<p><strong>Parameters</strong></p>
+
+<ul>
+<li><code>instance = suite_value( :instance_id )</code> : name of instance being tested</li>
+<li><code>test_parameter( current_test, "Routes" )</code> : and array of route definitions</li>
+</ul>
+
+<p>For example: Validata that 'Instance1' in output section defines two
+routes. Fist route forwards VPC traffic to 'local' gateway, and
+default route forwards to internet gateway (matched using regexp).</p>
+
+<pre><code> - Ec2Routes:
+      InstanceId: "@Outputs.InstanceId1"
+      Routes:   
+          - :destination_cidr_block: 10.0.0.0/16
+            :gateway_id: local
+            :state: active
+          - :destination_cidr_block: "0.0.0.0/0"
+            :gateway_id: !ruby/regexp '/^ig.*/'
+            :state: active
+</code></pre>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe current_test do
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  instance = suite_value( :instance_id )
+  routes = test_parameter( current_test, "Routes" )
+
+
+  # ------------------------------------------------------------------
+  # tests
+
+  describe ec2_named_resource( instance ) do
+
+    its( :subnet_id ) { should_not eq nil }
+
+    context "instance subnect " do
+
+      before :all do
+        @instance = ec2_named_resource( instance )
+        @implemented_routes = @instance.subnet_routes()
+      end
+
+      # iterate 'expacted routes'
+      routes.value.each_with_index do |expected_route,i|
+
+        # use to validate corresponding implemented route
+        it "implement route #{expected_route}" do
+          expect( @implemented_routes[i] ).to include( expected_route )
+        end
+
+      end # iterate expections
+
+    end # context
+
 
   end # instance
 
@@ -354,6 +418,7 @@ end
 <p>Validates that status of <code>InstanceId</code> EC2  status for <code>describe_instance_status</code> normal:</p>
 
 <ul>
+<li>defefines <code>:availability_zone</code></li>
 <li><code>:system_status_ok?</code></li>
 <li><code>:instance_state_running?</code></li>
 </ul>
@@ -361,7 +426,7 @@ end
 <p><strong>Parameters</strong></p>
 
 <ul>
-<li><code>test_parameter( current_test, "InstanceId" )</code> </li>
+<li><code>instance = suite_value( :instance_id )</code> : name of instance being tested</li>
 </ul>
 
 <div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
@@ -375,33 +440,56 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instance = test_parameter( current_test, "InstanceId" )
+  instanceName = suite_value( :instance_id )
+
+  expected = [
+              { :prop => :system_status_not_impaired?, :expect => true },
+              { :prop => :instance_state_running?, :expect => true  } 
+             ]
 
   # ------------------------------------------------------------------
   # tests
-  describe "instance '#{instance.value}'" do
 
-    it "works" do 
-      expect( 1 ).to eql( 1 )
+  describe "instanceName '#{instanceName.value}'" do
+
+    expected.each do |prop|
+      describe ec2_named_resource( instanceName ) do
+        its( prop[:prop] ) { should eq prop[:expect] }
+      end
     end
 
-    describe ec2_resource( instance ) do
-      its( :availability_zone  ) { should_not eq nil }
-    end
-
-    describe ec2_resource( instance ) do
-      its( :system_status_ok?  ) { should eq true }
-    end
-
-    describe ec2_resource( instance ) do
-      its( :instance_state_running?  ) { should eq true }
-    end
-
-
-  end
-
+  end # describe instanceId
 
 end
+
+</div></div>
+
+<h2><a id="NetworkCanPing"></a>NetworkCanPing<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Can ping to <code>test_parameter( current_test, "Destination" )</code></p>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe current_test do
+
+  # defined in test-suites.yaml
+  timeout = 20 # seconds
+  testcount = 3 # times
+
+  destination = test_parameter( current_test, "Destination" )
+
+
+  describe "ping  #{testcount} times to '#{destination.value}', wait response within #{timeout} seconds" do
+    cmd = "ping #{destination.value} -W #{timeout} -c #{testcount}"
+    describe command( cmd ) do
+      its(:exit_status) { should eq 0 }
+    end
+  end
+end
+
 
 </div></div>
 
@@ -801,5 +889,49 @@ describe current_test do
   end
 end
 
+
+</div></div>
+
+<h2><a id="Vpc"></a>Vpc<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validates that Vpc tagged with <code>Name</code> = <code>test_parameter( current_test, "VpcName" )</code>
+exists, and that it is available.</p>
+
+<p><strong>Parameters</strong></p>
+
+<ul>
+<li><code>test_parameter( current_test, "VpcName" )</code> : search for Vpc with 'Name' tag</li>
+</ul>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe current_test do
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  vpcName = test_parameter( current_test, "VpcName" )
+
+
+  # ------------------------------------------------------------------
+  # tests
+  describe "vpc '#{vpcName.value}'" do
+
+    describe vpc_resource_by_name( vpcName.value ) do
+
+      it "#is available Vpc" do
+        expect( subject.is_available?).to eql( true )
+      end
+
+    end
+
+  end # instance
+
+
+end
 
 </div></div>
