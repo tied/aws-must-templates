@@ -103,7 +103,8 @@ namespace "dev" do |ns|
 
       pdf_file = "#{generate_docs_dir}/xref_suite_X_test.pdf"
 
-      sh "dot #{dot_file} -T pdf > #{pdf_file}"
+      # sh "dot #{dot_file} -T pdf > #{pdf_file}"
+      sh "neato #{dot_file} -T pdf > #{pdf_file}"
 
     end # task :xref
 

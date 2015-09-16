@@ -49,6 +49,12 @@ def xref_to_dot( xref_suite_X_test, xref_test_X_suite )
   puts <<-EOS
           digraph {
              rankdir=TB
+             
+             // options for neato 
+             // http://stackoverflow.com/questions/7670304/how-to-deal-with-densely-connected-graphs-with-neato
+             overlap=false;
+             splines=true;
+
 
              node      [     fontname = "Courier"
                              fontsize = 8
