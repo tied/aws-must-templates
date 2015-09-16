@@ -1,0 +1,65 @@
+{{!
+
++++start+++
+
+## <a id="mappings.mustache"></a>mappings.mustache <a class='navigator' href='#top'>[top]</a>
+
+Mapping table `region-->ami` with `root-device=ebs`,
+`architecture,Values=x86_64`, and `--owners amazon` as returned by
+the query
+
+            aws ec2 describe-images --owners amazon 
+			       --filters "Name=root-device-type,Values=ebs" 
+				   --filters "Name=name,Values=amzn-ami-vpc-nat" 
+				   --filters "Name=architecture,Values=x86_64" 
+				   --filters "Name=image-id,Values=ami*"  
+				   --query 'Images[].[CreationDate, ImageId]' 
+				   --output json --region #{region}
+				   
+
++++close+++
+
+
+==================================================================
+The template
+==================================================================
+
+}}
+
+
+{{! +++fold-on+++ }}
+
+
+
+"NatRegionMap" : {
+  "eu-west-1": {
+    "AMI": "ami-8fdaf9f8"
+  },
+  "ap-southeast-1": {
+    "AMI": "ami-a05c49f2"
+  },
+  "ap-southeast-2": {
+    "AMI": "ami-6988c753"
+  },
+  "eu-central-1": {
+    "AMI": "ami-c63b3bdb"
+  },
+  "ap-northeast-1": {
+    "AMI": "ami-f88613f8"
+  },
+  "us-east-1": {
+    "AMI": "ami-5d761d38"
+  },
+  "sa-east-1": {
+    "AMI": "ami-438e1b5e"
+  },
+  "us-west-1": {
+    "AMI": "ami-57975213"
+  },
+  "us-west-2": {
+    "AMI": "ami-b5021e85"
+  }
+}{{_comma}}
+
+
+{{! +++fold-off+++ }}
