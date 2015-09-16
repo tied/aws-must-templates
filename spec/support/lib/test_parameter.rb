@@ -3,7 +3,7 @@ module Serverspec
 
     class TestParameter < ValidProperty
 
-      def initialize( role_id, test_parameter_name )
+      def initialize( role_id, test_parameter_name, mandatory )
 
         keys = ["Roles"]
         keys << role_id
@@ -12,9 +12,10 @@ module Serverspec
         @role_id = role_id
         @test_parameter_name = test_parameter_name
 
-        super( keys )
+       super( keys )
 
-        validate
+        validate if mandatory
+
       end
 
       # rpsec description text
@@ -24,7 +25,7 @@ module Serverspec
 
       # error string
       def to_error_s
-        "Test paramater '#{@test_parameter_name}' configuration error in suite '#{ @runner.property[:suite_id]}' test '#{@role_id}'"
+        "Test paramater '#{@test_parameter_name}' configuration error in suite '#{ @runner.property[:suite_id]}' #{ @runner.property[:instance_id] ? 'instance \'' +  @runner.property[:instance_id] + '\'' : ' common ' } test '#{@role_id}' "
       end
 
       # definition in test_suite.yaml (nil if not defined)
@@ -45,6 +46,8 @@ module Serverspec
       end
 
       private 
+
+      # value starts with '@' --> lookup in 'properties'
       def param_evaluate( val )
         return val if val.nil? 
         return val unless val[0] == "@"
@@ -53,8 +56,8 @@ module Serverspec
 
     end # class
 
-    def test_parameter( role_id, test_parameter_name )
-      TestParameter.new( role_id, test_parameter_name )
+    def test_parameter( role_id, test_parameter_name, mandatory=true )
+      TestParameter.new( role_id, test_parameter_name, mandatory )
     end
 
   end

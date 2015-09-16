@@ -132,6 +132,7 @@ properties = {
    # Roles for test (from instance or from common suites)
   "Roles" => (  instance_id ? test_suites.suite_instance_roles( suite_id,  instance_id ) : test_suites.suite_roles( suite_id ) ),
   :host => instance_id,
+  :instance_id => instance_id,
   :stack_id => stack_id,
   :suite_id=> suite_id,
 }
