@@ -135,6 +135,9 @@ resources:
                       Port: 80
 
                     - Value: 0.0.0.0/0
+                      Port: 443
+
+                    - Value: 0.0.0.0/0
                       FromPort: -1
                       ToPort: -1
                       IpProtocol: icmp
@@ -202,26 +205,6 @@ resources:
 
 
 
-        -  Instance: 
-                 Name: &Instance1 myFront1
-
-                 InstanceTypeRef: *Param_InstanceTypeName
-
-                 KeyName: *Param_KeyName
-
-
-                 # CreationPolicy: 
-                 #     Timeout: PT8M
-
-                 # Initialize: 
-                 #   - InstallCFtools: true
-
-                 SubnetId:
-                       - Ref: *PublicSubnet
-
-                 SecurityGroupIds: 
-                       - Ref: *DefaultSG
-
 
 
         -  Instance: 
@@ -244,6 +227,32 @@ resources:
 
                  SecurityGroupIds: 
                        - Ref: *BackendSG
+
+        -  Instance: 
+                 Name: &Instance1 myFront1
+
+                 InstanceTypeRef: *Param_InstanceTypeName
+
+                 KeyName: *Param_KeyName
+
+                 DependsOn:
+                   - *Instance2
+                   - *Instance3
+
+
+                 CreationPolicy: 
+                     Timeout: PT8M
+
+                 Initialize: 
+                   - InstallCFtools: true
+
+                 SubnetId:
+                       - Ref: *PublicSubnet
+
+                 SecurityGroupIds: 
+                       - Ref: *DefaultSG
+
+
 
         -  Route: 
                  Name: RouteToNat
