@@ -28,6 +28,10 @@ data:
              - Public: &SubNetPublic 10.0.0.0/24
              - Private: &SubNetPrivate 10.0.1.0/24
 
+mappings:
+        - AmazonVpcNat: 
+            Name: &MappingNatAim MappingNatAim
+
 resources:
 
 
@@ -37,6 +41,15 @@ resources:
                  Tags:
                     - Key: Name
                       Value: "MyVPC"
+
+        -  RouteTable: 
+                 Name: &RouteTableNat RouteTableNat
+                 Vpc: *MyVPC
+
+        # -  RouteTable: 
+        #          Name: &RouteTableMain RouteTableMain
+        #          Vpc: *MyVPC
+
 
         - Subnet:
                  Name: &PublicSubnet PublicSubnet
@@ -57,15 +70,41 @@ resources:
                  Tags:
                     - Key: Name
                       Value: *PrivateSubnet
+                 RoutetableAssociation: *RouteTableNat
 
 
         - InternetGateway: 
                  Name: &MyInternetGw MyInternetGw
-                 Vpc: *MyVPC
                  Subnet: *PublicSubnet
-                 Tags:
-                    - Key: Name
-                      Value: *MyInternetGw
+                 Attachment:
+                       AttachmentName: &AttachIgw MyInternetGwAttachment
+                       Vpc: *MyVPC
+
+        - SecurityGroup:
+                 Name: &BackendSG BackendSecurityGroup
+                 VpcId:
+                   Ref: *MyVPC
+                 SecurityGroupIngress:
+
+                      # ssh
+                    - Value: *SubNetPublic
+                      Port: 22
+                      
+                      # ping
+                    - Value: *SubNetVPC
+                      FromPort: -1
+                      ToPort: -1
+                      IpProtocol: icmp
+
+
+                 SecurityGroupEgress:
+                    - Value: 0.0.0.0/0
+                      Port: 80
+
+                    - Value: 0.0.0.0/0
+                      FromPort: -1
+                      ToPort: -1
+                      IpProtocol: icmp
 
 
         - SecurityGroup:
@@ -80,9 +119,87 @@ resources:
 
                       # Ping
                     - Value: 0.0.0.0/0
-                      FromPort: 8
+                      FromPort: -1
                       ToPort: -1
                       IpProtocol: icmp
+
+                      # Http from private net
+                    - Value: 0.0.0.0/0
+                      Port: 80
+
+                 SecurityGroupEgress:
+                    - Value: *SubNetPrivate
+                      Port: 22
+
+                    - Value: 0.0.0.0/0
+                      Port: 80
+
+                    - Value: 0.0.0.0/0
+                      FromPort: -1
+                      ToPort: -1
+                      IpProtocol: icmp
+
+        - SecurityGroup:
+                 Name: &NatSG MyNatSgGroup
+                 VpcId:
+                   Ref: *MyVPC
+                 SecurityGroupIngress:
+
+                      # ssh
+                    - Ref: *Param_SSHLocation
+                      Port: 22
+
+                      # Ping
+                    - Value: 0.0.0.0/0
+                      FromPort: -1
+                      ToPort: -1
+                      IpProtocol: icmp
+
+                      # Http from private net
+                    - Value: 0.0.0.0/0
+                      Port: 80
+
+                 SecurityGroupEgress:
+                    - Value: *SubNetPrivate
+                      Port: 22
+
+                    - Value: 0.0.0.0/0
+                      Port: 80
+
+                    - Value: 0.0.0.0/0
+                      FromPort: -1
+                      ToPort: -1
+                      IpProtocol: icmp
+
+
+
+        -  Instance: 
+                 Name: &Instance3 myNat
+
+                 InstanceTypeRef: *Param_InstanceTypeName
+
+                 MapRegionToImageId: *MappingNatAim
+
+                 KeyName: *Param_KeyName
+
+                 # For the instance to perform NAT, the value must be
+                 # "false". Notice String!!!
+                 SourceDestCheck: "false"
+
+                 # CreationPolicy: 
+                 #     Timeout: PT8M
+
+                 # Initialize: 
+                 #   - InstallCFtools: true
+                 # DependsOn: 
+                 #  - *AttachIgw
+
+                 SubnetId:
+                       - Ref: *PublicSubnet
+
+                 SecurityGroupIds: 
+                       - Ref: *NatSG
+
 
 
         -  Instance: 
@@ -92,11 +209,12 @@ resources:
 
                  KeyName: *Param_KeyName
 
-                 CreationPolicy: 
-                     Timeout: PT8M
 
-                 Initialize: 
-                   - InstallCFtools: true
+                 # CreationPolicy: 
+                 #     Timeout: PT8M
+
+                 # Initialize: 
+                 #   - InstallCFtools: true
 
                  SubnetId:
                        - Ref: *PublicSubnet
@@ -104,9 +222,6 @@ resources:
                  SecurityGroupIds: 
                        - Ref: *DefaultSG
 
-                 Tags:
-                    - Key: Name
-                      Value: *Instance1
 
 
         -  Instance: 
@@ -128,12 +243,23 @@ resources:
                        - Ref: *PrivateSubnet
 
                  SecurityGroupIds: 
-                       - Ref: *DefaultSG
+                       - Ref: *BackendSG
 
-                 Tags:
-                    - Key: Name
-                      Value: *Instance2
+        -  Route: 
+                 Name: RouteToNat
+                 Vpc: *MyVPC
+                 # DependsOn: 
+                 #  - *AttachIgw
+                 RouteTableId: *RouteTableNat
+                 InstanceId: *Instance3
+                 DestinationCidrBlock: "0.0.0.0/0"
 
+        # -  Route: 
+        #          Name: RouteMain
+        #          Vpc: *MyVPC
+        #          RouteTableId: *RouteTableMain
+        #          GatewayId: *MyInternetGw
+        #          DestinationCidrBlock: "0.0.0.0/0"
 
 
 outputs:
@@ -144,6 +270,13 @@ outputs:
                  Ref: *Instance1
                  Name: PublicIp
 
+        -  Name: *Instance3
+           Description: Ip of the newly created EC2 instance
+           Attr: 
+                 Ref: *Instance3
+                 Name: PublicIp
+
+
         # -  Name: *Instance2
         #    Description: Ip of the newly created EC2 instance
         #    Attr: 
@@ -151,11 +284,11 @@ outputs:
         #          Name: PublicIp
 
         -  Name: InstanceId1
-           Description: Ip of the newly created EC2 instance
+           Description: Id of the newly created EC2 instance
            Ref: *Instance1
 
         -  Name: InstanceId2
-           Description: Ip of the newly created EC2 instance
+           Description: Id of the newly created EC2 instance
            Ref: *Instance2
 
         -  Name: *MyInternetGw

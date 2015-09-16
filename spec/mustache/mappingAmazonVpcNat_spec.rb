@@ -24,34 +24,16 @@ describe template_under_test do
   it "#outpus mapping table" do
     name = "koe"
     expect_str= <<-EOS
-        "NatRegionMap" : {
-          "eu-west-1": {
-            "AMI": "ami-8fdaf9f8"
-          },
-          "ap-southeast-1": {
-            "AMI": "ami-a05c49f2"
-          },
-          "ap-southeast-2": {
-            "AMI": "ami-6988c753"
-          },
-          "eu-central-1": {
-            "AMI": "ami-c63b3bdb"
-          },
-          "ap-northeast-1": {
-            "AMI": "ami-f88613f8"
-          },
-          "us-east-1": {
-            "AMI": "ami-5d761d38"
-          },
-          "sa-east-1": {
-            "AMI": "ami-438e1b5e"
-          },
-          "us-west-1": {
-            "AMI": "ami-57975213"
-          },
-          "us-west-2": {
-            "AMI": "ami-b5021e85"
-          }
+        "#{name}" : {
+      "us-east-1"      : { "AMI" : "ami-184dc970" },
+      "us-west-1"      : { "AMI" : "ami-a98396ec" },
+      "us-west-2"      : { "AMI" : "ami-290f4119" },
+      "eu-west-1"      : { "AMI" : "ami-14913f63" },
+      "eu-central-1"   : { "AMI" : "ami-ae380eb3" },
+      "sa-east-1"      : { "AMI" : "ami-8122969c" },
+      "ap-southeast-1" : { "AMI" : "ami-6aa38238" },
+      "ap-southeast-2" : { "AMI" : "ami-893f53b3" },
+      "ap-northeast-1" : { "AMI" : "ami-27d6e626" }
         }
     EOS
 

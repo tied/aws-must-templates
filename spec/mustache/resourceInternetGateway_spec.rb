@@ -41,12 +41,12 @@ describe template_under_test do
         
         
         
-        "RouteTable" : {
+        "RouteTablekoe" : {
               "Type" : "AWS::EC2::RouteTable",
               "Properties" : {
-                "VpcId" : { "Ref" : "" },
+                "VpcId" : { "Ref" : "vpcid" },
                 "Tags" : [ 
-        		           {"Key": "Name", "Value" : "RouteTable" }
+        		           {"Key": "Name", "Value" : "RouteTablekoe" }
         		         , {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } 
         				 ]
               }
@@ -54,9 +54,9 @@ describe template_under_test do
         
         "Route" : {
             "Type" : "AWS::EC2::Route",
-             "DependsOn" : "Attach",
+             "DependsOn" : "attachekoe",
               "Properties" : {
-                  "RouteTableId" : { "Ref" : "RouteTable" }
+                  "RouteTableId" : { "Ref" : "RouteTablekoe" }
                   , "DestinationCidrBlock" : "0.0.0.0/0"
                   , "GatewayId" : { "Ref" : "koe" }
              }
@@ -67,7 +67,7 @@ describe template_under_test do
             "Type" : "AWS::EC2::SubnetRouteTableAssociation"
            , "Properties" : {
                  "SubnetId" : { "Ref" : "" }
-               , "RouteTableId" : { "Ref" : "RouteTable" }
+               , "RouteTableId" : { "Ref" : "RouteTablekoe" }
              }
         }
 
