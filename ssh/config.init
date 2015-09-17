@@ -3,7 +3,10 @@
 Host *.internal
      ProxyCommand ssh myFront1 -F ssh/config.aws nc -q0 %h 22
 
-# Host *.compute.amazonaws.com
+
+# using RHEL Amazon vpc-nat instance --> ec2-user
+Host myNat
+     user ec2-user
 
 Host *
      user ubuntu

@@ -39,28 +39,27 @@ def read_ssh_options( instance_name, ssh_config_file, options_init )
 
 
   # start search for an instance id
+  # puts "read_ssh_options: instance_name:#{instance_name}"
   host = instance_name
-  while true do
 
-    options = Net::SSH::Config.for( host, [ ssh_config_file ] )
-
-    # options[:user] ||= Etc.getlogin
-
-    # options[:host_name] = instance_name
-
-    # OpenSSH logger
-    # options[:verbose] = :info # :debug, :info, :warn, :error, :fatal
+  options = Net::SSH::Config.for( host, [ ssh_config_file ] )
+  # puts "read_ssh_options: host:#{host} --> options#{options}"
+  # options[:verbose] = :info # :debug, :info, :warn, :error, :fatal
     
-    break if options[:host_name].nil?
-    
-    # ssh client config mapped gave new 'HostName' for 'Host' --> reread configs
+  # mapped to another name?
+  if options[:host_name] then
     host = options[:host_name]
-
+    options2 = Net::SSH::Config.for( host, [ ssh_config_file ] )
+    # puts "read_ssh_options: host:#{host} --> options2#{options2}"
+    if options2[:proxy] then
+      # use proxy - if defined
+      options = options2 
+      # keep original host_name where to connect
+      options[:host_name] = host
+    end
   end
 
-  # 
-  options[:host_name] ||= host
-
+  # puts "read_ssh_options: result host:#{host} --> options#{options}"
   return options
 
 end
@@ -152,6 +151,7 @@ options = read_ssh_options( instance_name, ssh_config_file, {} )
 set :host,        options[:host_name]#  || instance_name
 set :ssh_options, options
 
+set :request_pty, true
 # Disable sudo
 # set :disable_sudo, true
 

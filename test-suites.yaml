@@ -108,26 +108,56 @@
    desc: VPC with Public and Private Subnets (NAT)
    long_desc: |
 
-         Create VPC with Public and Private Subnets (NAT)
-         based on [scenario 2](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Scenario2.html)
+         Creates VPC with Public and Private Subnets (NAT) similar to [scenario
+         2](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Scenario2.html)
 
-         Resource:
+         Subnets:
          * VPC using address range 10.0.0.0/16 
          * Public subnet 10.0.0.0/24 
+           * with internet gateway
+           * nat instance `myNat`
+           * front instance `myFront1`
          * Private Subnet 10.0.1.0/24.
+           * back instance `myBack1`
+  
+         Defines theree security groups to act as virtual firewalls
+         * `FrontEndSecurityGroup`
+         * `BackendSecurityGroup`: 
+         * `NatSecurityGroup`
 
-   roles: 
-        - AllwaysOk
-        - Vpc:
-            VpcName: MyVPC
+         Defines three instances
+         * `myNat` (based on Amazon vpc-nat instances)
+            * defines a public IP
+            * private ip from public subnet range
+            * route 0.0.0.0/0 to internet gateway
+            * allow ping from 0.0.0.0/0
+            * allow ssh from 0.0.0.0/0 (as defined parameter `SSHLocation`)/to Private Subnet
+            * allow http from Private Subnet/to 0.0.0.0/0
+         * `myFront1` (ubuntu)
+            * defines a public IP
+            * private ip from public subnet range
+            * route 0.0.0.0/0 to internet gateway
+            * allow ping from 0.0.0.0/0
+            * allow ssh from 0.0.0.0/0 (as defined parameter `SSHLocation`)
+         * `myBack1` (ubuntu)
+            * no public ip assigned
+            * private ip from private subnet range
+            * route 0.0.0.0/0 to nat instance
+            * allow ping from VPC address range
+            * allow ssh from public subnet
 
-   # Just define anchor valued, does not generate anything
+
+   # Define anchor values, does not generate anything
    suite2_data: 
         - SubNets:
              - VPC: &SubNetVPC 10.0.0.0/16
              - Public: &SubNetPublic 10.0.0.0/24
              - Private: &SubNetPrivate 10.0.1.0/24
 
+   # common tests
+   roles: 
+        - Stack
+        - AllwaysOk
 
    instances:
 
@@ -142,6 +172,16 @@
                  PublicIp:   defined
              - Ec2PrivateIp:
                  CidrBlock:   *SubNetPublic
+             - NetworkCanPing:
+                 Destination: www.google.com
+             - Ec2Routes:
+                 Routes:   
+                   - :gateway_id: local
+                     :state: active
+                     :destination_cidr_block: *SubNetVPC
+                   - :destination_cidr_block: "0.0.0.0/0"
+                     :state: active
+                     :gateway_id: !ruby/regexp '/^igw.*/'
              - Ec2SecurityGroups:
                  StrictIngress: false
                  StrictEgress: false
@@ -160,7 +200,7 @@
                       :from_port: 80
                       :to_port: 80
                       :ip_ranges:
-                         - :cidr_ip: "0.0.0.0/0"
+                         - :cidr_ip: *SubNetPrivate
                  Egress:
                       # respond to ping from everywhere
                     - :ip_protocol: icmp

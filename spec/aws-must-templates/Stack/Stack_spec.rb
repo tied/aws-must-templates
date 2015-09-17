@@ -36,6 +36,16 @@ props = {
              stack_parameter( "KeyName" ),
              stack_parameter( "SSHLocation" )
    ],
+  "suite2" => [
+             stack_parameter( "InstanceType" ),
+             stack_parameter( "KeyName" ),
+             stack_parameter( "SSHLocation" ),
+             stack_output( "myFront1" ),
+             stack_output( "myNat" ),
+             stack_output( "InstanceId1" ),
+             stack_output( "InstanceId2" ),
+             stack_output( "MyInternetGw" ),
+   ],
 }
 # ------------------------------------------------------------------
 # 
