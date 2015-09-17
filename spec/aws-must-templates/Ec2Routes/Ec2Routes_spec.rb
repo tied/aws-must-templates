@@ -17,7 +17,6 @@ default route forwards to internet gateway (matched using regexp).
 
 
      - Ec2Routes:
-          InstanceId: "@Outputs.InstanceId1"
           Routes:   
               - :destination_cidr_block: 10.0.0.0/16
                 :gateway_id: local
@@ -44,32 +43,22 @@ describe current_test do
   instance = suite_value( :instance_id )
   routes = test_parameter( current_test, "Routes" )
 
-
   # ------------------------------------------------------------------
   # tests
 
-  describe ec2_named_resource( instance ) do
+  describe route_resource_for_ec2( instance ) do
 
-    its( :subnet_id ) { should_not eq nil }
+    let( :implemented_routes ) {  subject.subnet_routes() }
 
-    context "instance subnect " do
+    # iterate 'expacted routes'
+    routes.value.each_with_index do |expected_route,i|
 
-      before :all do
-        @instance = ec2_named_resource( instance )
-        @implemented_routes = @instance.subnet_routes()
+      # use to validate corresponding implemented route
+      it "implement route #{expected_route}" do
+        expect( implemented_routes[i] ).to include( expected_route )
       end
 
-      # iterate 'expacted routes'
-      routes.value.each_with_index do |expected_route,i|
-
-        # use to validate corresponding implemented route
-        it "implement route #{expected_route}" do
-          expect( @implemented_routes[i] ).to include( expected_route )
-        end
-
-      end # iterate expections
-
-    end # context
+    end # iterate expections
 
     
   end # instance

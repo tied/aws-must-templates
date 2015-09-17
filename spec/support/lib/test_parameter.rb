@@ -30,13 +30,13 @@ module Serverspec
 
       # definition in test_suite.yaml (nil if not defined)
       def definition_in_test_suite
-        self.class.superclass.instance_method(:value).bind(self).call
+        self.class.superclass.instance_method(:defined?).bind(self).call
         # method( :value ).super_method.call
       end
 
       # exception unless definition ok
       def validate
-        raise to_error_s unless definition_in_test_suite
+        raise to_error_s unless  definition_in_test_suite
       end
 
       # evaluated value
@@ -50,6 +50,7 @@ module Serverspec
       # value starts with '@' --> lookup in 'properties'
       def param_evaluate( val )
         return val if val.nil? 
+        return val if !!val == val
         return val unless val[0] == "@"
         return resolve_value_for_keys( val[1..-1].split( '.' ) )
       end

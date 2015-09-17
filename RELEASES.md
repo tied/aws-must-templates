@@ -30,12 +30,14 @@
 
 
 * Lots of new [serverspec tests](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html)
-  * [RespondsToPing](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#RespondsToPing)
   * [Ec2InstanceType](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2InstanceType)
   * [Ec2PrivateIp](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2PrivateIp)
   * [Ec2PublicIp](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2PublicIp)
+  * [Ec2Routes](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2Routes)
+  * [Ec2SecurityGroups](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2SecurityGroups)
   * [Ec2StatusNormal](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2StatusNormal)
   * [NetworkCanPing](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#NetworkCanPing)
+  * [RespondsToPing](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#RespondsToPing)
 
 
 * Test Runner

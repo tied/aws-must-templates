@@ -74,7 +74,11 @@ module Serverspec
       end
 
       def instance_state_running?
-        return describe_instance_status.instance_state.name == "running"
+        return instance_state.name == "running"
+      end
+
+      def instance_state
+        return describe_instance_status.instance_state
       end
 
       def instance_type
@@ -87,14 +91,6 @@ module Serverspec
 
       def subnet_id
         describe_instance.subnet_id
-      end
-
-      def security_group_ids
-        security_groups.map{ |group| group.group_id }
-      end
-
-      def security_groups
-        describe_instance.security_groups
       end
 
       def private_ip_address
@@ -114,26 +110,36 @@ module Serverspec
 
       # routes
 
-      def subnet_routes
-        subnetId =         describe_instance.subnet_id
-        subnet_routes_as_array_of_hashes( subnetId )
-      end
-
-
-
-      # ------------------------------------------------------------------
-      # private 
 
       private
+
+      # ------------------------------------------------------------------
+      # mixin interface
 
       def client
         @ec2Client = Aws::EC2::Client.new
         return @ec2Client
       end
 
-      # valid
+      # return @instanceId or read it using aws sdk
+      def get_instanceId
+        return @instanceId if @instanceId 
+        options = {
+          dry_run: false,
+          filters: [
+                    { name: "tag:Name", values: [ @instanceName  ]},
+                    { name: "instance-state-name", values: [ "running"  ]},
+                   ],
+        }
+
+        @instanceId = describe_instances(options).reservations.first.instances.first.instance_id
+        return @instanceId
+      end
+
+      # ------------------------------------------------------------------
+      # mixin services included
+
       include AwsMustTemplates::Mixin::CIDR
-      include AwsMustTemplates::Mixin::Subnet
       include AwsMustTemplates::Mixin::EC2
 
     end # class Vpc < Base
@@ -148,7 +154,6 @@ module Serverspec
     def ec2_named_resource( instanceName )
       Ec2Resource.new_by_instanceName( instanceName.kind_of?(Serverspec::Type::ValidProperty) ? instanceName.value : instanceName )
     end
-
 
     # resource output includes also attribute value
     def ec2_resource_attribute( instanceId, attribute )

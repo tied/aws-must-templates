@@ -142,6 +142,44 @@
                  PublicIp:   defined
              - Ec2PrivateIp:
                  CidrBlock:   *SubNetPublic
+             - Ec2SecurityGroups:
+                 StrictIngress: false
+                 StrictEgress: false
+                 Ingress:
+                    - :ip_protocol: icmp
+                      :from_port: -1
+                      :to_port: -1
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+                    - :ip_protocol: tcp
+                      :from_port: 22
+                      :to_port: 22
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+                    - :ip_protocol: tcp
+                      :from_port: 80
+                      :to_port: 80
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+                 Egress:
+                      # respond to ping from everywhere
+                    - :ip_protocol: icmp
+                      :from_port: -1
+                      :to_port: -1
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+                      # allow ssh connection only to private network
+                    - :ip_protocol: tcp
+                      :from_port: 22
+                      :to_port: 22
+                      :ip_ranges:
+                         - :cidr_ip: *SubNetPrivate
+                    - :ip_protocol: tcp
+                      :from_port: 80
+                      :to_port: 80
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+
 
      - myFront1:
          roles:
@@ -168,6 +206,41 @@
                  Codename: trusty
              - NetworkCanPing:
                  Destination: www.google.com
+             - Ec2SecurityGroups:
+                 StrictIngress: false
+                 StrictEgress: false
+                 Ingress:
+                    - :ip_protocol: icmp
+                      :from_port: -1
+                      :to_port: -1
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+                    - :ip_protocol: tcp
+                      :from_port: 22
+                      :to_port: 22
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+                 Egress:
+                      # respond to ping from everywhere
+                    - :ip_protocol: icmp
+                      :from_port: -1
+                      :to_port: -1
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+                      # allow ssh connection only to private network
+                    - :ip_protocol: tcp
+                      :from_port: 22
+                      :to_port: 22
+                      :ip_ranges:
+                         - :cidr_ip: *SubNetPrivate
+                    - :ip_protocol: tcp
+                      :from_port: 443
+                      :to_port: 443
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+
+
+
 
 
      - myBack1:
@@ -191,4 +264,31 @@
                      :instance_id: !ruby/regexp '/^i-.*/'
              - NetworkCanPing:
                  Destination: www.google.com
+             - Ec2SecurityGroups:
+                 StrictIngress: true
+                 StrictEgress: true
+                 Ingress:
+                    - :ip_protocol: icmp
+                      :from_port: -1
+                      :to_port: -1
+                      :ip_ranges:
+                         - :cidr_ip: *SubNetVPC
+                    - :ip_protocol: tcp
+                      :from_port: 22
+                      :to_port: 22
+                      :ip_ranges:
+                         - :cidr_ip: *SubNetPublic
+                 Egress:
+                      # respond to ping from everywhere
+                    - :ip_protocol: icmp
+                      :from_port: -1
+                      :to_port: -1
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+                      # allow ssh connection only to private network
+                    - :ip_protocol: tcp
+                      :from_port: 80
+                      :to_port: 80
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
 
