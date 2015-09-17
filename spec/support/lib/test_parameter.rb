@@ -25,7 +25,7 @@ module Serverspec
 
       # error string
       def to_error_s
-        "Test paramater '#{@test_parameter_name}' configuration error in suite '#{ @runner.property[:suite_id]}' #{ @runner.property[:instance_id] ? 'instance \'' +  @runner.property[:instance_id] + '\'' : ' common ' } test '#{@role_id}' "
+        "Test paramater '#{@test_parameter_name}' configuration error in suite '#{ @runner.property[:suite_id]}' #{ @runner.property[:instance_name] ? 'instance \'' +  @runner.property[:instance_name] + '\'' : ' common ' } test '#{@role_id}' "
       end
 
       # definition in test_suite.yaml (nil if not defined)

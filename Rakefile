@@ -154,8 +154,8 @@ namespace "dev" do |ns|
           puts ""
 
           # iterate suite instancess to create a link to test report
-          test_suites.suite_instance_ids( suite_id ).each do |instance_id|
-            puts "* [#{instance_id}](#{suite_test_report_filelink(suite_id,instance_id)})"
+          test_suites.suite_instance_names( suite_id ).each do |instance_name|
+            puts "* [#{instance_name}](#{suite_test_report_filelink(suite_id,instance_name)})"
           end
           
 
@@ -189,11 +189,11 @@ namespace "dev" do |ns|
       if args.stack 
         stack_id = args.suite
         file = stack_json_template_filepath( stack_id ) # "#{generate_docs_dir}/#{stack_id}.json"
-        capture_stdout_to( file ) { sh "#{aws_must} gen #{stack_id}.yaml | jq ." }
+        capture_stdout_to( file ) { sh "#{aws_must} gen #{stack_id}.yaml -m mustache/ | jq ." }
       else
         test_suites.stack_ids.each do |stack_id|
           file = stack_json_template_filepath( stack_id )
-          capture_stdout_to( file ) { sh "#{aws_must} gen #{stack_id}.yaml | jq ." }
+          capture_stdout_to( file ) { sh "#{aws_must} gen #{stack_id}.yaml -m mustache/ | jq ." }
         end
         
       end
@@ -309,13 +309,13 @@ ensure
 end
 
 # path to file where suite_id common output
-def suite_test_report_filepath( suite_id, instance_id=nil )
-  "generated-docs/suites/#{suite_id}#{ instance_id ? '-' + instance_id : ""}.txt"
+def suite_test_report_filepath( suite_id, instance_name=nil )
+  "generated-docs/suites/#{suite_id}#{ instance_name ? '-' + instance_name : ""}.txt"
 end
 
 # relative link to test report
-def suite_test_report_filelink( suite_id, instance_id=nil )
-  "suites/#{suite_id}#{ instance_id ? '-' + instance_id : ""}.txt"
+def suite_test_report_filelink( suite_id, instance_name=nil )
+  "suites/#{suite_id}#{ instance_name ? '-' + instance_name : ""}.txt"
 end
 
 # location of test run reports

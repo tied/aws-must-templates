@@ -4,7 +4,7 @@ module Serverspec
     class SuiteValue < ValidProperty
 
       VALID_VALUES = [  :host, 
-                        :instance_id, 
+                        :instance_name, 
                         :stack_id,
                         :suite_id
                      ]

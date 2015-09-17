@@ -70,8 +70,8 @@ describe "AwsMustTemplates::TestSuites::TestSuites" do
       expect( @sut ).to respond_to( :suite_role_ids )
     end
 
-    it "methods 'suite_instance_ids'" do
-      expect( @sut ).to respond_to( :suite_instance_ids )
+    it "methods 'suite_instance_names'" do
+      expect( @sut ).to respond_to( :suite_instance_names )
     end
 
     it "methods 'suite_instance_role_ids'" do
@@ -91,27 +91,27 @@ describe "AwsMustTemplates::TestSuites::TestSuites" do
 
     it "#nil - when suite not found" do
       suite_id = "aaa"
-      instance_id =  "notsucnhcid"
-      expect( @sut.suite_instance_roles( suite_id, instance_id )).to eql( nil )
+      instance_name =  "notsucnhcid"
+      expect( @sut.suite_instance_roles( suite_id, instance_name )).to eql( nil )
     end
 
     it "#nil - when instance not not found" do
       suite_id = @suite1.keys.first
-      instance_id =  "notsucnhcid"
-      expect( @sut.suite_instance_roles( suite_id, instance_id )).to eql( nil )
+      instance_name =  "notsucnhcid"
+      expect( @sut.suite_instance_roles( suite_id, instance_name )).to eql( nil )
     end
 
     it "#empty array - when no roles defined" do
       suite_id = @suite3.keys.first
-      instance_id =  @suite3[suite_id]["instances"][0].keys.first
-      expect( @sut.suite_instance_roles( suite_id, instance_id )).to eql( [] )
+      instance_name =  @suite3[suite_id]["instances"][0].keys.first
+      expect( @sut.suite_instance_roles( suite_id, instance_name )).to eql( [] )
     end
 
     it "#array of role defs - normal case" do
       suite_id = @suite3.keys.first
-      instance_id =  @suite3[suite_id]["instances"][1].keys.first
+      instance_name =  @suite3[suite_id]["instances"][1].keys.first
       roles_ids =  ["role1", "role2", "role3" ]
-      expect( @sut.suite_instance_roles( suite_id, instance_id )).to eql( @suite3_instance2_roles )
+      expect( @sut.suite_instance_roles( suite_id, instance_name )).to eql( @suite3_instance2_roles )
     end
 
 
@@ -125,48 +125,48 @@ describe "AwsMustTemplates::TestSuites::TestSuites" do
 
     it "#nil - when suite not found" do
       suite_id = "aaa"
-      instance_id =  "notsucnhcid"
-      expect( @sut.suite_instance_role_ids( suite_id, instance_id )).to eql( nil )
+      instance_name =  "notsucnhcid"
+      expect( @sut.suite_instance_role_ids( suite_id, instance_name )).to eql( nil )
     end
 
     it "#nil - when insance not not found" do
       suite_id = @suite1.keys.first
-      instance_id =  "notsucnhcid"
-      expect( @sut.suite_instance_role_ids( suite_id, instance_id )).to eql( nil )
+      instance_name =  "notsucnhcid"
+      expect( @sut.suite_instance_role_ids( suite_id, instance_name )).to eql( nil )
     end
 
     it "#empty array - when no roles defined" do
       suite_id = @suite3.keys.first
-      instance_id =  @suite3[suite_id]["instances"][0].keys.first
-      expect( @sut.suite_instance_role_ids( suite_id, instance_id )).to eql( [] )
+      instance_name =  @suite3[suite_id]["instances"][0].keys.first
+      expect( @sut.suite_instance_role_ids( suite_id, instance_name )).to eql( [] )
     end
 
     it "#array of role ids - normal case" do
       suite_id = @suite3.keys.first
-      instance_id =  @suite3[suite_id]["instances"][1].keys.first
+      instance_name =  @suite3[suite_id]["instances"][1].keys.first
       roles_ids =  ["role1", "role2", "role3" ]
-      expect( @sut.suite_instance_role_ids( suite_id, instance_id )).to eql( roles_ids )
+      expect( @sut.suite_instance_role_ids( suite_id, instance_name )).to eql( roles_ids )
     end
 
   end
 
   # ------------------------------------------------------------------
-  # suite_instance_ids
-  describe "suite_instance_ids" do
+  # suite_instance_names
+  describe "suite_instance_names" do
 
     it "#nil - when suite not found" do
       suite_id = "aaa"
-      expect( @sut.suite_instance_ids( suite_id )).to eql( nil )
+      expect( @sut.suite_instance_names( suite_id )).to eql( nil )
     end
 
     it "#empty array - when suite does not have any instances" do
       suite_id = @suite1.keys.first
-      expect( @sut.suite_instance_ids( suite_id )).to eql( [] )
+      expect( @sut.suite_instance_names( suite_id )).to eql( [] )
     end
 
-    it "#array of instance_id - normal case" do
+    it "#array of instance_name - normal case" do
       suite_id = @suite3.keys.first
-      expect( @sut.suite_instance_ids( suite_id )).to eql( @suite3.values.first["instances"].map { |h| h.keys.first })
+      expect( @sut.suite_instance_names( suite_id )).to eql( @suite3.values.first["instances"].map { |h| h.keys.first })
     end
 
   end

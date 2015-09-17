@@ -50,6 +50,7 @@ input.toggle:checked ~ div {
      <li><a href="#Ec2PrivateIp">Ec2PrivateIp</a></li>
      <li><a href="#Ec2PublicIp">Ec2PublicIp</a></li>
      <li><a href="#Ec2Routes">Ec2Routes</a></li>
+     <li><a href="#Ec2SecurityGroups">Ec2SecurityGroups</a></li>
      <li><a href="#Ec2StatusNormal">Ec2StatusNormal</a></li>
      <li><a href="#NetworkCanPing">NetworkCanPing</a></li>
      <li><a href="#ParameterTest">ParameterTest</a></li>
@@ -210,7 +211,7 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instance = suite_value( :instance_id )   # set in spec_helper
+  instance = suite_value( :instance_name )   # set in spec_helper
   instanceType = test_parameter( current_test, "InstanceType" )
 
   # ------------------------------------------------------------------
@@ -237,7 +238,7 @@ end
 <p><strong>Parameters</strong></p>
 
 <ul>
-<li><code>instance = suite_value( :instance_id )</code> : name of instance being tested</li>
+<li><code>instance = suite_value( :instance_name )</code> : name of instance being tested</li>
 <li><code>test_parameter( current_test, "CidrBlock" )</code> : mandatory, should be valid Cidr</li>
 </ul>
 
@@ -252,7 +253,7 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instance = suite_value( :instance_id )  # set in spec_helper
+  instance = suite_value( :instance_name )  # set in spec_helper
   cidr_block = test_parameter( current_test, "CidrBlock" )
 
   # ------------------------------------------------------------------
@@ -280,7 +281,7 @@ end
 <p><strong>Parameters</strong></p>
 
 <ul>
-<li><code>instance = suite_value( :instance_id )</code> : name of instance being tested</li>
+<li><code>instance = suite_value( :instance_name )</code> : name of instance being tested</li>
 <li><code>test_parameter( current_test, "PublicIp" )</code> valid values
 <ul>
 <li><code>nil</code> OR <code>none</code>  : should not be defined</li>
@@ -300,7 +301,7 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instance = suite_value( :instance_id )  # set in spec_help
+  instance = suite_value( :instance_name )  # set in spec_help
   public_ip = test_parameter( current_test, "PublicIp" )
 
 
@@ -345,7 +346,7 @@ end
 <p><strong>Parameters</strong></p>
 
 <ul>
-<li><code>instance = suite_value( :instance_id )</code> : name of instance being tested</li>
+<li><code>instance = suite_value( :instance_name )</code> : name of instance being tested</li>
 <li><code>test_parameter( current_test, "Routes" )</code> : and array of route definitions</li>
 </ul>
 
@@ -354,7 +355,6 @@ routes. Fist route forwards VPC traffic to 'local' gateway, and
 default route forwards to internet gateway (matched using regexp).</p>
 
 <pre><code> - Ec2Routes:
-      InstanceId: "@Outputs.InstanceId1"
       Routes:   
           - :destination_cidr_block: 10.0.0.0/16
             :gateway_id: local
@@ -375,40 +375,176 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instance = suite_value( :instance_id )
+  instance = suite_value( :instance_name )
   routes = test_parameter( current_test, "Routes" )
-
 
   # ------------------------------------------------------------------
   # tests
 
-  describe ec2_named_resource( instance ) do
+  describe route_resource_for_ec2( instance ) do
 
-    its( :subnet_id ) { should_not eq nil }
+    let( :implemented_routes ) {  subject.subnet_routes() }
 
-    context "instance subnect " do
+    # iterate 'expacted routes'
+    routes.value.each_with_index do |expected_route,i|
 
-      before :all do
-        @instance = ec2_named_resource( instance )
-        @implemented_routes = @instance.subnet_routes()
+      # use to validate corresponding implemented route
+      it "implement route #{expected_route}" do
+        expect( implemented_routes[i] ).to include( expected_route )
       end
 
-      # iterate 'expacted routes'
-      routes.value.each_with_index do |expected_route,i|
-
-        # use to validate corresponding implemented route
-        it "implement route #{expected_route}" do
-          expect( @implemented_routes[i] ).to include( expected_route )
-        end
-
-      end # iterate expections
-
-    end # context
+    end # iterate expections
 
 
   end # instance
 
 
+end
+
+</div></div>
+
+<h2><a id="Ec2SecurityGroups"></a>Ec2SecurityGroups<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validates EC2 security group ingress/egress rules. A </p>
+
+<p><strong>Parameters</strong></p>
+
+<ul>
+<li><code>instance = suite_value( :instance_name )</code> : name of instance being tested</li>
+<li><code>ingress = test_parameter( current_test, "Ingress" )</code> : ingress on
+the EC2 instance to validate</li>
+<li><code>egress = test_parameter( current_test, "Egress" )</code>: egress rules on
+the EC2 instance to validate</li>
+<li><code>strictIngress = test_parameter( current_test, "StrictIngress",
+false )</code>: validate exactly |Ingress| rules</li>
+<li><p><code>strictEgress = test_parameter( current_test, "StrictEgress", false )</code>: 
+validate exactly |Egress| rules</p>
+
+<pre><code>     - Ec2SecurityGroups:
+         StrictIngress: false
+         StrictEgress: false
+         Ingress:
+              # ping response only in local subnet
+            - :ip_protocol: icmp
+              :from_port: -1
+              :to_port: -1
+              :ip_ranges:
+                 - :cidr_ip: *SubNetPrivate
+         Egress:
+              # allow ping Internet
+            - :ip_protocol: icmp
+              :from_port: -1
+              :to_port: -1
+              :ip_ranges:
+                 - :cidr_ip: "0.0.0.0/0"
+</code></pre></li>
+</ul>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+# ------------------------------------------------------------------
+# Use custom matcher to loop array of rules and validate that expected
+# rule is "included" to one of these rules.
+
+RSpec::Matchers.define :define_rule do |expected|
+
+  match do |actual_rules|
+
+    result = false
+
+    actual_rules.each do |rule|
+      # puts "rule=#{rule} vs. #{expected}"
+      begin 
+        result |= expect( rule ).to include( expected )
+        break if result
+      rescue Exception => e
+        # puts "Rescued #{e}"
+      end
+    end
+    return result
+    # actual % expected == 0
+  end
+
+  failure_message do |actual_rules|
+    "rule #{expected} was not included in actual rules #{actual_rules}  "
+  end
+end
+
+describe current_test do
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  instance = suite_value( :instance_name ) 
+  ingress = test_parameter( current_test, "Ingress" )
+  egress = test_parameter( current_test, "Egress" )
+  strictIngress = test_parameter( current_test, "StrictIngress", false )
+  strictEgress = test_parameter( current_test, "StrictEgress", false )
+
+
+
+  # ------------------------------------------------------------------
+  # tests
+  describe security_group_resource_for_ec2( instance ) do
+
+    let( :implemented_ingress_rules ) {  subject.instance_ingress_rules() }
+    let( :implemented_egress_rules ) {  subject.instance_egress_rules() }
+
+    # ------------------------------------------------------------------
+    # ingresss rules
+    context "ingress rules" do
+
+      if strictIngress.value then
+        it "validate all ingress rules in test suite" do
+          expect( implemented_ingress_rules.length ).to eql( ingress.value.length  )
+        end
+      else
+        it "WARNING does not validate all ingress rules in test suite" do
+          expect( ingress.value.length ).to eql( ingress.value.length )
+        end
+      end 
+
+      # iterate 'expacted ingress' rules
+      ingress && ingress.value && ingress.value.each do |expected_rule|
+        # use to validate corresponding implemented route
+        it "implement ingress rule: #{expected_rule}" do
+          expect( implemented_ingress_rules ).to define_rule( expected_rule )
+        end
+      end
+
+    end
+
+    # ------------------------------------------------------------------
+    # egress
+
+    context "egress rules" do
+
+      if strictEgress.value then
+        it "validates all egress rules in test suite" do
+          expect( implemented_egress_rules.length  ).to eql( egress.value.length )
+        end
+      else
+        it "WARNING does not validate all egress rules in test suite" do
+          expect( egress.value.length ).to eql( egress.value.length )
+        end
+      end
+
+
+      # iterate 'expacted egress' rules
+      egress && egress.value && egress.value.each do |expected_rule|
+        # use to validate corresponding implemented route
+        it "implement egress rule:  #{expected_rule}" do
+          expect( implemented_egress_rules ).to define_rule( expected_rule )
+        end
+      end
+
+    end
+
+  end # instance
 end
 
 </div></div>
@@ -426,7 +562,7 @@ end
 <p><strong>Parameters</strong></p>
 
 <ul>
-<li><code>instance = suite_value( :instance_id )</code> : name of instance being tested</li>
+<li><code>instance = suite_value( :instance_name )</code> : name of instance being tested</li>
 </ul>
 
 <div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
@@ -440,7 +576,7 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instanceName = suite_value( :instance_id )
+  instanceName = suite_value( :instance_name )
 
   expected = [
               { :prop => :system_status_not_impaired?, :expect => true },

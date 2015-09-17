@@ -8,7 +8,7 @@ Validates that EC2 `InstanceId` `:public_ip_address` (none/defined/CidrBlock)
 
 **Parameters**
 
-* `instance = suite_value( :instance_id )` : name of instance being tested
+* `instance = suite_value( :instance_name )` : name of instance being tested
 * `test_parameter( current_test, "PublicIp" )` valid values
    * `nil` OR `none`  : should not be defined
    * V4 address public_ip_address belong to CidrBlock
@@ -29,7 +29,7 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instance = suite_value( :instance_id )  # set in spec_help
+  instance = suite_value( :instance_name )  # set in spec_help
   public_ip = test_parameter( current_test, "PublicIp" )
 
 

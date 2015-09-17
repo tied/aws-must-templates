@@ -8,7 +8,7 @@ Validates EC2 security group ingress/egress rules. A
 
 **Parameters**
 
-* `instance = suite_value( :instance_id )` : name of instance being tested
+* `instance = suite_value( :instance_name )` : name of instance being tested
 * `ingress = test_parameter( current_test, "Ingress" )` : ingress on
   the EC2 instance to validate
 * `egress = test_parameter( current_test, "Egress" )`: egress rules on
@@ -80,7 +80,7 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instance = suite_value( :instance_id ) 
+  instance = suite_value( :instance_name ) 
   ingress = test_parameter( current_test, "Ingress" )
   egress = test_parameter( current_test, "Egress" )
   strictIngress = test_parameter( current_test, "StrictIngress", false )

@@ -49,7 +49,7 @@ Stack
       value
         should not eq nil
 
-Finished in 0.00673 seconds (files took 1.21 seconds to load)
+Finished in 0.00802 seconds (files took 1.13 seconds to load)
 11 examples, 0 failures
 
 </pre>
@@ -100,7 +100,7 @@ Stack
       value
         should not eq nil
 
-Finished in 0.0033 seconds (files took 1.15 seconds to load)
+Finished in 0.00325 seconds (files took 1.11 seconds to load)
 5 examples, 0 failures
 
 </pre>
@@ -135,7 +135,7 @@ Vpc
     vpc: 'MyVPC'
       #is available Vpc
 
-Finished in 0.67967 seconds (files took 1.13 seconds to load)
+Finished in 1.19 seconds (files took 1.13 seconds to load)
 2 examples, 0 failures
 
 </pre>

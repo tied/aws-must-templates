@@ -7,7 +7,7 @@ Ec2InstanceType
 
 Ec2PrivateIp
   instance 'myNat'
-    ec2: instanceName=myNat, private_ip_address: 10.0.0.225
+    ec2: instanceName=myNat, private_ip_address: 10.0.0.37
       #valid cidr 10.0.0.0/24
 
 Ec2PublicIp
@@ -16,6 +16,19 @@ Ec2PublicIp
       ec2: instanceName=myNat
         public_ip_address
           should not eql nil
+
+Ec2SecurityGroups
+  Security group:  instanceName=myNat
+    ingress rules
+      WARNING does not validate all ingress rules in test suite
+      implement ingress rule: {:ip_protocol=>"icmp", :from_port=>-1, :to_port=>-1, :ip_ranges=>[{:cidr_ip=>"0.0.0.0/0"}]}
+      implement ingress rule: {:ip_protocol=>"tcp", :from_port=>22, :to_port=>22, :ip_ranges=>[{:cidr_ip=>"0.0.0.0/0"}]}
+      implement ingress rule: {:ip_protocol=>"tcp", :from_port=>80, :to_port=>80, :ip_ranges=>[{:cidr_ip=>"0.0.0.0/0"}]}
+    egress rules
+      WARNING does not validate all egress rules in test suite
+      implement egress rule:  {:ip_protocol=>"icmp", :from_port=>-1, :to_port=>-1, :ip_ranges=>[{:cidr_ip=>"0.0.0.0/0"}]}
+      implement egress rule:  {:ip_protocol=>"tcp", :from_port=>22, :to_port=>22, :ip_ranges=>[{:cidr_ip=>"10.0.1.0/24"}]}
+      implement egress rule:  {:ip_protocol=>"tcp", :from_port=>80, :to_port=>80, :ip_ranges=>[{:cidr_ip=>"0.0.0.0/0"}]}
 
 Ec2StatusNormal
   instanceName 'myNat'
@@ -27,9 +40,9 @@ Ec2StatusNormal
         should eq true
 
 RespondsToPing
-  ping '54.76.100.38'
+  ping '52.19.91.51'
     #reponds within 20 seconds with 3 test counts
 
-Finished in 1.49 seconds (files took 2.26 seconds to load)
-6 examples, 0 failures
+Finished in 3.39 seconds (files took 2.06 seconds to load)
+14 examples, 0 failures
 

@@ -26,27 +26,27 @@ END_STATES     = SUCESS_STATES + FAILURE_STATES
 
 
 # return ssh options for 'hostname_for_instance'
-def read_ssh_options( instance_id, ssh_config_file, options_init )
+def read_ssh_options( instance_name, ssh_config_file, options_init )
 
 
   raise <<-EOS unless File.exist?( ssh_config_file )
 
    Could not find ssh configuration file in '#{ssh_config_file}'.
 
-   Serverspec uses ssh to connect to #{instance_id}, but no configuration found!
+   Serverspec uses ssh to connect to #{instance_name}, but no configuration found!
 
   EOS
 
 
   # start search for an instance id
-  host = instance_id
+  host = instance_name
   while true do
 
     options = Net::SSH::Config.for( host, [ ssh_config_file ] )
 
     # options[:user] ||= Etc.getlogin
 
-    # options[:host_name] = instance_id
+    # options[:host_name] = instance_name
 
     # OpenSSH logger
     # options[:verbose] = :info # :debug, :info, :warn, :error, :fatal
@@ -93,13 +93,13 @@ end
 # suite.rake sets target ENV for suite and instance id
 
 suite_id            = ENV['TARGET_SUITE_ID']     # test suite being processed
-instance_id         = ENV['TARGET_INSTANCE_ID']  # instance being tested (if any)
+instance_name       = ENV['TARGET_INSTANCE_NAME']  # instance being tested (if any)
 
 # map suite_id to stack_id
 stack_id            = test_suites.get_suite_stack_id(  suite_id )
 
 puts "------------------------------------------------------------------"
-puts "instance_id #{instance_id}" if instance_id
+puts "instance_name #{instance_name}" if instance_name
 
 
 # ------------------------------------------------------------------
@@ -130,9 +130,9 @@ properties = {
   "Outputs" =>  stack_json["Outputs"] ? stack_json["Outputs"].inject( {} ) { |r,e| r[e["OutputKey"]] = e["OutputValue"] ; r  } : {},
   "Parameters" => stack_json["Parameters"] ? stack_json["Parameters"].inject( {} ) { |r,e| r[e["ParameterKey"]] = e["ParameterValue"] ; r  }: {},
    # Roles for test (from instance or from common suites)
-  "Roles" => (  instance_id ? test_suites.suite_instance_roles( suite_id,  instance_id ) : test_suites.suite_roles( suite_id ) ),
-  :host => instance_id,
-  :instance_id => instance_id,
+  "Roles" => (  instance_name ? test_suites.suite_instance_roles( suite_id,  instance_name ) : test_suites.suite_roles( suite_id ) ),
+  :host => instance_name,
+  :instance_name => instance_name,
   :stack_id => stack_id,
   :suite_id=> suite_id,
 }
@@ -146,10 +146,10 @@ set_property properties
 
 # CloudFormatio instance resources are defined in 'ssh_config_file' 
 
-options = read_ssh_options( instance_id, ssh_config_file, {} )
-# puts "instance_id #{instance_id}--> options=#{options}"
+options = read_ssh_options( instance_name, ssh_config_file, {} )
+# puts "instance_name #{instance_name}--> options=#{options}"
 
-set :host,        options[:host_name]#  || instance_id
+set :host,        options[:host_name]#  || instance_name
 set :ssh_options, options
 
 # Disable sudo

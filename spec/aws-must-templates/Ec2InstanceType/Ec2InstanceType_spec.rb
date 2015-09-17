@@ -27,7 +27,7 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instance = suite_value( :instance_id )   # set in spec_helper
+  instance = suite_value( :instance_name )   # set in spec_helper
   instanceType = test_parameter( current_test, "InstanceType" )
 
   # ------------------------------------------------------------------

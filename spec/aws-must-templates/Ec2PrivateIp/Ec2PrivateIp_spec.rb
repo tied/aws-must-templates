@@ -9,7 +9,7 @@ Validates EC2 `InstanceId` public ip 'private_ip_address' is with
 
 **Parameters**
 
-* `instance = suite_value( :instance_id )` : name of instance being tested
+* `instance = suite_value( :instance_name )` : name of instance being tested
 * `test_parameter( current_test, "CidrBlock" )` : mandatory, should be valid Cidr
 
 +++close+++
@@ -27,7 +27,7 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instance = suite_value( :instance_id )  # set in spec_helper
+  instance = suite_value( :instance_name )  # set in spec_helper
   cidr_block = test_parameter( current_test, "CidrBlock" )
 
   # ------------------------------------------------------------------

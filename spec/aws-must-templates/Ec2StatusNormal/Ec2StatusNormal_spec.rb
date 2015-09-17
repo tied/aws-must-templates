@@ -12,7 +12,7 @@ Validates that status of `InstanceId` EC2  status for `describe_instance_status`
 
 **Parameters**
 
-* `instance = suite_value( :instance_id )` : name of instance being tested
+* `instance = suite_value( :instance_name )` : name of instance being tested
 
 
 +++close+++
@@ -30,7 +30,7 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instanceName = suite_value( :instance_id )
+  instanceName = suite_value( :instance_name )
 
   expected = [
               { :prop => :system_status_not_impaired?, :expect => true },

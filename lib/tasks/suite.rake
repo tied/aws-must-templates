@@ -247,7 +247,7 @@ EOS
        "suite:#{suite_id}-sync", 
       ] + 
       ( Rake::Task.task_defined?(  "suite:#{suite_id}-common"  ) ? [  "suite:#{suite_id}-common"  ] : [] )  + 
-      ( test_suites.suite_instance_ids( suite_id ).each.map{ |instance_id| "suite:#{suite_id}:" + instance_id }  ) + 
+      ( test_suites.suite_instance_names( suite_id ).each.map{ |instance_name| "suite:#{suite_id}:" + instance_name }  ) + 
       [ "suite:#{suite_id}-stack-delete" ] 
 
     task suite_id, :gen_opts do |ta,args|
@@ -289,19 +289,19 @@ EOS
     namespace suite_id do
 
       # suite["instances"].each do |instance_map|
-      test_suites.suite_instance_ids( suite_id ).each do |instance_id|
+      test_suites.suite_instance_names( suite_id ).each do |instance_name|
 
-        # instance_id = instance_map.keys.first
-        # instance = instance_map[instance_id]
+        # instance_name = instance_map.keys.first
+        # instance = instance_map[instance_name]
 
         # **********
-        desc "#{suite_id} - test instance '#{instance_id}'"
-        RSpec::Core::RakeTask.new( instance_id ) do |t|
+        desc "#{suite_id} - test instance '#{instance_name}'"
+        RSpec::Core::RakeTask.new( instance_name ) do |t|
 
-          set_rspec_task( t, suite_runner_configs, test_suites, suite_id, instance_id )
+          set_rspec_task( t, suite_runner_configs, test_suites, suite_id, instance_name )
 
         end
-      end # instance_ids
+      end # instance_names
     end # ns suite_id
 
   end # suite_properties.each
@@ -336,14 +336,14 @@ EOS
   end
 
   # to pass to rpsec
-  def rspec_opts( suite_id, instance_id=nil )
+  def rspec_opts( suite_id, instance_name=nil )
     # "--format documentation"
-    # "--format progress --format documentation --out generated-docs/suites/#{suite_id}#{ instance_id ? '-'+instance_id : ""}.txt"
-    "--format progress --format documentation --out #{suite_test_report_filepath( suite_id, instance_id )}"
+    # "--format progress --format documentation --out generated-docs/suites/#{suite_id}#{ instance_name ? '-'+instance_name : ""}.txt"
+    "--format progress --format documentation --out #{suite_test_report_filepath( suite_id, instance_name )}"
   end
 
-  def suite_test_report_filepath( suite_id, instance_id=nil )
-    "#{suite_test_report_dirpath()}/#{suite_id}#{ instance_id ? '-' + instance_id : ""}.txt"
+  def suite_test_report_filepath( suite_id, instance_name=nil )
+    "#{suite_test_report_dirpath()}/#{suite_id}#{ instance_name ? '-' + instance_name : ""}.txt"
   end
 
   def suite_test_report_dirpath
@@ -356,28 +356,32 @@ EOS
     sh "#{aws_ssh_resolver} aws --ssh-config-file #{suite_runner_configs['ssh_config_file']} --ssh-config-init #{suite_runner_configs['ssh_config_init']}"
   end
 
-  def set_rspec_task( t, suite_runner_configs, test_suites, suite_id, instance_id=nil  )
+  def set_rspec_task( t, suite_runner_configs, test_suites, suite_id, instance_name=nil  )
 
     puts "------------------------------------------------------------------"
-    puts "suite=#{suite_id } #{instance_id ? ' instance:  ' + instance_id : ''}"
+    puts "suite=#{suite_id } #{instance_name ? ' instance:  ' + instance_name : ''}"
 
     # see spec/spec_helper.rb
     ENV['TARGET_SUITE_ID'] = suite_id
-    ENV['TARGET_INSTANCE_ID'] = instance_id if instance_id
+    if instance_name then
+      ENV['TARGET_INSTANCE_NAME'] = instance_name 
+    else
+      ENV.delete('TARGET_INSTANCE_NAME')
+    end
     ENV['AWS_REGION'] = suite_runner_configs["aws_region"] if suite_runner_configs["aws_region"]
 
-    t.rspec_opts = rspec_opts( suite_id, instance_id )
+    t.rspec_opts = rspec_opts( suite_id, instance_name )
     t.fail_on_error = false
     t.ruby_opts= rspec_ruby_opts
 
     # test all roles for the instance
-    pattern = (instance_id ? 
-               test_suites.suite_instance_role_ids( suite_id, instance_id ).map{ |r| spec_pattern( r ) }.join(",") :
+    pattern = (instance_name ? 
+               test_suites.suite_instance_role_ids( suite_id, instance_name ).map{ |r| spec_pattern( r ) }.join(",") :
                test_suites.suite_role_ids( suite_id ).map{ |r| spec_pattern( r ) }.join(",") )
 
     raise <<-EOS if pattern.nil? ||  pattern.empty?
 
-              No tests defined for an instance in suite=#{suite_id } #{instance_id ? ' for instance ' + instance_id : ''}
+              No tests defined for an instance in suite=#{suite_id } #{instance_name ? ' for instance ' + instance_name : ''}
 
           EOS
     t.pattern = pattern

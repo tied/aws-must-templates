@@ -8,7 +8,7 @@ Validates that routes in EC2 `InstanceId`
 
 **Parameters**
 
-* `instance = suite_value( :instance_id )` : name of instance being tested
+* `instance = suite_value( :instance_name )` : name of instance being tested
 * `test_parameter( current_test, "Routes" )` : and array of route definitions
 
 For example: Validata that 'Instance1' in output section defines two
@@ -40,7 +40,7 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  instance = suite_value( :instance_id )
+  instance = suite_value( :instance_name )
   routes = test_parameter( current_test, "Routes" )
 
   # ------------------------------------------------------------------

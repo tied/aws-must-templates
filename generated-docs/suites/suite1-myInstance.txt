@@ -54,21 +54,21 @@ S3ReadAccessAllowed
         exit_status
           should eq 0
     Can list S3 bucket keys
-      Command "aws s3 ls s3://suite1-mybucket-797jcqsn0q0 || aws s3 ls s3://suite1-mybucket-797jcqsn0q0 --region $(aws s3api get-bucket-location --bucket suite1-mybucket-797jcqsn0q0 --output text)"
+      Command "aws s3 ls s3://suite1-mybucket-1gzg7wrtsacny || aws s3 ls s3://suite1-mybucket-1gzg7wrtsacny --region $(aws s3api get-bucket-location --bucket suite1-mybucket-1gzg7wrtsacny --output text)"
         exit_status
           should eq 0
     When an Object exists in S3 bucket
       Can read the Object from a S3 bucket
-        Command "aws s3 cp s3://suite1-mybucket-797jcqsn0q0/ttest.tmp /tmp/ttest.tmp || aws s3 cp s3://suite1-mybucket-797jcqsn0q0/ttest.tmp /tmp/ttest.tmp --region $(aws s3api get-bucket-location --bucket suite1-mybucket-797jcqsn0q0 --output text)"
+        Command "aws s3 cp s3://suite1-mybucket-1gzg7wrtsacny/ttest.tmp /tmp/ttest.tmp || aws s3 cp s3://suite1-mybucket-1gzg7wrtsacny/ttest.tmp /tmp/ttest.tmp --region $(aws s3api get-bucket-location --bucket suite1-mybucket-1gzg7wrtsacny --output text)"
           exit_status
             should eq 0
       Cannot modify (= delete) the  Object in bucket
-        Command "aws s3 rm s3://suite1-mybucket-797jcqsn0q0/ttest.tmp --region $(aws s3api get-bucket-location --bucket suite1-mybucket-797jcqsn0q0 --output text)"
+        Command "aws s3 rm s3://suite1-mybucket-1gzg7wrtsacny/ttest.tmp --region $(aws s3api get-bucket-location --bucket suite1-mybucket-1gzg7wrtsacny --output text)"
           exit_status
             should not eql 0
     Cannot write to bucket
       Create an Object in bucket should fail
-        Command "aws s3 cp /etc/hosts  s3://suite1-mybucket-797jcqsn0q0/ttest.tmp --region $(aws s3api get-bucket-location --bucket suite1-mybucket-797jcqsn0q0 --output text)"
+        Command "aws s3 cp /etc/hosts  s3://suite1-mybucket-1gzg7wrtsacny/ttest.tmp --region $(aws s3api get-bucket-location --bucket suite1-mybucket-1gzg7wrtsacny --output text)"
           exit_status
             should not eql 0
   When bucket does not exists
@@ -83,6 +83,6 @@ ValidOSVersion
       stdout
         should match /trusty/
 
-Finished in 27.57 seconds (files took 1.21 seconds to load)
+Finished in 30.4 seconds (files took 1.15 seconds to load)
 18 examples, 0 failures
 
