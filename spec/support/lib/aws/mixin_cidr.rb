@@ -1,7 +1,7 @@
 require 'netaddr'
 
-module Serverspec
-  module Type
+module AwsMustTemplates
+  module Mixin
     module CIDR
 
       # true if `cidr` contains `ip`

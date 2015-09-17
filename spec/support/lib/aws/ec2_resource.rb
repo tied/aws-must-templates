@@ -4,11 +4,11 @@ require 'serverspec'
 
 require_relative "./mixin_cidr"
 require_relative "./mixin_subnet"
+require_relative "./mixin_ec2"
 
 
 module Serverspec
   module Type
-
     class Ec2Resource < Base
 
       # ------------------------------------------------------------------
@@ -89,11 +89,13 @@ module Serverspec
         describe_instance.subnet_id
       end
 
-      def subnet_routes
-        subnetId =         describe_instance.subnet_id
-        subnet_routes_as_array_of_hashes( subnetId )
+      def security_group_ids
+        security_groups.map{ |group| group.group_id }
       end
 
+      def security_groups
+        describe_instance.security_groups
+      end
 
       def private_ip_address
         describe_instance.private_ip_address
@@ -110,6 +112,15 @@ module Serverspec
         describe_instance_attribute("instanceType").instance_id
       end
 
+      # routes
+
+      def subnet_routes
+        subnetId =         describe_instance.subnet_id
+        subnet_routes_as_array_of_hashes( subnetId )
+      end
+
+
+
       # ------------------------------------------------------------------
       # private 
 
@@ -120,66 +131,10 @@ module Serverspec
         return @ec2Client
       end
 
-      # hash for aws ec2 sdk query
-      def instance_query_options
-
-        instanceId = get_instanceId
-
-        options = {
-          dry_run: false,
-          instance_ids: [ instanceId ]
-        }
-
-        return options
-
-      end
-
-      # return @instanceId or read it using aws sdk
-      def get_instanceId
-        return @instanceId if @instanceId 
-        options = {
-          dry_run: false,
-          filters: [
-                    { name: "tag:Name", values: [ @instanceName  ]},
-                    { name: "instance-state-name", values: [ "running"  ]},
-                   ],
-        }
-
-        @instanceId = describe_instances(options).reservations.first.instances.first.instance_id
-        return @instanceId
-      end
-
-      def describe_instance
-        describe_instances.reservations.first.instances.first
-      end
-      
-      def describe_instances( options = nil )
-        options = instance_query_options if options.nil?
-        client.describe_instances( options )
-      end
-      
-      def describe_instance_status
-        options = instance_query_options
-        # puts "options=#{options}"
-        resp =  client.describe_instance_status(options)
-        return resp.instance_statuses.first
-      end
-
-      def describe_instance_attribute( attribute )
-        # options = instance_query_options
-        # options[:attribute] = attribute
-        instanceId = get_instanceId
-        options = {
-          dry_run: false,
-          instance_id:  instanceId,
-          attribute: attribute
-        }
-        client.describe_instance_attribute(options)
-      end
-
       # valid
-      include Serverspec::Type::CIDR
-      include Serverspec::Type::Subnet
+      include AwsMustTemplates::Mixin::CIDR
+      include AwsMustTemplates::Mixin::Subnet
+      include AwsMustTemplates::Mixin::EC2
 
     end # class Vpc < Base
 

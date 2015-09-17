@@ -1,5 +1,5 @@
-module Serverspec
-  module Type
+module AwsMustTemplates
+  module Mixin
     module Subnet
 
       private
