@@ -163,6 +163,13 @@ EOS
     end
 
 
+    desc "#{suite_id} - create stack '#{stack}', wait to complete, sync #{suite_runner_configs['ssh_config_file']}"
+    task "#{suite_id}-stack-start", :gen_opts  do |t,args|
+      Rake::Task["suite:#{suite_id}-stack-create"].invoke(args.gen_opts)
+      Rake::Task["suite:#{suite_id}-stack-wait"].invoke()
+      Rake::Task["suite:#{suite_id}-sync"].invoke()
+    end
+
     # **********
     # Create stack for a suite
     desc "#{suite_id} - create stack '#{stack}'"

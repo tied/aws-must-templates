@@ -384,12 +384,12 @@ a more detailed explanation, and for more examples.
 To run test suite `mystack` defined in in `test-suites.yml` using
 default templates in **aws-must-templates** use the command
 
-    bundle exec rake suite:mystack
+    rake suite:mystack
 	
 To [override](#OVERRIDE) default implementation with templates in
 directory `myextensions`, use the command
 
-	bundle exec rake suite:mystack['-m myextensions/ aws-must-templates']
+	rake suite:mystack['-m myextensions/ aws-must-templates']
 
 
 For a Test Suite, Test Runner
@@ -398,17 +398,17 @@ For a Test Suite, Test Runner
 * uses the JSON template to provision a stack on Amazon platform, 
 * and, once the `StackStatus` is `CREATE_COMPLETE`, 
 * iterates EC2 Instances and runs Test Cases in the EC2 Instance Role
-* creates a test report to `generated-doc/suites` directory
+* creates test reports to `generated-doc/suites` directory
 * finally, after the test execution, the stack is deleted from Amazon platform.
 
 
 To run all test suites defined in `test-suites.yaml`, use the command
 
-	bundle exec rake suite:all
+	rake suite:all
 	
 or to override the default implementation
 
-	bundle exec rake suite:all['-m myextensions/ aws-must-templates']
+	rake suite:all['-m myextensions/ aws-must-templates']
 
 Command
 
