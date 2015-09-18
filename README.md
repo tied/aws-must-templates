@@ -92,20 +92,12 @@ used to validate **aws-must-templates** implementation. For, example
   bucket, one of the instances (`myInstance`) which is granted a read
   access to the S3 bucket
   
-* [suite1.yaml](suite1.yaml): creates two EC2 instances, and one S3
-  bucket, one of the instances (`myInstance`) which is granted a read
-  access to the S3 bucket
-  
-* [suite2.yaml](suite12.yaml): Creates VPC with Public and Private
+* [suite2.yaml](suite2.yaml): Creates VPC with Public and Private
          Subnets (NAT) similar to
          [scenario 2](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Scenario2.html)
   
 See [test report](https://gist.github.com/jarjuk/9ab1c25d436c4e468f5e)
 of **aws-must-templates** for more information.
-
-See
-[associated diagrams](https://rawgit.com/jarjuk/aws-must-templates/master/pics/recipes.html)
-for an overview on some use cases.
 
 ### Generate CloudFormation JSON templates
 
@@ -212,10 +204,10 @@ Add following lines to `Rakefile`
 	spec = Gem::Specification.find_by_name 'aws-must-templates'
 	load "#{spec.gem_dir}/lib/tasks/suite.rake"
 	
-Make a copy of
-[default Test Runner Options](https://rawgit.com/jarjuk/aws-must-templates/master/suite-runner-configs.yaml)
-to `suite-runner-configs.yaml` in current working directory, and
-modify settings to override default values.
+Optionally, copy
+[default Test Runner Configurations](https://rawgit.com/jarjuk/aws-must-templates/master/suite-runner-configs.yaml)
+to `suite-runner-configs.yaml` file in current working directory, and
+modify settings in the file to override default values.
 	
 Create an empty `test-suites.yaml`	 -file
 
@@ -251,26 +243,41 @@ in `ssh/config.aws` file. Configuration file `ssh/config.aws` is
 created automatically, using `ssh/config.init`, if it does not exist.
 
 For example, the following configuration in `ssh/config.init`
-instructs OpenSSH to use user name `ubuntu` and SSH private key in
-`~/.ssh/demo-key/demo-key` for all hosts.
+instructs OpenSSH 
+
+    Host *.internal
+        ProxyCommand ssh myFront1 -F ssh/config.aws nc -q0 %h 22
+
+
+    # using RHEL Amazon vpc-nat instance --> ec2-user
+    Host myNat
+         user ec2-user
 
     Host *
         user ubuntu
         StrictHostKeyChecking no
         UserKnownHostsFile=/dev/null
         IdentityFile ~/.ssh/demo-key/demo-key
+		
+		
+* to use user name `ubuntu` and SSH private key in
+  `~/.ssh/demo-key/demo-key` for all hosts, expect for instance
+  `myNat` user name is `ec2-user`. 
+  
+* to proxy connections to host names ending `.internal` to proxy
+  connections over instance `myFront1`
 
-Parameters `UserKnownHostsFile` and `StrictHostKeyChecking` prevent
-ssh from updating your default `.ssh/known_hosts` file with the
-fingerprint of the (temporary) instance used in testing.
+* to prevent OpenSSH from updating your default `.ssh/known_hosts`
+  file with the fingerprint of the (temporary) instance used in
+  testing.
 
 Once configuration in `ssh/config.init` is in place, running
 
 	rake suite:ec2-sync
 
-updates EC2 instance metadata in `ssh/config.aws`
+updates EC2 instance metadata in `ssh/config.aws`.
 	
-**Notice** You may change defaults defaults values in
+**Notice** You may need to change `aws_region` setting values in
 [suite-runner-configs.yaml](#SETUP-TEST-RUNNER).
 
 See
@@ -323,12 +330,12 @@ The picture below present main elements used in `test-suites.yaml`.
 ![test-suites.yaml elements](./pics/test-suites.jpg)
 
 A Test Suite validates correctness of a CloudFormation Stack. One Test
-Suite defines tests for multiple EC2 Instances. Each EC2 Instance must
-have a corresponding SSH Connection prepared in
-[ssh/config](#TEST-CONTEXT) -file. An EC2 Instance acts in many
-Roles. A Role maps to a [Test Case](#TEST_CASES), and and defines
-values for the Test Case Parameters. The parameter may be a constant,
-or a reference to Stack Parameter, or to Stack Output.
+Suite defines tests for multiple EC2 Instances. SSH Client
+Configuration for a EC2 Instance is looked up in
+[ssh/config.aws](#TEST-CONTEXT) -file. An EC2 Instance acts in many
+Roles. A Role maps to a [Test Case](#TEST_CASES), and defines values
+for the Test Case Parameters. The parameter may be a constant, or a
+reference to Stack Parameter, or to Stack Output.
 
 As an example, the Test Suite for `mystack` is 
 
