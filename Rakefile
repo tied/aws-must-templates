@@ -116,39 +116,6 @@ namespace "dev" do |ns|
       sh "rake suite:suite-runner-configs > #{file}"
     end
 
-    task "gist-names"  do
-
-      gist_names_dir  = "#{generate_docs_dir}/gist-names"
-      sh "mkdir -p #{gist_names_dir}" unless File.exists?(gist_names_dir)
-      gist_names = 
-        [
-         { :name => "aws-must-templates-suites",
-           :description => "Rspec test reports for aws-must-templates",
-           :files => [ "#{generate_docs_dir}/suites/*" ],
-           :url=>"724b259de6af031493b7"
-         },
-          { :name => "aws-must-templates-cf-templates",
-             :description => "Cloudformation templates for aws-must-templates test suites",
-             :files => [ "#{generate_docs_dir}/cloudformation/*"  ],
-             :url=>"9fe4d74b42fd6f272aad" 
-         },
-          { :name => "aws-must-templates-test-report",
-             :description => "Test report from running test suites in  aws-must-templates development",
-             :files => [ "#{generate_docs_dir}/test-suites.md"  ],
-             :url=>"9ab1c25d436c4e468f5e",
-         },
-        ]
-
-      gist_names.each do |gist_name|
-        gist_name_file = "#{gist_names_dir}/#{gist_name[:name]}"
-        File.open( gist_name_file, 'w') { |f| f.write("#{gist_name[:description]}\n") }
-        gist_url = "https://gist.github.com/jarjuk/#{gist_name[:url]}"
-        sh "gist -u #{gist_url} #{gist_name_file} #{gist_name[:files].join( ' ' )}" if gist_name[:url]
-      end
-      
-         
-    end
-
 
 
     # tests
@@ -246,6 +213,8 @@ namespace "dev" do |ns|
     desc "CloudFormation JSON templates for tests in 'test-suites.yaml'"    
     task :cf, :stack do |t,args|
 
+      sh "mkdir -p #{stack_json_template_dirpath}" unless File.exists?(stack_json_template_dirpath)
+
       if args.stack 
         stack_id = args.suite
         file = stack_json_template_filepath( stack_id ) # "#{generate_docs_dir}/#{stack_id}.json"
@@ -263,7 +232,7 @@ namespace "dev" do |ns|
   end # ns docs
 
   desc "Generate html-, stack CloudFormation JSON templates into `{generate_docs_dir}` -subdirectory"
-  task :docs => ["dev:docs:mustache", "dev:docs:suite-runner-configs", "dev:docs:spec", "dev:docs:cf", "dev:docs:tests", "dev:docs:xref", "dev:docs:gist-names" ]
+  task :docs => ["dev:docs:mustache", "dev:docs:suite-runner-configs", "dev:docs:spec", "dev:docs:cf", "dev:docs:tests", "dev:docs:xref" ]
 
   # ------------------------------------------------------------------
   # unit tests
@@ -316,6 +285,49 @@ namespace "dev" do |ns|
 
   desc "Run all tests suites && create delivery"
   task "full-delivery" => [ "suite:all", "dev:fast-delivery" ]
+
+  # ------------------------------------------------------------------
+  # gists 
+
+
+  desc "Upload generated-docs to (existing) gists "
+  task "upload-gists"  do
+
+    # directory
+    gist_names_dir  = "#{generate_docs_dir}/gist-names"
+    sh "mkdir -p #{gist_names_dir}" unless File.exists?(gist_names_dir)
+
+    # config
+    gist_names = 
+      [
+       { :name => "aws-must-templates-suites",
+         :description => "Rspec test reports for [aws-must-templates](https://github.com/jarjuk/aws-must-templates)",
+         :files => [ "#{generate_docs_dir}/suites/*" ],
+         :url=>"724b259de6af031493b7"
+       },
+       { :name => "aws-must-templates-cf-templates",
+         :description => "Cloudformation templates from [aws-must-templates](https://github.com/jarjuk/aws-must-templates)",
+         :files => [ "#{generate_docs_dir}/cloudformation/*"  ],
+         :url=>"9fe4d74b42fd6f272aad" 
+       },
+       { :name => "aws-must-templates-test-report",
+         :description => "Test report from running test suites in [aws-must-templates](https://github.com/jarjuk/aws-must-templates) development",
+         :files => [ "#{generate_docs_dir}/test-suites.md"  ],
+         :url=>"9ab1c25d436c4e468f5e",
+       },
+      ]
+
+    # iterate && upload
+    gist_names.each do |gist_name|
+      gist_name_file = "#{gist_names_dir}/#{gist_name[:name]}.md"
+      File.open( gist_name_file, 'w') { |f| f.write("#{gist_name[:description]}\n") }
+      gist_url = "https://gist.github.com/jarjuk/#{gist_name[:url]}"
+      sh "gist -u #{gist_url} #{gist_name_file} #{gist_name[:files].join( ' ' )}" if gist_name[:url]
+    end
+    
+    
+  end # task gist
+
 
   # ------------------------------------------------------------------
   # site
@@ -413,7 +425,11 @@ end
 
 # path to cloudformation stack
 def stack_json_template_filepath( stack_id  )
-  "generated-docs/cloudformation/#{stack_id}.json"
+  "#{stack_json_template_dirpath}/#{stack_id}.json"
+end
+
+def stack_json_template_dirpath
+  "generated-docs/cloudformation"
 end
 
 

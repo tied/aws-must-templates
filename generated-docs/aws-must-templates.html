@@ -310,17 +310,7 @@ subnet block.</p>
 <h2><a id="mappings.mustache"></a>mappings.mustache <a class='navigator' href='#top'>[top]</a></h2>
 
 <p>Mapping table <code>region--&gt;ami</code> with <code>root-device=ebs</code>,
-<code>architecture,Values=x86_64</code>, and <code>--owners amazon</code> as returned by
-the query</p>
-
-<pre><code>        aws ec2 describe-images --owners amazon 
-               --filters "Name=root-device-type,Values=ebs" 
-               --filters "Name=name,Values=amzn-ami-vpc-nat" 
-               --filters "Name=architecture,Values=x86_64" 
-               --filters "Name=image-id,Values=ami*"  
-               --query 'Images[].[CreationDate, ImageId]' 
-               --output json --region #{region}
-</code></pre>
+<code>architecture,Values=x86_64</code>, and <code>--owners amazon</code> </p>
 
 <div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
 
