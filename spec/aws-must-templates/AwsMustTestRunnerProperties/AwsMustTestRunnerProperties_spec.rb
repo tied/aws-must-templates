@@ -19,7 +19,7 @@ Validata that Test Runner works correctly and set properties
 # Configuration
 # 
 
-current_test = "AwsMustTestRunnerProperties"
+current_test = File.basename File.dirname  __FILE__ 
 
 # every suite should define these paramentes
 system_properties = [

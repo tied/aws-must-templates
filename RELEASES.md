@@ -1,8 +1,59 @@
-## 0.1.8-SNAPSHOT/20150902-11:46:59
+## 0.2.1/20150918-14:57:08
 
-* new server spec tests
+
+* Template chanages
+  *
+	[mustache/resourceInternetGateway.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceInternetGateway.mustache)
+	 * Attachement defined using `Attachment` subdocument, 
+	 * Tags array: always defines Key/Value pair with Key="Name", support "SourceDestCheck" attribute
+	
+  * [mustache/commonDependsOn.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#commonDependsOn.mustache): support array of resources
+  * [mustache/resourceInstance.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceInstance.mustache): 
+    * Tags array: always defines Key/Value pair with Key="Name", support "SourceDestCheck" attribute
+	* support for attribute `DependsOn`
+  *
+    [mustache/resourceSubnet.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceSubnet.mustache):
+    support `RoutetableAssociation` attribute
+  * [mustache/resourceSecurityGroup.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceSecurityGroup.mustache): Support for SecurityGroupEgress
+     use  [commonXGressRule.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#commonXGressRule.mustache), support 
+	 * Tags array: always defines Key/Value pair with Key="Name"
+  
+  * refractored
+    * [commonValue.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#commonValue.mustache) includes
+      [commonRef.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#commonRef.mustache)
+
+
+  * new templates
+    * [resourceRoute.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceRoute.mustache) 
+    * [resourceRouteTable.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#resourceRoute.mustache) 
+	* [mappingAmazonVpcNat.mustache](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html#mappingAmazonVpcNat.mustache) 
+
+
+* Lots of new [serverspec tests](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html)
+  * [Ec2InstanceType](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2InstanceType)
+  * [Ec2PrivateIp](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2PrivateIp)
+  * [Ec2PublicIp](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2PublicIp)
+  * [Ec2Routes](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2Routes)
+  * [Ec2SecurityGroups](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2SecurityGroups)
+  * [Ec2StatusNormal](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#Ec2StatusNormal)
+  * [NetworkCanPing](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#NetworkCanPing)
   * [RespondsToPing](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html#RespondsToPing)
-* added [diagrams](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html)
+
+
+* Test Runner
+  * `rake suite:<instance_id>-sync`: rake task to sychronize
+    synchronize EC2 Tag Name/DNS Name to SSH client configuration file
+    into `ssh/config.aws`
+  * missing region -fixed
+  
+* Documetation   
+  * added [diagrams](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html)
+
+* Implementation changes
+  * use [aws-ssh-resolver](https://github.com/jarjuk/aws-ssh-resolver)
+    to synchronize EC2 Tag Name/DNS Name to SSH client configuration
+    file in `ssh/config.aws`, use `ssh/config.init` to initialize
+	
 
 ## 0.1.7/20150902-11:46:24
 

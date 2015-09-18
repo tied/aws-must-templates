@@ -1,13 +1,19 @@
 # -*- mode: ruby -*-
 
 source 'https://rubygems.org'
-gem 'aws-must', ">=0.0.14.pre"
+gem 'aws-must'
+gem 'aws-ssh-resolver'
 
 # System tests
 gem 'serverspec'
 
-# Unit tests
+gem 'rake'
+
+# Testing
 gem 'rspec'
+gem 'aws-sdk', '~> 2'
+gem 'netaddr', '~>1.5'
+# gem 'serverspec-aws-resources', :github => 'stelligent/serverspec-aws-resources'
 
 # Guard
 gem 'guard'

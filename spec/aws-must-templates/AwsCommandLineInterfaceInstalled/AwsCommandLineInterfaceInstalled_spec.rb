@@ -14,7 +14,7 @@ Validate that command `aws` is installed.
 
 require  'spec_helper'
 
-current_test = "AwsCommandLineInterfaceInstalled"
+current_test = File.basename File.dirname  __FILE__ 
 
 describe current_test do
 

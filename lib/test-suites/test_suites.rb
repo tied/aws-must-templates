@@ -53,7 +53,7 @@ module AwsMustTemplates
 
       # ------------------------------------------------------------------
       # return list of instanceid for a suite
-      def suite_instance_ids( suite_id ) 
+      def suite_instance_names( suite_id ) 
         suite = get_suite( suite_id )
         return nil unless suite
         return suite["instances"] ? suite["instances"].map{ |instance_hash| instance_hash.keys.first } : []
@@ -75,21 +75,21 @@ module AwsMustTemplates
         return suite_id
       end
 
-      # return array of role_ids for 'instance_id' in 'suite_id'
-      def suite_instance_role_ids( suite_id, instance_id )
-        roles = suite_instance_roles( suite_id, instance_id )
+      # return array of role_ids for 'instance_name' in 'suite_id'
+      def suite_instance_role_ids( suite_id, instance_name )
+        roles = suite_instance_roles( suite_id, instance_name )
         return roles unless roles
         return roles.map{ |r| r.is_a?( Hash ) ? r.keys.first : r }
       end
 
-      # return roles  for 'instance_id' in 'suite_id'
-      def suite_instance_roles( suite_id, instance_id )
-        instance = suite_instance( suite_id, instance_id )
+      # return roles  for 'instance_name' in 'suite_id'
+      def suite_instance_roles( suite_id, instance_name )
+        instance = suite_instance( suite_id, instance_name )
         return nil unless instance
-        return [] unless instance[instance_id]
-        return [] unless instance[instance_id]["roles"]
+        return [] unless instance[instance_name]
+        return [] unless instance[instance_name]["roles"]
         # roles may be a hash or a string
-        return instance[instance_id]["roles"]
+        return instance[instance_name]["roles"]
       end
 
 
@@ -98,11 +98,11 @@ module AwsMustTemplates
 
       private
 
-      # instance sub document for `instance_id` in `suite_id`
-      def suite_instance( suite_id, instance_id )
+      # instance sub document for `instance_name` in `suite_id`
+      def suite_instance( suite_id, instance_name )
         suite = get_suite( suite_id )
         return nil unless suite && suite["instances"]
-        return suite["instances"].select { |i| i.keys.first == instance_id }.first
+        return suite["instances"].select { |i| i.keys.first == instance_name }.first
       end
 
 

@@ -1,0 +1,50 @@
+{{!
+
+
++++start+++
+
+## <a id="resourceRoute.mustache"></a>resourceRoute.mustache <a class='navigator' href='#top'>[top]</a>
+
+**Attributes**:
+
+* `Name` : of the route -resource
+
+* `DependsOn` : [commonDependsOn.mustache](#commonDependsOn.mustache)
+
+* `RouteTableId`: The ID of the route table where the route will be
+  added, [commonRef.mustache](#commonRef.mustache)
+
+* `DestinationCidrBlock`: The CIDR address block used for the
+  destination match. For example, "0.0.0.0/0". Routing decisions are
+  based on the most specific match.
+  
+* You must specify only one of the following properties: `GatewayId`,
+  `InstanceId`, `NetworkInterfaceId`, or `VpcPeeringConnection`
+
+   * `GatewayId`: The ID of an Internet gateway or virtual private
+      gateway that is attached to your VPC
+	  
+   * `InstanceId`: The ID of a NAT instance in your VPC. For example, "i-1a2b3c4d".
+
+
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+"{{Name}}" : {
+    "Type" : "AWS::EC2::Route"
+    {{> commonDependsOn }}
+   ,    "Properties" : {
+             "RouteTableId" : {{#RouteTableId}}{{> commonRef }}{{/RouteTableId}}
+	    , "DestinationCidrBlock" : "{{DestinationCidrBlock}}"
+              {{! one of }}
+                 {{#GatewayId}}, "GatewayId" : {{> commonRef }}{{/GatewayId}}
+                 {{#InstanceId}}, "InstanceId" : {{> commonRef }}{{/InstanceId}}
+				 
+    } 
+}{{ _comma }}
+
+{{! +++fold-off+++ }}

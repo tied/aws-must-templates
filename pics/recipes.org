@@ -57,7 +57,7 @@ granting permissions on a *Bucket*. The *Policy* is attached to a
           ];
 
     VPC
-    Subnet
+    Subnet [label="{Subnet|MapPublicIpOnLaunch: true\l}"]
     InternetGateway
     SecurityGroup
     Instance

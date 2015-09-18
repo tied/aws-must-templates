@@ -1,4 +1,4 @@
-# aws-must-templates - cloudformation templates for aws-must - $Release:0.1.8-SNAPSHOT$
+# aws-must-templates - cloudformation templates for aws-must - $Release:0.2.1$
 
 Set of [extensible](#OVERRIDE)
 [templates](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html)
@@ -52,8 +52,8 @@ When using code generators, consider
    the threshold to write tests
 
 3. by allowing users [to reuse](#TEST_CASES)
-   [test cases](generated-docs/test-suites.md) used
-   in **aws-must-templates** quality assurance
+   [test cases](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html)
+   from **aws-must-templates** quality assurance
 
 4. by having the possibility to [include own test](#TEST_CASES)
    cases to test suites
@@ -92,12 +92,12 @@ used to validate **aws-must-templates** implementation. For, example
   bucket, one of the instances (`myInstance`) which is granted a read
   access to the S3 bucket
   
-See [test report](generated-docs/test-suites.md) of
-**aws-must-templates** for more information.
-
-See
-[associated diagrams](https://rawgit.com/jarjuk/aws-must-templates/master/pics/recipes.html)
-for an overview on some use cases.
+* [suite2.yaml](suite2.yaml): Creates VPC with Public and Private
+         Subnets (NAT) similar to
+         [scenario 2](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Scenario2.html)
+  
+See [test report](https://gist.github.com/jarjuk/9ab1c25d436c4e468f5e)
+of **aws-must-templates** for more information.
 
 ### Generate CloudFormation JSON templates
 
@@ -195,18 +195,29 @@ To use the **aws-must-templates** Test Runner
 
 Add following lines to `Rakefile`
 
+    # name of configuration file
+    suite_runner_configs= "suite-runner-configs.yaml"
+
+    # Override configuration in 'suite.rake' 
+    $suite_runner_configs = File.exist?(suite_runner_configs) ? YAML.load_file( suite_runner_configs ) : {}
+
 	spec = Gem::Specification.find_by_name 'aws-must-templates'
 	load "#{spec.gem_dir}/lib/tasks/suite.rake"
 	
-create an empty `test-suites.yaml`	 -file
+Optionally, copy
+[default Test Runner Configurations](https://rawgit.com/jarjuk/aws-must-templates/master/suite-runner-configs.yaml)
+to `suite-runner-configs.yaml` file in current working directory, and
+modify settings in the file to override default values.
+	
+Create an empty `test-suites.yaml`	 -file
 
 	touch test-suites.yaml
 
 and run 	
 
-	bundle exec rake -T suite
+	rake -T suite
 	
-For an empty test-suites.yaml the result shows
+For an empty `test-suites.yaml`, the result shows
 
 	rake suite:all[gen_opts]  # Run all suites
 
@@ -226,24 +237,52 @@ pair
 
 **Prepare ssh-connection configuration**
 
-Test Runner uses SSH connection to access an EC2 instance, and needs
-an entry in `ssh/config` file
-[defining](http://linux.die.net/man/5/ssh_config) user name, and
-ssh-key used in authentication, etc.
+Test Runner uses
+[SSH Client Configuration](http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man5/ssh_config.5?query=ssh_config&sec=5)
+in `ssh/config.aws` file. Configuration file `ssh/config.aws` is
+created automatically, using `ssh/config.init`, if it does not exist.
 
-For example, the SSH configuration below for an EC2 instance
-`myInstance` defines `IdentityFile` parameter matching `demo-key` EC2
-key used in **aws-must-templates** test suites.
+For example, the following configuration in `ssh/config.init`
+instructs OpenSSH 
 
-     host myInstance
-         StrictHostKeyChecking no
-         UserKnownHostsFile=/dev/null
-         user ubuntu
-         IdentityFile ~/.ssh/demo-key/demo-key
+    Host *.internal
+        ProxyCommand ssh myFront1 -F ssh/config.aws nc -q0 %h 22
 
-Parameters `UserKnownHostsFile` and `StrictHostKeyChecking` prevent
-ssh from updating your default `.ssh/known_hosts` file with the
-fingerprint of the (temporary) instance used in testing.
+
+    # using RHEL Amazon vpc-nat instance --> ec2-user
+    Host myNat
+         user ec2-user
+
+    Host *
+        user ubuntu
+        StrictHostKeyChecking no
+        UserKnownHostsFile=/dev/null
+        IdentityFile ~/.ssh/demo-key/demo-key
+		
+		
+* to use user name `ubuntu` and SSH private key in
+  `~/.ssh/demo-key/demo-key` for all hosts, expect for instance
+  `myNat` user name is `ec2-user`. 
+  
+* to proxy connections to host names ending `.internal` to proxy
+  connections over instance `myFront1`
+
+* to prevent OpenSSH from updating your default `.ssh/known_hosts`
+  file with the fingerprint of the (temporary) instance used in
+  testing.
+
+Once configuration in `ssh/config.init` is in place, running
+
+	rake suite:ec2-sync
+
+updates EC2 instance metadata in `ssh/config.aws`.
+	
+**Notice** You may need to change `aws_region` setting values in
+[suite-runner-configs.yaml](#SETUP-TEST-RUNNER).
+
+See
+[blog post](https://jarjuk.wordpress.com/2015/09/08/using-openssh-on-aws-platform/#more-273https://jarjuk.wordpress.com/2015/09/08/using-openssh-on-aws-platform)
+for more information on using OpenSSH on AWS platform.
 
 ### Implement Test Cases<a id="TEST_CASES"/>
 
@@ -276,9 +315,9 @@ with the code shown:
 
 
 For more information on Test Cases, see
-[test report](generated-docs/test-suites.md) created, when running
-[test-suites](test-suites.yaml) in **aws-must-templates** development,
-and a [diagram](generated-docs/xref_suite_X_test.pdf) for an overview.
+[test report](https://gist.github.com/jarjuk/9ab1c25d436c4e468f5e)
+generated, when running [test-suites](test-suites.yaml) in
+**aws-must-templates** development.
 
 
 ### Configure Test Suites <a id="TEST-SUITES"/>
@@ -291,12 +330,12 @@ The picture below present main elements used in `test-suites.yaml`.
 ![test-suites.yaml elements](./pics/test-suites.jpg)
 
 A Test Suite validates correctness of a CloudFormation Stack. One Test
-Suite defines tests for multiple EC2 Instances. Each EC2 Instance must
-have a corresponding SSH Connection prepared in
-[ssh/config](#TEST-CONTEXT) -file. An EC2 Instance acts in many
-Roles. A Role maps to a [Test Case](#TEST_CASES), and and defines
-values for the Test Case Parameters. The parameter may be a constant,
-or a reference to Stack Parameter, or to Stack Output.
+Suite defines tests for multiple EC2 Instances. SSH Client
+Configuration for a EC2 Instance is looked up in
+[ssh/config.aws](#TEST-CONTEXT) -file. An EC2 Instance acts in many
+Roles. A Role maps to a [Test Case](#TEST_CASES), and defines values
+for the Test Case Parameters. The parameter may be a constant, or a
+reference to Stack Parameter, or to Stack Output.
 
 As an example, the Test Suite for `mystack` is 
 
@@ -334,16 +373,23 @@ a more detailed explanation, and for more examples.
 
 **NOTICE** It advisable to check on AWS console that all stack
   resources are deleted successfully after running test suites.
+  
+**Notice** Some of tests included in **aws-must-templates** use AWS
+  [SDK for Ruby - Version 2](http://docs.aws.amazon.com/sdkforruby/api/index.html). The
+  SDK searches `ENV['AWS_REGION']` for a region information. You have
+  the option to set the environment variable, or configure property
+  `aws_region` in [suite-runner-configs.yaml](#SETUP-TEST-RUNNER).
+  
 
 To run test suite `mystack` defined in in `test-suites.yml` using
 default templates in **aws-must-templates** use the command
 
-    bundle exec rake suite:mystack
+    rake suite:mystack
 	
 To [override](#OVERRIDE) default implementation with templates in
 directory `myextensions`, use the command
 
-	bundle exec rake suite:mystack['-m myextensions/ aws-must-templates']
+	rake suite:mystack['-m myextensions/ aws-must-templates']
 
 
 For a Test Suite, Test Runner
@@ -352,17 +398,17 @@ For a Test Suite, Test Runner
 * uses the JSON template to provision a stack on Amazon platform, 
 * and, once the `StackStatus` is `CREATE_COMPLETE`, 
 * iterates EC2 Instances and runs Test Cases in the EC2 Instance Role
-* creates a test report to `generated-doc/suites` directory
+* creates test reports to `generated-doc/suites` directory
 * finally, after the test execution, the stack is deleted from Amazon platform.
 
 
 To run all test suites defined in `test-suites.yaml`, use the command
 
-	bundle exec rake suite:all
+	rake suite:all
 	
 or to override the default implementation
 
-	bundle exec rake suite:all['-m myextensions/ aws-must-templates']
+	rake suite:all['-m myextensions/ aws-must-templates']
 
 Command
 
@@ -382,7 +428,7 @@ See [RELEASES](RELEASES.md)
 
 Add more tests, e.g.
 
-* VPC and subnets
+* SNS
 * install Chef
 
 Add more template support

@@ -82,6 +82,9 @@
          roles:
            - AwsCommandLineInterfaceInstalled:
            - CloudFormationHelperScriptsInstalled
+           - Ec2StatusNormal:
+           - Ec2PublicIp:
+                 PublicIp:   "defined"
            - ValidOSVersion:
                 Codename: trusty
            - S3ReadAccessAllowed:
@@ -90,6 +93,9 @@
      - myInstance2:
          roles:
            - AwsCommandLineInterfaceInstalled
+           - Ec2StatusNormal:
+           - Ec2PublicIp:
+                 PublicIp:   "defined"
            - CloudFormationHelperScriptsInstalled
            - ValidOSVersion:
                 Codename: trusty
@@ -98,11 +104,231 @@
 
 
 - suite2:
-   desc: Example configuration for VPC
+
+   desc: VPC with Public and Private Subnets (NAT)
+   long_desc: |
+
+         Creates VPC with Public and Private Subnets (NAT) similar to [scenario
+         2](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Scenario2.html)
+
+         Subnets:
+         * VPC using address range 10.0.0.0/16 
+         * Public subnet 10.0.0.0/24 
+           * with internet gateway
+           * nat instance `myNat`
+           * front instance `myFront1`
+         * Private Subnet 10.0.1.0/24.
+           * back instance `myBack1`
+  
+         Defines theree security groups to act as virtual firewalls
+         * `FrontEndSecurityGroup`
+         * `BackendSecurityGroup`: 
+         * `NatSecurityGroup`
+
+         Defines three instances
+         * `myNat` (based on Amazon vpc-nat instances)
+            * defines a public IP
+            * private ip from public subnet range
+            * route 0.0.0.0/0 to internet gateway
+            * allow ping from 0.0.0.0/0
+            * allow ssh from 0.0.0.0/0 (as defined parameter `SSHLocation`)/to Private Subnet
+            * allow http from Private Subnet/to 0.0.0.0/0
+         * `myFront1` (ubuntu)
+            * defines a public IP
+            * private ip from public subnet range
+            * route 0.0.0.0/0 to internet gateway
+            * allow ping from 0.0.0.0/0
+            * allow ssh from 0.0.0.0/0 (as defined parameter `SSHLocation`)
+         * `myBack1` (ubuntu)
+            * no public ip assigned
+            * private ip from private subnet range
+            * route 0.0.0.0/0 to nat instance
+            * allow ping from VPC address range
+            * allow ssh from public subnet
+
+
+   # Define anchor values, does not generate anything
+   suite2_data: 
+        - SubNets:
+             - VPC: &SubNetVPC 10.0.0.0/16
+             - Public: &SubNetPublic 10.0.0.0/24
+             - Private: &SubNetPrivate 10.0.1.0/24
+
+   # common tests
+   roles: 
+        - Stack
+        - AllwaysOk
+
    instances:
+
+     - myNat:
+         roles:
+             - RespondsToPing:
+                 Hostname: '@Outputs.myNat'
+             - Ec2StatusNormal
+             - Ec2InstanceType:
+                 InstanceType: "@Parameters.InstanceType"
+             - Ec2PublicIp:
+                 PublicIp:   defined
+             - Ec2PrivateIp:
+                 CidrBlock:   *SubNetPublic
+             - NetworkCanPing:
+                 Destination: www.google.com
+             - Ec2Routes:
+                 Routes:   
+                   - :gateway_id: local
+                     :state: active
+                     :destination_cidr_block: *SubNetVPC
+                   - :destination_cidr_block: "0.0.0.0/0"
+                     :state: active
+                     :gateway_id: !ruby/regexp '/^igw.*/'
+             - Ec2SecurityGroups:
+                 StrictIngress: false
+                 StrictEgress: false
+                 Ingress:
+                    - :ip_protocol: icmp
+                      :from_port: -1
+                      :to_port: -1
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+                    - :ip_protocol: tcp
+                      :from_port: 22
+                      :to_port: 22
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+                    - :ip_protocol: tcp
+                      :from_port: 80
+                      :to_port: 80
+                      :ip_ranges:
+                         - :cidr_ip: *SubNetPrivate
+                 Egress:
+                      # respond to ping from everywhere
+                    - :ip_protocol: icmp
+                      :from_port: -1
+                      :to_port: -1
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+                      # allow ssh connection only to private network
+                    - :ip_protocol: tcp
+                      :from_port: 22
+                      :to_port: 22
+                      :ip_ranges:
+                         - :cidr_ip: *SubNetPrivate
+                    - :ip_protocol: tcp
+                      :from_port: 80
+                      :to_port: 80
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+
+
      - myFront1:
          roles:
              - RespondsToPing:
                  Hostname: '@Outputs.myFront1'
+             - Ec2StatusNormal:
+             - Ec2InstanceType:
+                 InstanceType: "@Parameters.InstanceType"
+             - Ec2PrivateIp:
+                 CidrBlock:   *SubNetPublic
+             - Ec2Routes:
+                 Routes:   
+                   - :gateway_id: local
+                     :state: active
+                     :destination_cidr_block: *SubNetVPC
+                   - :destination_cidr_block: "0.0.0.0/0"
+                     :state: active
+                     :gateway_id: !ruby/regexp '/^igw.*/'
+             - Ec2PublicIp:
+                 PublicIp:   "@Outputs.myFront1"
+                 # PublicIp:   192.168.1.1
+                 # PublicIp:   defined
+             - ValidOSVersion:
+                 Codename: trusty
+             - NetworkCanPing:
+                 Destination: www.google.com
+             - Ec2SecurityGroups:
+                 StrictIngress: false
+                 StrictEgress: false
+                 Ingress:
+                    - :ip_protocol: icmp
+                      :from_port: -1
+                      :to_port: -1
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+                    - :ip_protocol: tcp
+                      :from_port: 22
+                      :to_port: 22
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+                 Egress:
+                      # respond to ping from everywhere
+                    - :ip_protocol: icmp
+                      :from_port: -1
+                      :to_port: -1
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+                      # allow ssh connection only to private network
+                    - :ip_protocol: tcp
+                      :from_port: 22
+                      :to_port: 22
+                      :ip_ranges:
+                         - :cidr_ip: *SubNetPrivate
+                    - :ip_protocol: tcp
+                      :from_port: 443
+                      :to_port: 443
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+
+
+
+
+
      - myBack1:
+         roles:    
+             - ValidOSVersion:
+                 Codename: trusty
+             - Ec2StatusNormal
+             - Ec2PrivateIp:
+                 CidrBlock:   *SubNetPrivate
+             - Ec2PublicIp:
+                 PublicIp:   "none"
+                 # PublicIp:   192.168.1.1
+                 # PublicIp:   defined
+             - Ec2Routes:
+                 Routes:   
+                   - :gateway_id: local
+                     :state: active
+                     :destination_cidr_block: *SubNetVPC
+                   - :destination_cidr_block: "0.0.0.0/0"
+                     :state: active
+                     :instance_id: !ruby/regexp '/^i-.*/'
+             - NetworkCanPing:
+                 Destination: www.google.com
+             - Ec2SecurityGroups:
+                 StrictIngress: true
+                 StrictEgress: true
+                 Ingress:
+                    - :ip_protocol: icmp
+                      :from_port: -1
+                      :to_port: -1
+                      :ip_ranges:
+                         - :cidr_ip: *SubNetVPC
+                    - :ip_protocol: tcp
+                      :from_port: 22
+                      :to_port: 22
+                      :ip_ranges:
+                         - :cidr_ip: *SubNetPublic
+                 Egress:
+                      # respond to ping from everywhere
+                    - :ip_protocol: icmp
+                      :from_port: -1
+                      :to_port: -1
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
+                      # allow ssh connection only to private network
+                    - :ip_protocol: tcp
+                      :from_port: 80
+                      :to_port: 80
+                      :ip_ranges:
+                         - :cidr_ip: "0.0.0.0/0"
 

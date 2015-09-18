@@ -13,6 +13,8 @@ describe template_under_test do
 
     # hide partials
     allow_any_instance_of( AwsMust::Template ).to receive( :partial ).with( any_args ).and_return( "" )
+    allow_any_instance_of( AwsMust::Template ).to receive( :partial ).with( /common/).and_call_original
+
     # verify that template_under_test actually used
     expect_any_instance_of( AwsMust::Template ).to receive( :get_template ).with( template_under_test  ).and_call_original
 
@@ -25,26 +27,26 @@ describe template_under_test do
         "koe" : {
             "Type" : "AWS::EC2::InternetGateway",
             "Properties" : {
-               "Tags" : [ ]
+               "Tags" : [ {"Key":"Name", "Value":"koe"} ]
             }
          },
         
-        "Attach" : {
+        "attachekoe" : {
               "Type" : "AWS::EC2::VPCGatewayAttachment",
               "Properties" : {
-                "VpcId" : { "Ref" : "" },
+                "VpcId" : { "Ref" : "vpcid" },
                 "InternetGatewayId" : { "Ref" : "koe" }
             }
         }, 
         
         
         
-        "RouteTable" : {
+        "RouteTablekoe" : {
               "Type" : "AWS::EC2::RouteTable",
               "Properties" : {
-                "VpcId" : { "Ref" : "" },
+                "VpcId" : { "Ref" : "vpcid" },
                 "Tags" : [ 
-        		           {"Key": "Name", "Value" : "RouteTable" }
+        		           {"Key": "Name", "Value" : "RouteTablekoe" }
         		         , {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } 
         				 ]
               }
@@ -52,9 +54,9 @@ describe template_under_test do
         
         "Route" : {
             "Type" : "AWS::EC2::Route",
-             "DependsOn" : "Attach",
+             "DependsOn" : "attachekoe",
               "Properties" : {
-                  "RouteTableId" : { "Ref" : "RouteTable" }
+                  "RouteTableId" : { "Ref" : "RouteTablekoe" }
                   , "DestinationCidrBlock" : "0.0.0.0/0"
                   , "GatewayId" : { "Ref" : "koe" }
              }
@@ -65,7 +67,7 @@ describe template_under_test do
             "Type" : "AWS::EC2::SubnetRouteTableAssociation"
            , "Properties" : {
                  "SubnetId" : { "Ref" : "" }
-               , "RouteTableId" : { "Ref" : "RouteTable" }
+               , "RouteTableId" : { "Ref" : "RouteTablekoe" }
              }
         }
 
@@ -73,6 +75,9 @@ describe template_under_test do
 
     yaml_text = <<-EOF
       Name: koe
+      Attachment: 
+         AttachmentName: attachekoe
+         Vpc: vpcid
     EOF
 
     # debug

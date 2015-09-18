@@ -8,7 +8,68 @@ require_relative "./utils.rb"
 # test-suites interface
 require_relative "../../lib/test-suites/test_suites.rb"
 
-# load test-suites.yaml
+
+# ------------------------------------------------------------------
+# Constants 
+
+describe_stacks_command  = 
+  "aws cloudformation describe-stacks"    # read json using aws cli
+
+# SSH client configuration to use
+ssh_config_file = "ssh/config.aws"
+                                          # file to use
+# stack states
+
+SUCESS_STATES  = ["CREATE_COMPLETE", "UPDATE_COMPLETE"]
+FAILURE_STATES = ["CREATE_FAILED", "DELETE_FAILED", "UPDATE_ROLLBACK_FAILED", "ROLLBACK_FAILED", "ROLLBACK_COMPLETE","ROLLBACK_FAILED","UPDATE_ROLLBACK_COMPLETE","UPDATE_ROLLBACK_FAILED"]
+END_STATES     = SUCESS_STATES + FAILURE_STATES
+
+
+# return ssh options for 'hostname_for_instance'
+def read_ssh_options( instance_name, ssh_config_file, options_init )
+
+
+  raise <<-EOS unless File.exist?( ssh_config_file )
+
+   Could not find ssh configuration file in '#{ssh_config_file}'.
+
+   Serverspec uses ssh to connect to #{instance_name}, but no configuration found!
+
+  EOS
+
+
+  # start search for an instance id
+  # puts "read_ssh_options: instance_name:#{instance_name}"
+  host = instance_name
+
+  options = Net::SSH::Config.for( host, [ ssh_config_file ] )
+  # puts "read_ssh_options: host:#{host} --> options#{options}"
+  # options[:verbose] = :info # :debug, :info, :warn, :error, :fatal
+    
+  # mapped to another name?
+  if options[:host_name] then
+    host = options[:host_name]
+    options2 = Net::SSH::Config.for( host, [ ssh_config_file ] )
+    # puts "read_ssh_options: host:#{host} --> options2#{options2}"
+    if options2[:proxy] then
+      # use proxy - if defined
+      options = options2 
+      # keep original host_name where to connect
+      options[:host_name] = host
+    end
+  end
+
+  # puts "read_ssh_options: result host:#{host} --> options#{options}"
+  return options
+
+end
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# Main
+
+# ------------------------------------------------------------------
+# load test-suites.yaml to an object
+
 test_suites = AwsMustTemplates::TestSuites::TestSuites.new
 
 # ------------------------------------------------------------------
@@ -31,31 +92,14 @@ end
 # suite.rake sets target ENV for suite and instance id
 
 suite_id            = ENV['TARGET_SUITE_ID']     # test suite being processed
-instance_id         = ENV['TARGET_INSTANCE_ID']  # instance being tested (if any)
+instance_name       = ENV['TARGET_INSTANCE_NAME']  # instance being tested (if any)
 
 # map suite_id to stack_id
 stack_id            = test_suites.get_suite_stack_id(  suite_id )
 
 puts "------------------------------------------------------------------"
-puts "instance_id #{instance_id}" if instance_id
+puts "instance_name #{instance_name}" if instance_name
 
-# ------------------------------------------------------------------
-# Constants used in stack
-
-output_key_for_hostname  = instance_id    # Stack Output variable for 
-                                          # ip/hostname for the instance
-
-describe_stacks_command  = 
-  "aws cloudformation describe-stacks"    # read json using aws cli
-
-# SSH client configuration must be in CWD (=user directory)
-ssh_config_file = "ssh/config"
-                                          # file to use
-# stack states
-
-SUCESS_STATES  = ["CREATE_COMPLETE", "UPDATE_COMPLETE"]
-FAILURE_STATES = ["CREATE_FAILED", "DELETE_FAILED", "UPDATE_ROLLBACK_FAILED", "ROLLBACK_FAILED", "ROLLBACK_COMPLETE","ROLLBACK_FAILED","UPDATE_ROLLBACK_COMPLETE","UPDATE_ROLLBACK_FAILED"]
-END_STATES     = SUCESS_STATES + FAILURE_STATES
 
 # ------------------------------------------------------------------
 # access cloudformation stacks using aws cli
@@ -78,19 +122,16 @@ EOS
 
 raise "Stack '#{stack_id}' status='#{stack_json["StackStatus"]} is not ready (=#{SUCESS_STATES}) '" unless SUCESS_STATES.include?( stack_json["StackStatus"] )
 
-if instance_id then
-  # find output parameter defining hostname (or ip address)
-  hostname_in_stack=stack_json["Outputs"].select {|a| a["OutputKey"] == output_key_for_hostname }.first["OutputValue"]
-  raise "Could not find OutputKey '#{output_key_for_hostname}' in stack '#{stack}' for instance_id '#{instance_id}'" unless hostname_in_stack
-end
+# ------------------------------------------------------------------
+# hash in accessible in spec tests with name 'property' 
 
-# create a hash, which is accessible in spec tests are 'property' 
 properties = {
   "Outputs" =>  stack_json["Outputs"] ? stack_json["Outputs"].inject( {} ) { |r,e| r[e["OutputKey"]] = e["OutputValue"] ; r  } : {},
   "Parameters" => stack_json["Parameters"] ? stack_json["Parameters"].inject( {} ) { |r,e| r[e["ParameterKey"]] = e["ParameterValue"] ; r  }: {},
    # Roles for test (from instance or from common suites)
-  "Roles" => (  instance_id ? test_suites.suite_instance_roles( suite_id,  instance_id ) : test_suites.suite_roles( suite_id ) ),
-  :host => instance_id,
+  "Roles" => (  instance_name ? test_suites.suite_instance_roles( suite_id,  instance_name ) : test_suites.suite_roles( suite_id ) ),
+  :host => instance_name,
+  :instance_name => instance_name,
   :stack_id => stack_id,
   :suite_id=> suite_id,
 }
@@ -104,25 +145,13 @@ set_property properties
 
 # CloudFormatio instance resources are defined in 'ssh_config_file' 
 
-raise <<-EOS unless File.exist?( ssh_config_file )
+options = read_ssh_options( instance_name, ssh_config_file, {} )
+# puts "instance_name #{instance_name}--> options=#{options}"
 
-   Could not find ssh configuration file in '#{ssh_config_file}'.
-
-   Serverspec uses ssh to connect to #{instance_id}, but no configuration found!
-
-EOS
-
-options = Net::SSH::Config.for(instance_id, [ ssh_config_file ] )
-# puts "instance_id #{instance_id}, options=#{options}"
-
-# use ip host_name to access stack resource `instance_id`
-options[:host_name] = hostname_in_stack
-
-options[:user] ||= Etc.getlogin
-
-set :host,        options[:host_name] || instance_id
+set :host,        options[:host_name]#  || instance_name
 set :ssh_options, options
 
+set :request_pty, true
 # Disable sudo
 # set :disable_sudo, true
 
@@ -132,3 +161,5 @@ set :ssh_options, options
 
 # Set PATH
 # set :path, '/sbin:/usr/local/sbin:$PATH'
+
+

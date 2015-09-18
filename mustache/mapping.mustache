@@ -11,7 +11,8 @@ Dispatches mapping sub-type templates based mapping Type propertys
 
 **Attributes**: context=  `./mappings`
 
-* `SubnetConfig`: 
+* `SubnetConfig`: output [mappingSubnetConfig.mustache](#mappingSubnetConfig.mustache)
+* `AmazonVpcNat`: output [mappingAmazonVpcNat.mustache](#mappingAmazonVpcNat.mustache)
 
 +++close+++
 
@@ -22,6 +23,7 @@ Dispatches mapping sub-type templates based mapping Type propertys
 {{! +++fold-on+++ }}
 
 {{# SubnetConfig }}{{> mappingSubnetConfig }}{{/ SubnetConfig }}
+{{# AmazonVpcNat }}{{> mappingAmazonVpcNat }}{{/ AmazonVpcNat }}
 
 
 {{! +++fold-off+++ }}

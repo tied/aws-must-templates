@@ -8,15 +8,13 @@
 
 Create an EC2 Security Group
 
-**Attributes**: context=  `./resources/SecurityGroup`
+**Attributes**: 
 
 * `Name` : of the security group
 * `VpcId`: The Reference name physical ID of the VPC.  given as commonValue, [commonValue.mustache](#commonValue.mustache)
-* `SecurityGroupIngress`: Arrays in a SecurityGroupIngr
-   * `IpProtocol`: default tcp
-   * `FromPort`: default to `Port`
-   * `ToPort`: defaults to `Port`
-   * CidrIp given as commonValue, [commonValue.mustache](#commonValue.mustache)
+* `SecurityGroupIngress`: create array of ingress rules with [commonXGressRule.mustache](#commonXGressRule.mustache)
+* `SecurityGroupEgress`: create array of ingress rules with [commonXGressRule.mustache](#commonXGressRule.mustache) template
+* `Tags` :  { "Key": "Name", "Name": ``} + array of tag Key- value subdocuments
 
 
 +++close+++
@@ -30,14 +28,17 @@ Create an EC2 Security Group
       "Properties" : {
         "GroupDescription" : "Enable SSH access via port 22"
         {{# VpcId }}, "VpcId": {{> commonValue }} {{/ VpcId }}
+        , "Tags" : [ { "Key":  "Name", "Value": "{{Name}}" }
+                     {{# Tags }},{{> commonKeyValue }}{{_comma}}{{/ Tags }}
+          ]
+        , "SecurityGroupEgress" : [ 
+                {{# SecurityGroupEgress }}
+                     {{> commonXGressRule }}{{_comma}}
+                {{/ SecurityGroupEgress }}
+        ]
         , "SecurityGroupIngress" : [ 
                 {{# SecurityGroupIngress }}
-                     {
-                         "IpProtocol" : {{#IpProtocol}}"{{IpProtocol}}"{{/IpProtocol}}{{^IpProtocol}}"tcp"{{/IpProtocol}},
-                         "FromPort" : "{{#FromPort}}{{FromPort}}{{/FromPort}}{{^FromPort}}{{Port}}{{/FromPort}}",
-                         "ToPort" : "{{#ToPort}}{{ToPort}}{{/ToPort}}{{^ToPort}}{{Port}}{{/ToPort}}",
-                         "CidrIp" : {{> commonValue }}
-                    } {{_comma}}
+                     {{> commonXGressRule }}{{_comma}}
                 {{/ SecurityGroupIngress }}
         ]
       }

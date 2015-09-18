@@ -64,10 +64,18 @@ Templates for `aws-must` tool.
     <li><a href="#root.mustache">root.mustache</a>: root template = starting point of template rendering</li>
 
     <li><a href="#parameter.mustache">parameter.mustache</a>: create one parameter entry to CloudFormation JSON parameter section</li>
+  
+    <ul>
 
-    <li><a href="#mappings.mustache">mappings.mustache</a>: matches a key to a corresponding set of named values</li>
+         <li><a href="#mappings.mustache">mappings.mustache</a>: matches a key to a corresponding set of named values</li>
 
-    <li><a href="#mappingSubnetConfig.mustache">mappingSubnetConfig.mustache</a>: subnet config mapping to map VPC/Public/Private key to CIDR subnet block.</li>
+         <li><a href="#mappingSubnetConfig.mustache">mappingSubnetConfig.mustache</a>: subnet config mapping to map VPC/Public/Private key to CIDR subnet block.</li>
+
+         <li><a href="#mappingSubnetConfig.mustache">mappingSubnetConfig.mustache</a>: subnet config mapping to map VPC/Public/Private key to CIDR subnet block.</li>
+
+         <li><a href="#mappingAmazonVpcNat.mustache">mappingAmazonVpcNat.mustache</a>: mapping for vpc-nat instances</li>
+
+    </ ul>
 
     <li><a href="#resource.mustache">resource.mustache</a>: dispatch resource based on resource type</li>
 
@@ -121,19 +129,23 @@ Templates for `aws-must` tool.
 
     <ul> 
 
-        <li><a href="#commonInstanceType.mustache">commonInstanceType.mustache</a>: Output value for `InstanceType` -attribute</li> 
-
-        <li><a href="#commonValue.mustache">commonValue.mustache</a>: Common template to output value (Value/Ref/Attr/StackRef)</li> 
-
-        <li><a href="#commonKeyValue.mustache">commonKeyValue.mustache</a>: Common template output key value pairs</li> 
-
-        <li> <a href="#commonDependsOn.mustache">commonDependsOn.mustache</a>: </li>
+        <li> <a href="#commonCfnSignal.mustache">commonCfnSignal.mustache</a>: </li>
 
         <li> <a href="#commonCreationPolicy.mustache">commonCreationPolicy.mustache</a>: </li>
 
-        <li> <a href="#commonCfnSignal.mustache">commonCfnSignal.mustache</a>: </li>
+        <li> <a href="#commonDependsOn.mustache">commonDependsOn.mustache</a>: </li>
+
+        <li><a href="#commonInstanceType.mustache">commonInstanceType.mustache</a>: Output value for `InstanceType` -attribute</li> 
+
+        <li><a href="#commonKeyValue.mustache">commonKeyValue.mustache</a>: Common template output key value pairs</li> 
+
+        <li> <a href="#commonRef.mustache">commonRef.mustache</a>: reference</li>
 
         <li> <a href="#commonStackRef.mustache">commonStackRef.mustache</a>: </li>
+
+        <li><a href="#commonValue.mustache">commonValue.mustache</a>: Common template to output value (Value/Ref/Attr/StackRef)</li> 
+
+        <li> <a href="#commonXGressRule.mustache">commonXGressRule.mustache</a>: SecurityGroupIngress/SecurityGroupEgress rules</li>
 
     </ul> 
 
@@ -202,6 +214,7 @@ INCLUDED templates
 > mappings
 > mapping
 > mappingSubnetConfig
+> mappingAmazonVpcNat
 
 > resources
 > resource
@@ -229,13 +242,15 @@ INCLUDED templates
 
 > output
 
+> commonCfnSignal
+> commonCreationPolicy
 > commonDependsOn
 > commonInstanceType
-> commonCreationPolicy
-> commonCfnSignal
-> commonValue
 > commonKeyValue
+> commonRef
 > commonStackRef
+> commonValue
+> commonXGressRule
 
 +++close+++
 

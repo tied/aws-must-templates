@@ -14,8 +14,16 @@ Create an EC2 instance
 * Instance type (mandatory)
   * `InstanceType` : The instance type, such as t2.micro. 
   * `InstanceTyperef` : Reference to instance type
-* `tags` : array of tag sub-documents for EC2 instance
+* `MapRegionToImageId` : alternative name of map for mapping region to
+  AMI => imageid, if not defined use default [mappings.mustache](#mappings.mustache)
+* `Tags` :  { "Key": "Name", "Name": ``} + array of tag Key- value subdocuments
+* `DependsOn`: see [commonDependsOn.mustache](#commonDependsOn.mustache)
 * `SecurityGroupIds`: array of [commonValue.mustache](#commonValue.mustache)
+* `SourceDestCheck`: String, (defaults: "true") Controls whether
+   source/destination checking is enabled on the instance. Also
+   determines if an instance in a VPC will perform network address
+   translation (NAT). For the instance to perform NAT, the value must
+   be "false".
 
 
 +++close+++
@@ -27,15 +35,26 @@ Create an EC2 instance
     "{{Name}}" : {
       "Type" : "AWS::EC2::Instance"
       {{> commonCreationPolicy }}
-	  , "Metadata": {
-	        {{> resourceInstanceMetadata }}
+      {{> commonDependsOn }}
+      , "Metadata": {
+            {{> resourceInstanceMetadata }}
 
-	  } {{! metadata }}
+      } {{! metadata }}
       , "Properties" : {
-          "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-                      { "Fn::FindInMap" : [ "AWSInstanceType2Arch", {{> commonInstanceType }}, "Arch" ] } ] }
+          "ImageId" : 
+                       {{^ MapRegionToImageId }}
+                       { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                                   { "Fn::FindInMap" : [ "AWSInstanceType2Arch", {{> commonInstanceType }}, "Arch" ] } ] }
+                       {{/ MapRegionToImageId }}
+                        {{# MapRegionToImageId }}
+						{ "Fn::FindInMap" : [ "{{MapRegionToImageId}}", { "Ref" : "AWS::Region" }, "AMI" ] }
+                       {{/ MapRegionToImageId }}            		  
+
           , "InstanceType" : {{> commonInstanceType}} {{! InstanceType OR InstanceTypeRef }}
-          , "Tags" : [ {{#tags}}{{>tag}}{{/tags}} ]
+          , "Tags" : [ { "Key":  "Name", "Value": "{{Name}}" }
+                       {{# Tags }},{{> commonKeyValue }}{{_comma}}{{/ Tags }}
+            ]
+          ,  "SourceDestCheck": {{# SourceDestCheck }}{{SourceDestCheck}}{{/ SourceDestCheck }}{{^ SourceDestCheck }}true{{/ SourceDestCheck }}
           , "SecurityGroupIds" : [ 
                 {{# SecurityGroupIds }}
                     {{> commonValue }}{{_comma}}

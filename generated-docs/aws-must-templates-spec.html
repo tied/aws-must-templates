@@ -42,23 +42,53 @@ input.toggle:checked ~ div {
 <h2>Table of contents</h2>
 
 <ul>
-    <li>Resuable tests:</li>
-    <ul>
-       <li><a href="#AwsCommandLineInterfaceInstalled">AwsCommandLineInterfaceInstalled</a></li>
-       <li><a href="#AwsMustTestRunnerProperties">AwsMustTestRunnerProperties</a></li>
-       <li><a href="#CloudFormationHelperScriptsInstalled">CloudFormationHelperScriptsInstalled</a></li>
-       <li><a href="#S3NoAccess">S3NoAccess</a></li>
-       <li><a href="#S3ReadAccessAllowed">S3ReadAccessAllowed</a></li>
-       <li><a href="#ValidOSVersion">ValidOSVersion</a></li>
-    </ul> 
-
-    <li>Development:</li>
-    <ul> 
-       <li><a href="#Stack">Stack</a></li>
-       <li><a href="#ParameterTest">ParameterTest</a></li>
-    </ul> 
-
+     <li><a href="#AllwaysOk">AllwaysOk</a></li>
+     <li><a href="#AwsCommandLineInterfaceInstalled">AwsCommandLineInterfaceInstalled</a></li>
+     <li><a href="#AwsMustTestRunnerProperties">AwsMustTestRunnerProperties</a></li>
+     <li><a href="#CloudFormationHelperScriptsInstalled">CloudFormationHelperScriptsInstalled</a></li>
+     <li><a href="#Ec2InstanceType">Ec2InstanceType</a></li>
+     <li><a href="#Ec2PrivateIp">Ec2PrivateIp</a></li>
+     <li><a href="#Ec2PublicIp">Ec2PublicIp</a></li>
+     <li><a href="#Ec2Routes">Ec2Routes</a></li>
+     <li><a href="#Ec2SecurityGroups">Ec2SecurityGroups</a></li>
+     <li><a href="#Ec2StatusNormal">Ec2StatusNormal</a></li>
+     <li><a href="#NetworkCanPing">NetworkCanPing</a></li>
+     <li><a href="#ParameterTest">ParameterTest</a></li>
+     <li><a href="#RespondsToPing">RespondsToPing</a></li>
+     <li><a href="#S3NoAccess">S3NoAccess</a></li>
+     <li><a href="#S3ReadAccessAllowed">S3ReadAccessAllowed</a></li>
+     <li><a href="#Stack">Stack</a></li>
+     <li><a href="#ValidOSVersion">ValidOSVersion</a></li>
+     <li><a href="#Vpc">Vpc</a></li>
 </ul>
+
+<h2><a id="AllwaysOk"></a>AllwaysOk<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Make at least one test succeed.</p>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe  current_test do 
+
+
+  # ------------------------------------------------------------------
+  # Test paramters defined
+
+  describe "Success" do
+
+    it "#works" do
+      expect( 1 ).to eql( 1 )
+    end
+  end
+
+end
+
+</div></div>
 
 <h2><a id="AwsCommandLineInterfaceInstalled"></a>AwsCommandLineInterfaceInstalled<a class='navigator' href='#top'>[top]</a></h2>
 
@@ -68,7 +98,7 @@ input.toggle:checked ~ div {
 
 require  'spec_helper'
 
-current_test = "AwsCommandLineInterfaceInstalled"
+current_test = File.basename File.dirname  __FILE__ 
 
 describe current_test do
 
@@ -92,7 +122,7 @@ end
 # Configuration
 # 
 
-current_test = "AwsMustTestRunnerProperties"
+current_test = File.basename File.dirname  __FILE__ 
 
 # every suite should define these paramentes
 system_properties = [
@@ -156,6 +186,449 @@ end
 
 </div></div>
 
+<h2><a id="Ec2InstanceType"></a>Ec2InstanceType<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validates <code>InstanceType</code>  of EC2 <code>InstanceId</code> as returned by  <code>describe_instance_attribute</code> </p>
+
+<ul>
+<li><code>:instance_type</code> == <code>InstanceType</code></li>
+</ul>
+
+<p><strong>Parameters</strong></p>
+
+<ul>
+<li><code>test_parameter( current_test, "InstanceType" )</code> </li>
+</ul>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe current_test do
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  instance = suite_value( :instance_name )   # set in spec_helper
+  instanceType = test_parameter( current_test, "InstanceType" )
+
+  # ------------------------------------------------------------------
+  # tests
+  describe "instance '#{instance.value}'" do
+
+
+    describe ec2_named_resource( instance ) do
+      its( :instance_type  ) { should eq instanceType.value }
+    end
+
+  end
+
+
+end
+
+</div></div>
+
+<h2><a id="Ec2PrivateIp"></a>Ec2PrivateIp<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validates EC2 <code>InstanceId</code> public ip 'private<em>ip</em>address' is with
+<code>CidrBlock</code></p>
+
+<p><strong>Parameters</strong></p>
+
+<ul>
+<li><code>instance = suite_value( :instance_name )</code> : name of instance being tested</li>
+<li><code>test_parameter( current_test, "CidrBlock" )</code> : mandatory, should be valid Cidr</li>
+</ul>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe current_test do
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  instance = suite_value( :instance_name )  # set in spec_helper
+  cidr_block = test_parameter( current_test, "CidrBlock" )
+
+  # ------------------------------------------------------------------
+  # tests
+  describe "instance '#{instance.value}'" do
+
+    describe ec2_named_resource_attribute( instance, "private_ip_address" ) do
+
+      it "#valid cidr #{cidr_block.value}" do
+        expect( subject.private_ip_address_valid_cidr?( cidr_block.value ) ).to eql( true )
+      end
+    end
+
+  end # instance
+
+
+end
+
+</div></div>
+
+<h2><a id="Ec2PublicIp"></a>Ec2PublicIp<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validates that EC2 <code>InstanceId</code> <code>:public_ip_address</code> (none/defined/CidrBlock)</p>
+
+<p><strong>Parameters</strong></p>
+
+<ul>
+<li><code>instance = suite_value( :instance_name )</code> : name of instance being tested</li>
+<li><code>test_parameter( current_test, "PublicIp" )</code> valid values
+<ul>
+<li><code>nil</code> OR <code>none</code>  : should not be defined</li>
+<li>V4 address public<em>ip</em>address belong to CidrBlock</li>
+<li><code>defined</code>: should not be nill</li>
+</ul></li>
+</ul>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe current_test do
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  instance = suite_value( :instance_name )  # set in spec_help
+  public_ip = test_parameter( current_test, "PublicIp" )
+
+
+  # ------------------------------------------------------------------
+  # tests
+  describe "instance '#{instance.value}'" do
+
+
+    describe "Public IP" do
+
+      case public_ip.value
+
+      when /\A(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\Z/ 
+        describe ec2_named_resource_attribute( instance, "public_ip_address" ) do
+          its( :public_ip_address  ) { should eql public_ip.value }
+        end
+      when "none", "nil"
+        describe ec2_named_resource( instance ) do
+          its( :public_ip_address  ) { should eql nil }
+        end
+      when "defined"
+        describe ec2_named_resource( instance ) do
+          its( :public_ip_address  ) { should_not  eql nil }
+        end
+      else
+        raise "Invalid value '#{public_ip.value}' in parameter '#{public_ip}'"
+      end # case
+    end # public ip
+
+
+  end # instance
+
+
+end
+
+</div></div>
+
+<h2><a id="Ec2Routes"></a>Ec2Routes<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validates that routes in EC2 <code>InstanceId</code></p>
+
+<p><strong>Parameters</strong></p>
+
+<ul>
+<li><code>instance = suite_value( :instance_name )</code> : name of instance being tested</li>
+<li><code>test_parameter( current_test, "Routes" )</code> : and array of route definitions</li>
+</ul>
+
+<p>For example: Validata that 'Instance1' in output section defines two
+routes. Fist route forwards VPC traffic to 'local' gateway, and
+default route forwards to internet gateway (matched using regexp).</p>
+
+<pre><code> - Ec2Routes:
+      Routes:   
+          - :destination_cidr_block: 10.0.0.0/16
+            :gateway_id: local
+            :state: active
+          - :destination_cidr_block: "0.0.0.0/0"
+            :gateway_id: !ruby/regexp '/^ig.*/'
+            :state: active
+</code></pre>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe current_test do
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  instance = suite_value( :instance_name )
+  routes = test_parameter( current_test, "Routes" )
+
+  # ------------------------------------------------------------------
+  # tests
+
+  describe route_resource_for_ec2( instance ) do
+
+    let( :implemented_routes ) {  subject.subnet_routes() }
+
+    # iterate 'expacted routes'
+    routes.value.each_with_index do |expected_route,i|
+
+      # use to validate corresponding implemented route
+      it "implement route #{expected_route}" do
+        expect( implemented_routes[i] ).to include( expected_route )
+      end
+
+    end # iterate expections
+
+
+  end # instance
+
+
+end
+
+</div></div>
+
+<h2><a id="Ec2SecurityGroups"></a>Ec2SecurityGroups<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validates EC2 security group ingress/egress rules. A </p>
+
+<p><strong>Parameters</strong></p>
+
+<ul>
+<li><code>instance = suite_value( :instance_name )</code> : name of instance being tested</li>
+<li><code>ingress = test_parameter( current_test, "Ingress" )</code> : ingress on
+the EC2 instance to validate</li>
+<li><code>egress = test_parameter( current_test, "Egress" )</code>: egress rules on
+the EC2 instance to validate</li>
+<li><code>strictIngress = test_parameter( current_test, "StrictIngress",
+false )</code>: validate exactly |Ingress| rules</li>
+<li><p><code>strictEgress = test_parameter( current_test, "StrictEgress", false )</code>: 
+validate exactly |Egress| rules</p>
+
+<pre><code>     - Ec2SecurityGroups:
+         StrictIngress: false
+         StrictEgress: false
+         Ingress:
+              # ping response only in local subnet
+            - :ip_protocol: icmp
+              :from_port: -1
+              :to_port: -1
+              :ip_ranges:
+                 - :cidr_ip: *SubNetPrivate
+         Egress:
+              # allow ping Internet
+            - :ip_protocol: icmp
+              :from_port: -1
+              :to_port: -1
+              :ip_ranges:
+                 - :cidr_ip: "0.0.0.0/0"
+</code></pre></li>
+</ul>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+# ------------------------------------------------------------------
+# Use custom matcher to loop array of rules and validate that expected
+# rule is "included" to one of these rules.
+
+RSpec::Matchers.define :define_rule do |expected|
+
+  match do |actual_rules|
+
+    result = false
+
+    actual_rules.each do |rule|
+      # puts "rule=#{rule} vs. #{expected}"
+      begin 
+        result |= expect( rule ).to include( expected )
+        break if result
+      rescue Exception => e
+        # puts "Rescued #{e}"
+      end
+    end
+    return result
+    # actual % expected == 0
+  end
+
+  failure_message do |actual_rules|
+    "rule #{expected} was not included in actual rules #{actual_rules}  "
+  end
+end
+
+describe current_test do
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  instance = suite_value( :instance_name ) 
+  ingress = test_parameter( current_test, "Ingress" )
+  egress = test_parameter( current_test, "Egress" )
+  strictIngress = test_parameter( current_test, "StrictIngress", false )
+  strictEgress = test_parameter( current_test, "StrictEgress", false )
+
+
+
+  # ------------------------------------------------------------------
+  # tests
+  describe security_group_resource_for_ec2( instance ) do
+
+    let( :implemented_ingress_rules ) {  subject.instance_ingress_rules() }
+    let( :implemented_egress_rules ) {  subject.instance_egress_rules() }
+
+    # ------------------------------------------------------------------
+    # ingresss rules
+    context "ingress rules" do
+
+      if strictIngress.value then
+        it "validate all ingress rules in test suite" do
+          expect( implemented_ingress_rules.length ).to eql( ingress.value.length  )
+        end
+      else
+        it "WARNING does not validate all ingress rules in test suite" do
+          expect( ingress.value.length ).to eql( ingress.value.length )
+        end
+      end 
+
+      # iterate 'expacted ingress' rules
+      ingress && ingress.value && ingress.value.each do |expected_rule|
+        # use to validate corresponding implemented route
+        it "implement ingress rule: #{expected_rule}" do
+          expect( implemented_ingress_rules ).to define_rule( expected_rule )
+        end
+      end
+
+    end
+
+    # ------------------------------------------------------------------
+    # egress
+
+    context "egress rules" do
+
+      if strictEgress.value then
+        it "validates all egress rules in test suite" do
+          expect( implemented_egress_rules.length  ).to eql( egress.value.length )
+        end
+      else
+        it "WARNING does not validate all egress rules in test suite" do
+          expect( egress.value.length ).to eql( egress.value.length )
+        end
+      end
+
+
+      # iterate 'expacted egress' rules
+      egress && egress.value && egress.value.each do |expected_rule|
+        # use to validate corresponding implemented route
+        it "implement egress rule:  #{expected_rule}" do
+          expect( implemented_egress_rules ).to define_rule( expected_rule )
+        end
+      end
+
+    end
+
+  end # instance
+end
+
+</div></div>
+
+<h2><a id="Ec2StatusNormal"></a>Ec2StatusNormal<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validates that status of <code>InstanceId</code> EC2  status for <code>describe_instance_status</code> normal:</p>
+
+<ul>
+<li>defefines <code>:availability_zone</code></li>
+<li><code>:system_status_ok?</code></li>
+<li><code>:instance_state_running?</code></li>
+</ul>
+
+<p><strong>Parameters</strong></p>
+
+<ul>
+<li><code>instance = suite_value( :instance_name )</code> : name of instance being tested</li>
+</ul>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe current_test do
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  instanceName = suite_value( :instance_name )
+
+  expected = [
+              { :prop => :system_status_not_impaired?, :expect => true },
+              { :prop => :instance_state_running?, :expect => true  } 
+             ]
+
+  # ------------------------------------------------------------------
+  # tests
+
+  describe "instanceName '#{instanceName.value}'" do
+
+    expected.each do |prop|
+      describe ec2_named_resource( instanceName ) do
+        its( prop[:prop] ) { should eq prop[:expect] }
+      end
+    end
+
+  end # describe instanceId
+
+end
+
+</div></div>
+
+<h2><a id="NetworkCanPing"></a>NetworkCanPing<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Can ping to <code>test_parameter( current_test, "Destination" )</code></p>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe current_test do
+
+  # defined in test-suites.yaml
+  timeout = 20 # seconds
+  testcount = 3 # times
+
+  destination = test_parameter( current_test, "Destination" )
+
+
+  describe "ping  #{testcount} times to '#{destination.value}', wait response within #{timeout} seconds" do
+    cmd = "ping #{destination.value} -W #{timeout} -c #{testcount}"
+    describe command( cmd ) do
+      its(:exit_status) { should eq 0 }
+    end
+  end
+end
+
+
+</div></div>
+
 <h2><a id="ParameterTest"></a>ParameterTest<a class='navigator' href='#top'>[top]</a></h2>
 
 <p>Demonstrate a test accessing <code>test_parameters</code></p>
@@ -165,7 +638,7 @@ end
 require 'spec_helper'
 
 
-current_test = "ParameterTest"
+current_test = File.basename File.dirname  __FILE__ 
 
 describe  current_test do |ex|
 
@@ -200,6 +673,45 @@ end
 
 </div></div>
 
+<h2><a id="RespondsToPing"></a>RespondsToPing<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validate that host  <code>test_parameter( current_test, "Hostname" )</code>  answers to ping</p>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe current_test do
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  hostname = test_parameter( current_test, "Hostname" )
+  timeout = 20 # seconds
+  testcount = 3 # times
+
+  # ------------------------------------------------------------------
+  # tests
+
+  describe "ping '#{hostname.value}'" do
+
+    it "#reponds within #{timeout} seconds with #{testcount} test counts" do 
+      # -W:  Time to wait for a response, in seconds
+      # -c:  Stop after sending count ECHO_REQUEST packets. With deadline
+      # -option, ping waits for count ECHO_REPLY packets, until the
+      # -timeout expires
+
+      cmd = "ping #{hostname.value} -W 20 -c 3"
+      # puts cmd `#{cmd}` 
+      raise "Error in '#{cmd}' " unless $? == 0 end
+  end
+
+end
+
+</div></div>
+
 <h2><a id="S3NoAccess"></a>S3NoAccess<a class='navigator' href='#top'>[top]</a></h2>
 
 <p>Validate no access to S3 bucket <code>test_parameter( current_test, "Bucket" )</code></p>
@@ -211,7 +723,7 @@ require 'spec_helper'
 # ------------------------------------------------------------------
 # config
 
-current_test = "S3NoAccess"
+current_test = File.basename File.dirname  __FILE__ 
 
 # ------------------------------------------------------------------
 # Tests
@@ -288,7 +800,7 @@ end
 
 require 'spec_helper'
 
-current_test = "S3ReadAccessAllowed"
+current_test = File.basename File.dirname  __FILE__ 
 
 describe current_test do
 
@@ -449,7 +961,7 @@ require 'spec_helper'
 # Configuration
 # 
 
-current_test = "Stack"
+current_test = File.basename File.dirname  __FILE__ 
 
 props = {
   "smoke" => [
@@ -462,6 +974,16 @@ props = {
              stack_parameter( "InstanceType" ),
              stack_parameter( "KeyName" ),
              stack_parameter( "SSHLocation" )
+   ],
+  "suite2" => [
+             stack_parameter( "InstanceType" ),
+             stack_parameter( "KeyName" ),
+             stack_parameter( "SSHLocation" ),
+             stack_output( "myFront1" ),
+             stack_output( "myNat" ),
+             stack_output( "InstanceId1" ),
+             stack_output( "InstanceId2" ),
+             stack_output( "MyInternetGw" ),
    ],
 }
 # ------------------------------------------------------------------
@@ -499,7 +1021,7 @@ end
 <div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
 require 'spec_helper'
 
-current_test = "ValidOSVersion"
+current_test = File.basename File.dirname  __FILE__ 
 
 describe current_test do
 
@@ -513,5 +1035,49 @@ describe current_test do
   end
 end
 
+
+</div></div>
+
+<h2><a id="Vpc"></a>Vpc<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Validates that Vpc tagged with <code>Name</code> = <code>test_parameter( current_test, "VpcName" )</code>
+exists, and that it is available.</p>
+
+<p><strong>Parameters</strong></p>
+
+<ul>
+<li><code>test_parameter( current_test, "VpcName" )</code> : search for Vpc with 'Name' tag</li>
+</ul>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+require 'spec_helper'
+
+current_test = File.basename File.dirname  __FILE__ 
+
+describe current_test do
+
+  # ------------------------------------------------------------------
+  # test parameters
+
+  vpcName = test_parameter( current_test, "VpcName" )
+
+
+  # ------------------------------------------------------------------
+  # tests
+  describe "vpc '#{vpcName.value}'" do
+
+    describe vpc_resource_by_name( vpcName.value ) do
+
+      it "#is available Vpc" do
+        expect( subject.is_available?).to eql( true )
+      end
+
+    end
+
+  end # instance
+
+
+end
 
 </div></div>

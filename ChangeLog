@@ -1,3 +1,51 @@
+2015-09-16  jj  <jj@horsti>
+
+	* lib/tasks/cross-ref.rb (#xref_to_dot): opetion for neato
+
+	* spec/support/lib/test_parameter.rb
+	(Serverspec::Type#test_parameter): mandatory attribute added
+
+	* mustache/mappingAmazonVpcNat.mustache: added new tempate
+
+2015-09-15  jj  <jj@horsti>
+
+	* mustache/resourceInstance.mustache: support for attribute `DependsOn`
+
+	* mustache/resourceInternetGateway.mustache: Attachement defined
+	using `Attachment` subdocument
+
+	* mustache/commonDependsOn.mustache: supports array of resources
+
+	* mustache/resourceSecurityGroup.mustache: added tag-name
+
+	* mustache/resourceSubnet.mustache: * `RoutetableAssociation`:
+	Associates a subnet with a route table.
+
+
+2015-09-14  jj  <jj@horsti>
+
+	* spec/mustache/resourceSecurityGroup_spec.rb: sets 'SecurityGroupEgress'
+
+	* spec/mustache/resourceInstance_spec.rb: resourceInstance sets tag 'Name'
+
+2015-09-11  jj  <jj@horsti>
+
+	* mustache/resource.mustache: * support for `RouteTable`,`Route`
+
+2015-09-10  jj  <jj@horsti>
+
+	* mustache/resourceInstance.mustache: Tags array: always defines
+	Key/Value pair with Key="Name"
+
+2015-09-05  jj  <jj@horsti>
+
+	* Rakefile (dev:docs:spec): added option  --template
+
+2015-09-04  jj  <jj@horsti>
+
+	* mustache/resourceInstance.mustache: Changed Tags attribute to
+	use "Tags" section key (prev. "tags" )
+
 2015-09-01  jj  <jj@horsti>
 
 	* lib/tasks/suite.rake (#spec_pattern): fixed typo on error

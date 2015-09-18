@@ -1,0 +1,67 @@
+{{!
+
+
++++start+++
+
+## <a id="resourceRouteTable.mustache"></a>resourceRouteTable.mustache <a class='navigator' href='#top'>[top]</a>
+
+A `route table` contains a set of rules, called routes, that are used
+to determine where network traffic is directed.  Thi template creates
+a new route table within a VPC. After you create a new route table,
+you can add routes and associate the table with a subnet.
+
+The following are the
+[basic things](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Route_Tables.html)
+that you need to know about route tables:
+
+* Your VPC has an implicit router.
+
+* Your VPC automatically comes with a main route table that you can
+  modify.
+
+* You can create additional custom route tables for your VPC.
+
+* Each subnet must be associated with a route table, which controls
+   the routing for the subnet. If you don't explicitly associate a
+   subnet with a particular route table, the subnet uses the main
+   route table.
+
+* You can replace the main route table with a custom table that you've
+  created (so that this table is the default table each new subnet is
+  associated with).
+
+* Each route in a table specifies a destination CIDR and a target (for
+  example, traffic destined for 172.16.0.0/12 is targeted for the
+  virtual private gateway); we use the most specific route that
+  matches the traffic to determine how to route the traffic.
+
+
+**Attributes**:
+
+* `Name` : of the route-table
+* `Vpc`: reference to VPC where attached, [commonRef.mustache](#commonRef.mustache)
+* `Subnet`: reference to VPC where to attach route to InternetGateway
+* `DependsOn` : [commonDependsOn.mustache](#commonDependsOn.mustache)
+* `Tags`: (optional) as [commonKeyValue.mustache](#commonKeyValue.mustache)
+* `Routes`: an array of routes processed in  []()
+
+
++++close+++
+
+}}
+
+{{! +++fold-on+++ }}
+
+"{{Name}}" : {
+      "Type" : "AWS::EC2::RouteTable"
+      {{> commonDependsOn }}
+      , "Properties" : {
+            "VpcId" : {{#Vpc}}{{> commonRef }}{{/Vpc}}
+         ,  "Tags" : [ 
+               {"Key": "Name", "Value" : "{{Name}}" }
+               {{# Tags }},{{> commonKeyValue }}{{_comma}}{{/ Tags }}
+             ]
+      }
+}{{ _comma }}
+
+{{! +++fold-off+++ }}

@@ -17,7 +17,7 @@ require 'spec_helper'
 # ------------------------------------------------------------------
 # config
 
-current_test = "S3NoAccess"
+current_test = File.basename File.dirname  __FILE__ 
 
 # ------------------------------------------------------------------
 # Tests

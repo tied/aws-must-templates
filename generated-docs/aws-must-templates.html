@@ -47,9 +47,17 @@ input.toggle:checked ~ div {
 
     <li><a href="#parameter.mustache">parameter.mustache</a>: create one parameter entry to CloudFormation JSON parameter section</li>
 
-    <li><a href="#mappings.mustache">mappings.mustache</a>: matches a key to a corresponding set of named values</li>
+    <ul>
 
-    <li><a href="#mappingSubnetConfig.mustache">mappingSubnetConfig.mustache</a>: subnet config mapping to map VPC/Public/Private key to CIDR subnet block.</li>
+         <li><a href="#mappings.mustache">mappings.mustache</a>: matches a key to a corresponding set of named values</li>
+
+         <li><a href="#mappingSubnetConfig.mustache">mappingSubnetConfig.mustache</a>: subnet config mapping to map VPC/Public/Private key to CIDR subnet block.</li>
+
+         <li><a href="#mappingSubnetConfig.mustache">mappingSubnetConfig.mustache</a>: subnet config mapping to map VPC/Public/Private key to CIDR subnet block.</li>
+
+         <li><a href="#mappingAmazonVpcNat.mustache">mappingAmazonVpcNat.mustache</a>: mapping for vpc-nat instances</li>
+
+    </ ul>
 
     <li><a href="#resource.mustache">resource.mustache</a>: dispatch resource based on resource type</li>
 
@@ -103,19 +111,23 @@ input.toggle:checked ~ div {
 
     <ul> 
 
-        <li><a href="#commonInstanceType.mustache">commonInstanceType.mustache</a>: Output value for `InstanceType` -attribute</li> 
-
-        <li><a href="#commonValue.mustache">commonValue.mustache</a>: Common template to output value (Value/Ref/Attr/StackRef)</li> 
-
-        <li><a href="#commonKeyValue.mustache">commonKeyValue.mustache</a>: Common template output key value pairs</li> 
-
-        <li> <a href="#commonDependsOn.mustache">commonDependsOn.mustache</a>: </li>
+        <li> <a href="#commonCfnSignal.mustache">commonCfnSignal.mustache</a>: </li>
 
         <li> <a href="#commonCreationPolicy.mustache">commonCreationPolicy.mustache</a>: </li>
 
-        <li> <a href="#commonCfnSignal.mustache">commonCfnSignal.mustache</a>: </li>
+        <li> <a href="#commonDependsOn.mustache">commonDependsOn.mustache</a>: </li>
+
+        <li><a href="#commonInstanceType.mustache">commonInstanceType.mustache</a>: Output value for `InstanceType` -attribute</li> 
+
+        <li><a href="#commonKeyValue.mustache">commonKeyValue.mustache</a>: Common template output key value pairs</li> 
+
+        <li> <a href="#commonRef.mustache">commonRef.mustache</a>: reference</li>
 
         <li> <a href="#commonStackRef.mustache">commonStackRef.mustache</a>: </li>
+
+        <li><a href="#commonValue.mustache">commonValue.mustache</a>: Common template to output value (Value/Ref/Attr/StackRef)</li> 
+
+        <li> <a href="#commonXGressRule.mustache">commonXGressRule.mustache</a>: SecurityGroupIngress/SecurityGroupEgress rules</li>
 
     </ul> 
 
@@ -262,12 +274,14 @@ architectures only for <strong>64bits</strong></p></li>
 <p><strong>Attributes</strong>: context=  <code>./mappings</code></p>
 
 <ul>
-<li><code>SubnetConfig</code>: </li>
+<li><code>SubnetConfig</code>: output <a href="#mappingSubnetConfig.mustache">mappingSubnetConfig.mustache</a></li>
+<li><code>AmazonVpcNat</code>: output <a href="#mappingAmazonVpcNat.mustache">mappingAmazonVpcNat.mustache</a></li>
 </ul>
 
 <div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
 
 {{# SubnetConfig }}{{> mappingSubnetConfig }}{{/ SubnetConfig }}
+{{# AmazonVpcNat }}{{> mappingAmazonVpcNat }}{{/ AmazonVpcNat }}
 
 
 </div></div>
@@ -290,6 +304,30 @@ subnet block.</p>
       "Public"  : { "CIDR" : "10.44.0.0/24" },
       "Private" : { "CIDR" : "10.44.1.0/24" }
  }{{_comma}}
+
+</div></div>
+
+<h2><a id="mappings.mustache"></a>mappings.mustache <a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Mapping table <code>region--&gt;ami</code> with <code>root-device=ebs</code>,
+<code>architecture,Values=x86_64</code>, and <code>--owners amazon</code> </p>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+
+
+"{{Name}}" : {
+      "us-east-1"      : { "AMI" : "ami-184dc970" },
+      "us-west-1"      : { "AMI" : "ami-a98396ec" },
+      "us-west-2"      : { "AMI" : "ami-290f4119" },
+      "eu-west-1"      : { "AMI" : "ami-14913f63" },
+      "eu-central-1"   : { "AMI" : "ami-ae380eb3" },
+      "sa-east-1"      : { "AMI" : "ami-8122969c" },
+      "ap-southeast-1" : { "AMI" : "ami-6aa38238" },
+      "ap-southeast-2" : { "AMI" : "ami-893f53b3" },
+      "ap-northeast-1" : { "AMI" : "ami-27d6e626" }
+}{{_comma}}
+
 
 </div></div>
 
@@ -370,6 +408,8 @@ subnet block.</p>
 <li><code>InternetGateway</code>: </li>
 <li><code>Subnet</code>: </li>
 <li><code>User</code>: creates <a href="#resourceUser.mustache">User</a></li>
+<li><code>RouteTable</code>: creates <a href="#resourceRouteTable.mustache">resourceRouteTable.mustache</a></li>
+<li><code>Route</code>: creates <a href="#resourceRoute.mustache">resourceRoute.mustache</a></li>
 </ul>
 
 <div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
@@ -386,6 +426,8 @@ subnet block.</p>
 {{# Subnet }}{{> resourceSubnet }}{{/ Subnet }}
 {{# InternetGateway }}{{> resourceInternetGateway }}{{/ InternetGateway }}
 {{# User }}{{> resourceUser  }}{{/ User }}
+{{# RouteTable }}{{> resourceRouteTable  }}{{/ RouteTable }}
+{{# Route }}{{> resourceRoute  }}{{/ Route }}
 
 
 
@@ -404,8 +446,16 @@ subnet block.</p>
 <li><code>InstanceType</code> : The instance type, such as t2.micro. </li>
 <li><code>InstanceTyperef</code> : Reference to instance type</li>
 </ul></li>
-<li><code>tags</code> : array of tag sub-documents for EC2 instance</li>
+<li><code>MapRegionToImageId</code> : alternative name of map for mapping region to
+AMI => imageid, if not defined use default <a href="#mappings.mustache">mappings.mustache</a></li>
+<li><code>Tags</code> :  { "Key": "Name", "Name": ``} + array of tag Key- value subdocuments</li>
+<li><code>DependsOn</code>: see <a href="#commonDependsOn.mustache">commonDependsOn.mustache</a></li>
 <li><code>SecurityGroupIds</code>: array of <a href="#commonValue.mustache">commonValue.mustache</a></li>
+<li><code>SourceDestCheck</code>: String, (defaults: "true") Controls whether
+source/destination checking is enabled on the instance. Also
+determines if an instance in a VPC will perform network address
+translation (NAT). For the instance to perform NAT, the value must
+be "false".</li>
 </ul>
 
 <div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
@@ -413,15 +463,26 @@ subnet block.</p>
     "{{Name}}" : {
       "Type" : "AWS::EC2::Instance"
       {{> commonCreationPolicy }}
+      {{> commonDependsOn }}
       , "Metadata": {
             {{> resourceInstanceMetadata }}
 
       } {{! metadata }}
       , "Properties" : {
-          "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-                      { "Fn::FindInMap" : [ "AWSInstanceType2Arch", {{> commonInstanceType }}, "Arch" ] } ] }
+          "ImageId" : 
+                       {{^ MapRegionToImageId }}
+                       { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                                   { "Fn::FindInMap" : [ "AWSInstanceType2Arch", {{> commonInstanceType }}, "Arch" ] } ] }
+                       {{/ MapRegionToImageId }}
+                        {{# MapRegionToImageId }}
+                        { "Fn::FindInMap" : [ "{{MapRegionToImageId}}", { "Ref" : "AWS::Region" }, "AMI" ] }
+                       {{/ MapRegionToImageId }}                      
+
           , "InstanceType" : {{> commonInstanceType}} {{! InstanceType OR InstanceTypeRef }}
-          , "Tags" : [ {{#tags}}{{>tag}}{{/tags}} ]
+          , "Tags" : [ { "Key":  "Name", "Value": "{{Name}}" }
+                       {{# Tags }},{{> commonKeyValue }}{{_comma}}{{/ Tags }}
+            ]
+          ,  "SourceDestCheck": {{# SourceDestCheck }}{{SourceDestCheck}}{{/ SourceDestCheck }}{{^ SourceDestCheck }}true{{/ SourceDestCheck }}
           , "SecurityGroupIds" : [ 
                 {{# SecurityGroupIds }}
                     {{> commonValue }}{{_comma}}
@@ -735,18 +796,14 @@ CloudFormation Tools installation snippet.</p>
 
 <p>Create an EC2 Security Group</p>
 
-<p><strong>Attributes</strong>: context=  <code>./resources/SecurityGroup</code></p>
+<p><strong>Attributes</strong>: </p>
 
 <ul>
 <li><code>Name</code> : of the security group</li>
 <li><code>VpcId</code>: The Reference name physical ID of the VPC.  given as commonValue, <a href="#commonValue.mustache">commonValue.mustache</a></li>
-<li><code>SecurityGroupIngress</code>: Arrays in a SecurityGroupIngr
-<ul>
-<li><code>IpProtocol</code>: default tcp</li>
-<li><code>FromPort</code>: default to <code>Port</code></li>
-<li><code>ToPort</code>: defaults to <code>Port</code></li>
-<li>CidrIp given as commonValue, <a href="#commonValue.mustache">commonValue.mustache</a></li>
-</ul></li>
+<li><code>SecurityGroupIngress</code>: create array of ingress rules with <a href="#commonXGressRule.mustache">commonXGressRule.mustache</a></li>
+<li><code>SecurityGroupEgress</code>: create array of ingress rules with <a href="#commonXGressRule.mustache">commonXGressRule.mustache</a> template</li>
+<li><code>Tags</code> :  { "Key": "Name", "Name": ``} + array of tag Key- value subdocuments</li>
 </ul>
 
 <div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
@@ -756,14 +813,17 @@ CloudFormation Tools installation snippet.</p>
       "Properties" : {
         "GroupDescription" : "Enable SSH access via port 22"
         {{# VpcId }}, "VpcId": {{> commonValue }} {{/ VpcId }}
+        , "Tags" : [ { "Key":  "Name", "Value": "{{Name}}" }
+                     {{# Tags }},{{> commonKeyValue }}{{_comma}}{{/ Tags }}
+          ]
+        , "SecurityGroupEgress" : [ 
+                {{# SecurityGroupEgress }}
+                     {{> commonXGressRule }}{{_comma}}
+                {{/ SecurityGroupEgress }}
+        ]
         , "SecurityGroupIngress" : [ 
                 {{# SecurityGroupIngress }}
-                     {
-                         "IpProtocol" : {{#IpProtocol}}"{{IpProtocol}}"{{/IpProtocol}}{{^IpProtocol}}"tcp"{{/IpProtocol}},
-                         "FromPort" : "{{#FromPort}}{{FromPort}}{{/FromPort}}{{^FromPort}}{{Port}}{{/FromPort}}",
-                         "ToPort" : "{{#ToPort}}{{ToPort}}{{/ToPort}}{{^ToPort}}{{Port}}{{/ToPort}}",
-                         "CidrIp" : {{> commonValue }}
-                    } {{_comma}}
+                     {{> commonXGressRule }}{{_comma}}
                 {{/ SecurityGroupIngress }}
         ]
       }
@@ -1018,15 +1078,14 @@ true if you also set the EnableDnsSupport attribute to true.</li>
 <p><strong>Attributes</strong>: </p>
 
 <ul>
-<li><code>Name</code> : of the VPC resource
-<ul>
+<li><code>Name</code> : of the VPC resource</li>
 <li><code>CidrBlock</code> or as <a href="#commonKeyValue.mustache">commonKeyValue.mustache</a></li>
 <li><code>VpcId</code>: resource name of VPC</li>
 <li><code>MapPublicIpOnLaunch</code>: Indicates whether instances that are
 launched in this subnet receive a public IP address. By default,
 the value is <code>false</code>.</li>
 <li><code>Tags</code>: (optional) as <a href="#commonKeyValue.mustache">commonKeyValue.mustache</a></li>
-</ul></li>
+<li><code>RoutetableAssociation</code>: Associates a subnet with a route table.</li>
 </ul>
 
 <div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
@@ -1039,10 +1098,21 @@ the value is <code>false</code>.</li>
          "CidrBlock" : "{{CidrBlock}}"
        , "Tags" : [ {{# Tags }}{{> commonKeyValue }}{{_comma}}{{/ Tags }}]
        , "MapPublicIpOnLaunch" : {{^MapPublicIpOnLaunch}}false{{/ MapPublicIpOnLaunch}}{{# MapPublicIpOnLaunch}}{{MapPublicIpOnLaunch}}{{/ MapPublicIpOnLaunch}}
-       , "VpcId" : { "Ref" : "{{VpcId}}" }
+       , "VpcId" : {{#VpcId}} {{> commonRef }} {{/VpcId}}
    }
-}{{_comma}}
+}
 
+{{# RoutetableAssociation }}
+, "{{Name}}RouteTableAssociation" : {
+     "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+     "Properties" : {
+         "RouteTableId" : {{> commonRef }}
+      ,   "SubnetId" : {{# ..}}{{# Name}}{{> commonRef }}{{/ Name }}{{/ .. }}
+   }
+}
+
+{{/ RoutetableAssociation }}
+{{_comma}}
 
 </div></div>
 
@@ -1058,66 +1128,81 @@ access on <code>Vpc</code> &amp;&amp; <code>Subnet</code></p>
 <ul>
 <li><code>Name</code> : of the Internet Gateway
 <ul>
-<li><code>Vpc</code>: reference to VPC where to atttace</li>
 <li><code>Subnet</code>: reference to VPC where to attach route to InternetGateway</li>
 <li><code>Tags</code>: (optional) as <a href="#commonKeyValue.mustache">commonKeyValue.mustache</a></li>
+<li><code>Attachment</code> : sub document defining attachment to vpc
+<ul>
+<li><code>AttachmentName</code> of the attachment resource</li>
+<li><code>Vpc</code>: reference to VPC where to atttace</li>
+</ul></li>
 </ul></li>
 </ul>
 
 <div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
 
-
 {{! Create internet gateway }}
 "{{Name}}" : {
     "Type" : "AWS::EC2::InternetGateway",
     "Properties" : {
-       "Tags" : [ {{# Tags }}{{> commonKeyValue }}{{_comma}}{{/ Tags }}]
+        "Tags" : [ { "Key":  "Name", "Value": "{{Name}}" }
+                     {{# Tags }},{{> commonKeyValue }}{{_comma}}{{/ Tags }}
+            ]
     }
- },
+ }
 
+
+{{# Attachment }}
 {{! Attache the internet gateway created to VPC }}
-"Attach{{Vpc}}" : {
+, "{{AttachmentName}}" : {
       "Type" : "AWS::EC2::VPCGatewayAttachment",
       "Properties" : {
         "VpcId" : { "Ref" : "{{Vpc}}" },
-        "InternetGatewayId" : { "Ref" : "{{Name}}" }
+        {{! reference to internet gateway name }}
+        "InternetGatewayId" : {{# .. }} {{# Name }} {{> commonRef }}{{/ Name }}{{/ .. }}
     }
-}, 
+} 
+{{/ Attachment }}
+
 
 
 {{! Create a route table for VPC }}
 
-"RouteTable{{Vpc}}" : {
+, "RouteTable{{Name}}" : {
       "Type" : "AWS::EC2::RouteTable",
       "Properties" : {
+{{# Attachment }}     
         "VpcId" : { "Ref" : "{{ Vpc }}" },
+{{/ Attachment }}       
         "Tags" : [ 
-                   {"Key": "Name", "Value" : "RouteTable{{Vpc}}" }
+                   {"Key": "Name", "Value" : "RouteTable{{Name}}" }
                  , {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } 
                  ]
       }
-    },
+}
+
 
 
 {{! Add a route to internet gateway created }}
 
-"Route{{Vpc}}" : {
+, "Route{{Vpc}}" : {
     "Type" : "AWS::EC2::Route",
-     "DependsOn" : "Attach{{Vpc}}",
+{{# Attachment }}
+     "DependsOn" : "{{AttachmentName}}",
+ {{/ Attachment }}
       "Properties" : {
-          "RouteTableId" : { "Ref" : "RouteTable{{Vpc}}" }
+          "RouteTableId" : { "Ref" : "RouteTable{{Name}}" }
           , "DestinationCidrBlock" : "0.0.0.0/0"
           , "GatewayId" : { "Ref" : "{{Name}}" }
      }
-},
+}
 
 {{! Associates a subnet with a route table. }}
 
-"RouteTableAssociation{{Subnet}}" : {
+, "RouteTableAssociation{{Subnet}}" : {
     "Type" : "AWS::EC2::SubnetRouteTableAssociation"
    , "Properties" : {
          "SubnetId" : { "Ref" : "{{Subnet}}" }
-       , "RouteTableId" : { "Ref" : "RouteTable{{Vpc}}" }
+       , "RouteTableId" : { "Ref" : "RouteTable{{Name}}" }
      }
 }
 
@@ -1212,40 +1297,30 @@ access on <code>Vpc</code> &amp;&amp; <code>Subnet</code></p>
 
 </div></div>
 
-<h2><a id="commonDependsOn.mustache"></a>commonDependsOn.mustache<a class='navigator' href='#top'>[top]</a></h2>
+<h2><a id="commonCfnSignal.mustache"></a>commonCfnSignal.mustache<a class='navigator' href='#top'>[top]</a></h2>
 
-<p>Common template to output key and value for <code>DependsOn</code></p>
+<p><strong>NOT USED</strong></p>
+
+<p><strike>
+Common template to send a signlan</p>
 
 <p><strong>Attributes</strong>: </p>
 
 <ul>
-<li><code>DependsOn</code> : resource name on which dependency defined</li>
+<li><code>WaitHandle</code> : to signal</li>
+<li><code>Message</code>    : text message for the signal</li>
 </ul>
+
+<p></strike></p>
 
 <div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
 
+{{# WaitHandle}}  
+   ,    "HANDLE='", { "Ref" : "{{WaitHandle}}" }, "'\n"
+   ,   "echo \"Signal success '{{WaitHandle}}' -handle with message '{{Message}}'\" \n"
+   ,   "type cfn-signal && sudo cfn-signal --success true --reason \"{{Message}}\" $HANDLE \n"
+{{/ WaitHandle}}  
 
-{{# DependsOn }}, "DependsOn" : "{{DependsOn}}"  {{/ DependsOn }} 
-
-
-</div></div>
-
-<h2><a id="commonInstanceType.mustache"></a>commonInstanceType.mustache <a class='navigator' href='#top'>[top]</a></h2>
-
-<p>Output value for <code>InstanceType</code> -attribute</p>
-
-<p><strong>Attributes</strong>:</p>
-
-<ul>
-<li><code>InstanceType</code>: value of instance type</li>
-<li><code>InstanceTypeRef</code>: reference to instance type</li>
-</ul>
-
-<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
-
-
-{{# InstanceType }}"{{ InstanceType }}"{{/ InstanceType }}
-{{# InstanceTypeRef }}{ "Ref": "{{ InstanceTypeRef }}" }{{/ InstanceTypeRef }}
 
 </div></div>
 
@@ -1277,30 +1352,116 @@ and seconds, respectively.</li>
 
 </div></div>
 
-<h2><a id="commonCfnSignal.mustache"></a>commonCfnSignal.mustache<a class='navigator' href='#top'>[top]</a></h2>
+<h2><a id="commonDependsOn.mustache"></a>commonDependsOn.mustache<a class='navigator' href='#top'>[top]</a></h2>
 
-<p><strong>NOT USED</strong></p>
-
-<p><strike>
-Common template to send a signlan</p>
+<p>Common template to output key and value for <code>DependsOn</code></p>
 
 <p><strong>Attributes</strong>: </p>
 
 <ul>
-<li><code>WaitHandle</code> : to signal</li>
-<li><code>Message</code>    : text message for the signal</li>
+<li><code>DependsOn</code> : resource name/array on which dependency defined</li>
 </ul>
 
-<p></strike></p>
+<p>Example depends on <code>resource1</code></p>
+
+<pre><code>   DependsOn: resource1
+</code></pre>
+
+<p>Example depends on <code>resource1</code>, <code>resource2</code></p>
+
+<pre><code>   DependsOn: 
+       - resource1
+       - resource2
+</code></pre>
 
 <div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
 
-{{# WaitHandle}}  
-   ,    "HANDLE='", { "Ref" : "{{WaitHandle}}" }, "'\n"
-   ,   "echo \"Signal success '{{WaitHandle}}' -handle with message '{{Message}}'\" \n"
-   ,   "type cfn-signal && sudo cfn-signal --success true --reason \"{{Message}}\" $HANDLE \n"
-{{/ WaitHandle}}  
+{{! Array context define 'any?' }}
+{{# DependsOn.any? }} 
+   , "DependsOn" :  {{{DependsOn}}}
+{{/ DependsOn.any? }} 
 
+
+{{! String does not define 'any?' }}
+{{^ DependsOn.any? }} 
+{{# DependsOn }} 
+   , "DependsOn" :  "{{{DependsOn}}}"  
+{{/ DependsOn }} 
+{{/ DependsOn.any? }} 
+
+
+</div></div>
+
+<h2><a id="commonInstanceType.mustache"></a>commonInstanceType.mustache <a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Output value for <code>InstanceType</code> -attribute</p>
+
+<p><strong>Attributes</strong>:</p>
+
+<ul>
+<li><code>InstanceType</code>: value of instance type</li>
+<li><code>InstanceTypeRef</code>: reference to instance type</li>
+</ul>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+
+{{# InstanceType }}"{{ InstanceType }}"{{/ InstanceType }}
+{{# InstanceTypeRef }}{ "Ref": "{{ InstanceTypeRef }}" }{{/ InstanceTypeRef }}
+
+</div></div>
+
+<h2><a id="commonKeyValue.mustache"></a>commonKeyValue.mustache<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Common template to output key-value pair</p>
+
+<p><strong>Attributes</strong>: </p>
+
+<ul>
+<li><code>Key</code>: </li>
+<li>value given as as commonValue, <a href="#commonValue.mustache">commonValue.mustache</a></li>
+</ul>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+{
+   "Key" : "{{Key}}"
+   , "Value" : {{> commonValue }}
+}
+
+
+</div></div>
+
+<h2><a id="commonRef.mustache"></a>commonRef.mustache<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Common template to output reference (in context)</p>
+
+<p><strong>Attributes</strong>: </p>
+
+<ul>
+<li><code>.</code>: referenece in context</li>
+</ul>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+{ "Ref": "{{.}}" }
+
+</div></div>
+
+<h2><a id="commonStackRef.mustache"></a>commonStackRef.mustache<a class='navigator' href='#top'>[top]</a></h2>
+
+<p>Common template to output nested stack reference</p>
+
+<p><strong>Attributes</strong>: </p>
+
+<ul>
+<li><code>Stack</code> : name of the nested stack resource</li>
+<li><code>Output</code>: name of output variable in nested stack</li>
+</ul>
+
+<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
+
+{ "Fn::GetAtt": [ "{{Stack}}", "Outputs.{{Output}}"] }
 
 </div></div>
 
@@ -1329,47 +1490,34 @@ Common template to send a signlan</p>
 
 
 {{#Value}}"{{Value}}"{{/Value}}
-{{#Ref}}{ "Ref": "{{Ref}}" }{{/Ref}}
+{{#Ref}} {{> commonRef }} {{/Ref}}
 {{#Attr}}{ "Fn::GetAtt" : [ "{{Ref}}", "{{Name}}" ] }{{/Attr}}
 {{#StackRef}}{ "Fn::GetAtt": [ "{{Stack}}", "Outputs.{{Output}}"] }{{/StackRef}}
 
 
 </div></div>
 
-<h2><a id="commonKeyValue.mustache"></a>commonKeyValue.mustache<a class='navigator' href='#top'>[top]</a></h2>
+<h2><a id="commonXGressRule.mustache"></a>commonXGressRule.mustache<a class='navigator' href='#top'>[top]</a></h2>
 
-<p>Common template to output key-value pair</p>
+<p>Common template to output SecurityGroupIngress or SecurityGroupEgress rules.</p>
 
 <p><strong>Attributes</strong>: </p>
 
 <ul>
-<li><code>Key</code>: </li>
-<li>value given as as commonValue, <a href="#commonValue.mustache">commonValue.mustache</a></li>
+<li><code>IpProtocol</code>: default tcp</li>
+<li><code>FromPort</code>: default to <code>Port</code></li>
+<li><code>ToPort</code>: defaults to <code>Port</code></li>
+<li>CidrIp given as commonValue, <a href="#commonValue.mustache">commonValue.mustache</a></li>
 </ul>
 
 <div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
 
 {
-   "Key" : "{{Key}}"
-   , "Value" : {{> commonValue }}
+   "IpProtocol" : {{#IpProtocol}}"{{IpProtocol}}"{{/IpProtocol}}{{^IpProtocol}}"tcp"{{/IpProtocol}},
+   "FromPort" : "{{#FromPort}}{{FromPort}}{{/FromPort}}{{^FromPort}}{{Port}}{{/FromPort}}",
+   "ToPort" : "{{#ToPort}}{{ToPort}}{{/ToPort}}{{^ToPort}}{{Port}}{{/ToPort}}",
+   "CidrIp" : {{> commonValue }}
 }
 
-
-</div></div>
-
-<h2><a id="commonStackRef.mustache"></a>commonStackRef.mustache<a class='navigator' href='#top'>[top]</a></h2>
-
-<p>Common template to output nested stack reference</p>
-
-<p><strong>Attributes</strong>: </p>
-
-<ul>
-<li><code>Stack</code> : name of the nested stack resource</li>
-<li><code>Output</code>: name of output variable in nested stack</li>
-</ul>
-
-<div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
-
-{ "Fn::GetAtt": [ "{{Stack}}", "Outputs.{{Output}}"] }
 
 </div></div>

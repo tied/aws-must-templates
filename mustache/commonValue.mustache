@@ -26,7 +26,7 @@ Common template to output value (Value/Ref/Attr/StackRef)
 
 
 {{#Value}}"{{Value}}"{{/Value}}
-{{#Ref}}{ "Ref": "{{Ref}}" }{{/Ref}}
+{{#Ref}} {{> commonRef }} {{/Ref}}
 {{#Attr}}{ "Fn::GetAtt" : [ "{{Ref}}", "{{Name}}" ] }{{/Attr}}
 {{#StackRef}}{ "Fn::GetAtt": [ "{{Stack}}", "Outputs.{{Output}}"] }{{/StackRef}}
 

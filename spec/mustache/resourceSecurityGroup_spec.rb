@@ -27,9 +27,9 @@ describe template_under_test do
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
         "GroupDescription" : "Enable SSH access via port 22"
-        
-        , "SecurityGroupIngress" : [ 
-        ]
+        , "Tags": [{"Key": "Name", "Value": "koe"}]
+        , "SecurityGroupIngress" : [ ]
+        , "SecurityGroupEgress" : [ ]
       }
      }
 

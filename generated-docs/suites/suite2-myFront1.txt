@@ -1,8 +1,0 @@
-
-RespondsToPing
-  ping '52.18.222.197'
-    #reponds within 20 seconds with 3 test counts
-
-Finished in 0.00063 seconds (files took 1.07 seconds to load)
-1 example, 0 failures
-

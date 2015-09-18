@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require_relative "spec_helper.rb"
 
 require 'yaml'
@@ -69,8 +70,8 @@ describe "AwsMustTemplates::TestSuites::TestSuites" do
       expect( @sut ).to respond_to( :suite_role_ids )
     end
 
-    it "methods 'suite_instance_ids'" do
-      expect( @sut ).to respond_to( :suite_instance_ids )
+    it "methods 'suite_instance_names'" do
+      expect( @sut ).to respond_to( :suite_instance_names )
     end
 
     it "methods 'suite_instance_role_ids'" do
@@ -90,27 +91,27 @@ describe "AwsMustTemplates::TestSuites::TestSuites" do
 
     it "#nil - when suite not found" do
       suite_id = "aaa"
-      instance_id =  "notsucnhcid"
-      expect( @sut.suite_instance_roles( suite_id, instance_id )).to eql( nil )
+      instance_name =  "notsucnhcid"
+      expect( @sut.suite_instance_roles( suite_id, instance_name )).to eql( nil )
     end
 
     it "#nil - when instance not not found" do
       suite_id = @suite1.keys.first
-      instance_id =  "notsucnhcid"
-      expect( @sut.suite_instance_roles( suite_id, instance_id )).to eql( nil )
+      instance_name =  "notsucnhcid"
+      expect( @sut.suite_instance_roles( suite_id, instance_name )).to eql( nil )
     end
 
     it "#empty array - when no roles defined" do
       suite_id = @suite3.keys.first
-      instance_id =  @suite3[suite_id]["instances"][0].keys.first
-      expect( @sut.suite_instance_roles( suite_id, instance_id )).to eql( [] )
+      instance_name =  @suite3[suite_id]["instances"][0].keys.first
+      expect( @sut.suite_instance_roles( suite_id, instance_name )).to eql( [] )
     end
 
     it "#array of role defs - normal case" do
       suite_id = @suite3.keys.first
-      instance_id =  @suite3[suite_id]["instances"][1].keys.first
+      instance_name =  @suite3[suite_id]["instances"][1].keys.first
       roles_ids =  ["role1", "role2", "role3" ]
-      expect( @sut.suite_instance_roles( suite_id, instance_id )).to eql( @suite3_instance2_roles )
+      expect( @sut.suite_instance_roles( suite_id, instance_name )).to eql( @suite3_instance2_roles )
     end
 
 
@@ -124,48 +125,48 @@ describe "AwsMustTemplates::TestSuites::TestSuites" do
 
     it "#nil - when suite not found" do
       suite_id = "aaa"
-      instance_id =  "notsucnhcid"
-      expect( @sut.suite_instance_role_ids( suite_id, instance_id )).to eql( nil )
+      instance_name =  "notsucnhcid"
+      expect( @sut.suite_instance_role_ids( suite_id, instance_name )).to eql( nil )
     end
 
     it "#nil - when insance not not found" do
       suite_id = @suite1.keys.first
-      instance_id =  "notsucnhcid"
-      expect( @sut.suite_instance_role_ids( suite_id, instance_id )).to eql( nil )
+      instance_name =  "notsucnhcid"
+      expect( @sut.suite_instance_role_ids( suite_id, instance_name )).to eql( nil )
     end
 
     it "#empty array - when no roles defined" do
       suite_id = @suite3.keys.first
-      instance_id =  @suite3[suite_id]["instances"][0].keys.first
-      expect( @sut.suite_instance_role_ids( suite_id, instance_id )).to eql( [] )
+      instance_name =  @suite3[suite_id]["instances"][0].keys.first
+      expect( @sut.suite_instance_role_ids( suite_id, instance_name )).to eql( [] )
     end
 
     it "#array of role ids - normal case" do
       suite_id = @suite3.keys.first
-      instance_id =  @suite3[suite_id]["instances"][1].keys.first
+      instance_name =  @suite3[suite_id]["instances"][1].keys.first
       roles_ids =  ["role1", "role2", "role3" ]
-      expect( @sut.suite_instance_role_ids( suite_id, instance_id )).to eql( roles_ids )
+      expect( @sut.suite_instance_role_ids( suite_id, instance_name )).to eql( roles_ids )
     end
 
   end
 
   # ------------------------------------------------------------------
-  # suite_instance_ids
-  describe "suite_instance_ids" do
+  # suite_instance_names
+  describe "suite_instance_names" do
 
     it "#nil - when suite not found" do
       suite_id = "aaa"
-      expect( @sut.suite_instance_ids( suite_id )).to eql( nil )
+      expect( @sut.suite_instance_names( suite_id )).to eql( nil )
     end
 
     it "#empty array - when suite does not have any instances" do
       suite_id = @suite1.keys.first
-      expect( @sut.suite_instance_ids( suite_id )).to eql( [] )
+      expect( @sut.suite_instance_names( suite_id )).to eql( [] )
     end
 
-    it "#array of instance_id - normal case" do
+    it "#array of instance_name - normal case" do
       suite_id = @suite3.keys.first
-      expect( @sut.suite_instance_ids( suite_id )).to eql( @suite3.values.first["instances"].map { |h| h.keys.first })
+      expect( @sut.suite_instance_names( suite_id )).to eql( @suite3.values.first["instances"].map { |h| h.keys.first })
     end
 
   end
@@ -316,12 +317,84 @@ describe "AwsMustTemplates::TestSuites::TestSuites" do
       expect { AwsMustTemplates::TestSuites::TestSuites.new }.to raise_error( /No such file/ )
     end 
 
+    # ------------------------------------------------------------------
+    # load ruby/object
+
+    context "Loads ruby/object" do
+
+      # **********
+      # Define test class constructed in YAML
+
+      module Tst
+        class A
+          attr_reader :apu
+          def initialize( apu )
+            @apu=apu
+          end
+          def to_s
+            puts "A=#{@a}"
+          end
+          def ==(a)
+            # puts "self.apu=#{self.apu} vs. a.apu=#{a.apu} #{self.apu == a.apu}"
+            self.apu == a.apu
+          end
+          def init_with( coder )
+            @apu = coder['apu']
+          end
+        end
+      end; 
+      
+      # **********
+      before :each do
+
+        yaml_content =  <<-EOS
+        - tst-suite1:
+             desc: Fails fast if problems with AWS installation
+             roles:
+               - Test1:
+                   param1: A
+               - Test2:
+                   param2: !ruby/regexp '/^igw.*/'
+               - Test3:
+                   param3: !ruby/object:Tst::A
+                       apu: hei
+
+        EOS
+        yaml = YAML.load( yaml_content )
+        # puts "\nyaml=#{yaml}\n"
+        expect( YAML ).to receive(:load_file).with(AwsMustTemplates::TestSuites::SUITE_CONFIGS).and_return( yaml )
+        @test_suites = AwsMustTemplates::TestSuites::TestSuites.new
+
+        @expected = { "param1" => "A", "param2" => "igw-AAA", "param3" => Tst::A.new( "hei")  }
+
+      end # before
+
+      # **********
+      # Tests
+
+      it "#loads suite from YAML" do
+        expect( @test_suites.suite_ids()).to eql( ['tst-suite1'] )
+      end 
+
+      it "#includes fixed parameter" do
+        expect( @test_suites.suite_roles( "tst-suite1" ).first["Test1"] ).to include( {  "param1" =>"A", } )
+      end 
+
+      it "#defines include matcher for fixed string " do
+        expect( @expected  ).to include( @test_suites.suite_roles( "tst-suite1" ).first["Test1"] )
+      end 
+
+      it "#defines include matcher for regexp" do
+        expect(  @expected ).to include( @test_suites.suite_roles( "tst-suite1" )[1]["Test2"] )
+      end 
+
+      it "#defines include matcher Object" do
+        expect(  @expected ).to include( @test_suites.suite_roles( "tst-suite1" )[2]["Test3"] )
+      end 
+
+    end # context load/ruby object
   end
   
-
-  it "#works" do
-    expect( 1 ).to eql( 1 )
-  end 
 
   # ------------------------------------------------------------------
   # helpers

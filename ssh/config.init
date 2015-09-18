@@ -1,0 +1,16 @@
+# Seeded from config.init
+
+Host *.internal
+     ProxyCommand ssh myFront1 -F ssh/config.aws nc -q0 %h 22
+
+
+# using RHEL Amazon vpc-nat instance --> ec2-user
+Host myNat
+     user ec2-user
+
+Host *
+     user ubuntu
+     StrictHostKeyChecking no
+     UserKnownHostsFile=/dev/null
+     IdentityFile ~/.ssh/demo-key/demo-key
+
