@@ -88,7 +88,7 @@ namespace "dev" do |ns|
 
     end
 
-    # xfre
+    # xref
     desc "Test cases vs. test suites"
     task :xref, :stdout  do |t,args|
       
@@ -116,6 +116,40 @@ namespace "dev" do |ns|
       sh "rake suite:suite-runner-configs > #{file}"
     end
 
+    task "gist-names"  do
+
+      gist_names_dir  = "#{generate_docs_dir}/gist-names"
+      sh "mkdir -p #{gist_names_dir}" unless File.exists?(gist_names_dir)
+      gist_names = 
+        [
+         { :name => "aws-must-templates-suites",
+           :description => "Rspec test reports for aws-must-templates",
+           :files => [ "#{generate_docs_dir}/suites/*" ],
+           :url=>"724b259de6af031493b7"
+         },
+          { :name => "aws-must-templates-cf-templates",
+             :description => "Cloudformation templates for aws-must-templates test suites",
+             :files => [ "#{generate_docs_dir}/cloudformation/*"  ],
+             :url=>"9fe4d74b42fd6f272aad" 
+         },
+          { :name => "aws-must-templates-test-report",
+             :description => "Test report from running test suites in  aws-must-templates development",
+             :files => [ "#{generate_docs_dir}/test-suites.md"  ],
+             :url=>"9ab1c25d436c4e468f5e",
+         },
+        ]
+
+      gist_names.each do |gist_name|
+        gist_name_file = "#{gist_names_dir}/#{gist_name[:name]}"
+        File.open( gist_name_file, 'w') { |f| f.write("#{gist_name[:description]}\n") }
+        gist_url = "https://gist.github.com/jarjuk/#{gist_name[:url]}"
+        sh "gist -u #{gist_url} #{gist_name_file} #{gist_name[:files].join( ' ' )}" if gist_name[:url]
+      end
+      
+         
+    end
+
+
 
     # tests
     desc "Markdown documention for tests in 'test-suites.yaml'"
@@ -125,14 +159,31 @@ namespace "dev" do |ns|
 
       capture_stdout_to( file ) { 
 
-        puts "# [aws-must-templates](https://github.com/jarjuk/aws-must-templates) - tests"
+        puts "# <a id='top'/>[aws-must-templates](https://github.com/jarjuk/aws-must-templates) - tests"
         
+        # ----------------------------------------
+        # table of content
+        puts "## Test suites"
+        
+        puts "\n"
+        test_suites.suite_ids.each do |suite_id|
+          suite = test_suites.get_suite( suite_id )
+          puts "* [#{suite_header_txt( suite_id, suite)}](#{suite_link_target(suite_id)})"
+        end
+        puts "\n\n"
+        
+        # ----------------------------------------
+        # iterate suites, for each suite output 
+        # - long description
+        # - suite common tests data (=parameters, outputs sections)
+        # - instance tests
 
         test_suites.suite_ids.each do |suite_id|
           
           suite = test_suites.get_suite( suite_id )
 
-          puts "## #{suite_id} - #{suite['desc']}"
+          # puts "## #{suite_id} - #{suite['desc']}"
+          puts "## #{suite_header(suite_id, suite)}"
           puts ""
           puts suite['long_desc']
           puts ""
@@ -155,7 +206,16 @@ namespace "dev" do |ns|
 
           # iterate suite instancess to create a link to test report
           test_suites.suite_instance_names( suite_id ).each do |instance_name|
-            puts "* [#{instance_name}](#{suite_test_report_filelink(suite_id,instance_name)})"
+            puts "* [#{suite_id}-#{instance_name}](#{suite_test_report_link(suite_id,instance_name)})"
+          end
+
+          test_suites.suite_instance_names( suite_id ).each do |instance_name|
+            puts "\n\n"
+            puts "#{suite_test_report_header(suite_id,instance_name)}"
+            puts "\n\n<pre>"
+            sh "cat #{suite_test_report_filepath( suite_id, instance_name )}"
+            puts "</pre>\n\n"
+            
           end
           
 
@@ -203,7 +263,7 @@ namespace "dev" do |ns|
   end # ns docs
 
   desc "Generate html-, stack CloudFormation JSON templates into `{generate_docs_dir}` -subdirectory"
-  task :docs => ["dev:docs:mustache", "dev:docs:suite-runner-configs", "dev:docs:spec", "dev:docs:cf", "dev:docs:tests", "dev:docs:xref" ]
+  task :docs => ["dev:docs:mustache", "dev:docs:suite-runner-configs", "dev:docs:spec", "dev:docs:cf", "dev:docs:tests", "dev:docs:xref", "dev:docs:gist-names" ]
 
   # ------------------------------------------------------------------
   # unit tests
@@ -314,9 +374,37 @@ def suite_test_report_filepath( suite_id, instance_name=nil )
 end
 
 # relative link to test report
-def suite_test_report_filelink( suite_id, instance_name=nil )
-  "suites/#{suite_id}#{ instance_name ? '-' + instance_name : ""}.txt"
+def suite_test_report_link( suite_id, instance_name=nil )
+  # "suites/#{suite_id}#{ instance_name ? '-' + instance_name : ""}.txt"
+  "\##{suite_id}#{ instance_name ? '-' + instance_name : ""}"
 end
+
+def suite_test_report_header( suite_id, instance_name=nil )
+  id= "#{suite_id}#{ instance_name ? '-' + instance_name : ''}"
+  "\#\#\#\# <a id=\"#{id}\">#{id} - #{top_link} - #{suite_link(suite_id)}"
+end
+
+def suite_header( suite_id, suite )
+  "<a id=\"#{suite_id}\">#{suite_header_txt( suite_id, suite)} - #{top_link}"
+end
+
+def suite_header_txt( suite_id, suite )
+  "#{suite_id} - #{suite['desc']}"
+end
+
+
+def top_link
+  "<a class='navigator' href='#top'>[top]</a>"
+end
+
+def suite_link( suite_id )
+  "<a class='navigator' href='#{suite_link_target(suite_id)}'>[#{suite_id}]</a>"
+end
+
+def suite_link_target( suite_id )
+  "\##{suite_id}"
+end
+
 
 # location of test run reports
 def suite_test_report_dirpath

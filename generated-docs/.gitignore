@@ -1,0 +1,4 @@
+*
+!.gitignore
+!aws-must-templates.html
+!aws-must-templates-spec.html

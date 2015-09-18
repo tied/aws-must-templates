@@ -52,8 +52,8 @@ When using code generators, consider
    the threshold to write tests
 
 3. by allowing users [to reuse](#TEST_CASES)
-   [test cases](generated-docs/test-suites.md) used
-   in **aws-must-templates** quality assurance
+   [test cases](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates-spec.html)
+   from **aws-must-templates** quality assurance
 
 4. by having the possibility to [include own test](#TEST_CASES)
    cases to test suites
@@ -92,8 +92,16 @@ used to validate **aws-must-templates** implementation. For, example
   bucket, one of the instances (`myInstance`) which is granted a read
   access to the S3 bucket
   
-See [test report](generated-docs/test-suites.md) of
-**aws-must-templates** for more information.
+* [suite1.yaml](suite1.yaml): creates two EC2 instances, and one S3
+  bucket, one of the instances (`myInstance`) which is granted a read
+  access to the S3 bucket
+  
+* [suite2.yaml](suite12.yaml): Creates VPC with Public and Private
+         Subnets (NAT) similar to
+         [scenario 2](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Scenario2.html)
+  
+See [test report](https://gist.github.com/jarjuk/9ab1c25d436c4e468f5e)
+of **aws-must-templates** for more information.
 
 See
 [associated diagrams](https://rawgit.com/jarjuk/aws-must-templates/master/pics/recipes.html)
@@ -204,10 +212,10 @@ Add following lines to `Rakefile`
 	spec = Gem::Specification.find_by_name 'aws-must-templates'
 	load "#{spec.gem_dir}/lib/tasks/suite.rake"
 	
-Take a look at
-[default Test Runner Options](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/suite-runner-configs.yaml),
-and modify settings in `suite-runner-configs.yaml` to override default
-values.
+Make a copy of
+[default Test Runner Options](https://rawgit.com/jarjuk/aws-must-templates/master/suite-runner-configs.yaml)
+to `suite-runner-configs.yaml` in current working directory, and
+modify settings to override default values.
 	
 Create an empty `test-suites.yaml`	 -file
 
@@ -262,9 +270,8 @@ Once configuration in `ssh/config.init` is in place, running
 
 updates EC2 instance metadata in `ssh/config.aws`
 	
-**Notice** You may change defaults
-[defaults](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/suite-runner-configs.yaml)
-in [suite-runner-configs.yaml](#SETUP-TEST-RUNNER).
+**Notice** You may change defaults defaults values in
+[suite-runner-configs.yaml](#SETUP-TEST-RUNNER).
 
 See
 [blog post](https://jarjuk.wordpress.com/2015/09/08/using-openssh-on-aws-platform/#more-273https://jarjuk.wordpress.com/2015/09/08/using-openssh-on-aws-platform)
@@ -301,9 +308,9 @@ with the code shown:
 
 
 For more information on Test Cases, see
-[test report](generated-docs/test-suites.md) created, when running
-[test-suites](test-suites.yaml) in **aws-must-templates** development,
-and a [diagram](generated-docs/xref_suite_X_test.pdf) for an overview.
+[test report](https://gist.github.com/jarjuk/9ab1c25d436c4e468f5e)
+generated, when running [test-suites](test-suites.yaml) in
+**aws-must-templates** development.
 
 
 ### Configure Test Suites <a id="TEST-SUITES"/>
@@ -414,7 +421,7 @@ See [RELEASES](RELEASES.md)
 
 Add more tests, e.g.
 
-* VPC and subnets
+* SNS
 * install Chef
 
 Add more template support
