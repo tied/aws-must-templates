@@ -5,17 +5,8 @@
 ## <a id="mappings.mustache"></a>mappings.mustache <a class='navigator' href='#top'>[top]</a>
 
 Mapping table `region-->ami` with `root-device=ebs`,
-`architecture,Values=x86_64`, and `--owners amazon` as returned by
-the query
+`architecture,Values=x86_64`, and `--owners amazon` 
 
-            aws ec2 describe-images --owners amazon 
-			       --filters "Name=root-device-type,Values=ebs" 
-				   --filters "Name=name,Values=amzn-ami-vpc-nat" 
-				   --filters "Name=architecture,Values=x86_64" 
-				   --filters "Name=image-id,Values=ami*"  
-				   --query 'Images[].[CreationDate, ImageId]' 
-				   --output json --region #{region}
-				   
 
 +++close+++
 
