@@ -25,7 +25,7 @@ EOF
   # s.require_paths   = [ "lib" ]
   s.license       = 'MIT'
 
-  s.add_runtime_dependency 'aws-must',         '~> 0.0', '>=0.0.14.pre'
+  s.add_runtime_dependency 'aws-must',         '~> 0.0', '>=0.0.14'
 
 
   s.homepage              = "https://github.com/jarjuk/aws-must-templates"
