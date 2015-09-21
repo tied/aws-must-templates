@@ -1,4 +1,4 @@
-# aws-must-templates - cloudformation templates for aws-must - $Release:0.2.3$
+# aws-must-templates - cloudformation templates for aws-must - $Release:0.2.4-SNAPSHOT$
 
 Set of [extensible](#OVERRIDE)
 [templates](https://rawgit.com/jarjuk/aws-must-templates/master/generated-docs/aws-must-templates.html)
