@@ -1,3 +1,4 @@
+## 0.2.3-SNAPSHOT/20150921-14:02:36
 ## 0.2.2/20150921-14:02:09
 
 * include test-suites to bundle
