@@ -21,11 +21,11 @@ Gem::Specification.new do |s|
   Test Runner for validating correctness of CloudFormation stacks provisioned.
 EOF
   s.authors         = ["jarjuk"]
-  s.files           = ["README.md"] | Dir.glob("mustache/**/*")  | Dir.glob("lib/**/*")  | Dir.glob("pics/*.jpg") | Dir.glob("spec/**/*") 
+  s.files           = ["README.md", "smoke.yaml"] | Dir.glob( "suite*.yaml")  | Dir.glob("mustache/**/*")  | Dir.glob("lib/**/*")  | Dir.glob("pics/*.jpg") | Dir.glob("spec/**/*") 
   # s.require_paths   = [ "lib" ]
   s.license       = 'MIT'
 
-  s.add_runtime_dependency 'aws-must',         '~> 0.0', '>=0.0.14.pre'
+  s.add_runtime_dependency 'aws-must',         '~> 0.0', '>=0.0.14'
 
 
   s.homepage              = "https://github.com/jarjuk/aws-must-templates"

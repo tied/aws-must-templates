@@ -1,3 +1,8 @@
+## 0.2.3/20150921-14:08:51
+
+* aws-must dependency '>=0.0.14'
+* include test-suites to bundle
+
 ## 0.2.1/20150918-14:57:08
 
 
