@@ -1,3 +1,11 @@
+2015-09-22  jj  <jj@horsti>
+
+	* spec/support/lib/aws/ec2_resource.rb
+	(Serverspec::Type::Ec2Resource): added public_dns_name
+
+	* spec/aws-must-templates/RespondsToPing/RespondsToPing_spec.rb:
+	Do not use parameters host name
+
 2015-09-16  jj  <jj@horsti>
 
 	* lib/tasks/cross-ref.rb (#xref_to_dot): opetion for neato

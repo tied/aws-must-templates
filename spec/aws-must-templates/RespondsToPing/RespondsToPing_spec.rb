@@ -4,7 +4,7 @@
 
 ## <a id="RespondsToPing"></a>RespondsToPing<a class='navigator' href='#top'>[top]</a>
 
-Validate that host  `test_parameter( current_test, "Hostname" )`  answers to ping
+Validate that instance answers to ping.
 
 +++close+++
 
@@ -21,14 +21,22 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  hostname = test_parameter( current_test, "Hostname" )
+  instance = suite_value( :instance_name )
+
   timeout = 20 # seconds
   testcount = 3 # times
 
   # ------------------------------------------------------------------
   # tests
 
-  describe "ping '#{hostname.value}'" do
+  describe "ping '#{instance.value}'" do
+
+    let( :public_dns_name ) {  ec2_named_resource(instance.value).public_dns_name }
+
+    it "instance defines 'public_dns_name'" do
+      expect( public_dns_name ).not_to eql( nil )
+    end
+
 
     it "#reponds within #{timeout} seconds with #{testcount} test counts" do 
       # -W:  Time to wait for a response, in seconds
@@ -36,7 +44,7 @@ describe current_test do
       # -option, ping waits for count ECHO_REPLY packets, until the
       # -timeout expires
 
-      cmd = "ping #{hostname.value} -W 20 -c 3"
+      cmd = "ping #{public_dns_name} -W 20 -c 3"
       # puts cmd `#{cmd}` 
       raise "Error in '#{cmd}' " unless $? == 0 end
   end

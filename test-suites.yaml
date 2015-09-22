@@ -164,7 +164,6 @@
      - myNat:
          roles:
              - RespondsToPing:
-                 Hostname: '@Outputs.myNat'
              - Ec2StatusNormal
              - Ec2InstanceType:
                  InstanceType: "@Parameters.InstanceType"
@@ -224,7 +223,6 @@
      - myFront1:
          roles:
              - RespondsToPing:
-                 Hostname: '@Outputs.myFront1'
              - Ec2StatusNormal:
              - Ec2InstanceType:
                  InstanceType: "@Parameters.InstanceType"

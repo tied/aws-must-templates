@@ -1,6 +1,7 @@
 ## 0.2.4-SNAPSHOT/20150921-14:09:17
 
 * fixed Ec2SecurityGroups: error when egress/ingress null
+* RespondsToPing: Hostname not used
 
 ## 0.2.3/20150921-14:08:51
 
