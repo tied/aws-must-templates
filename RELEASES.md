@@ -1,4 +1,7 @@
 ## 0.2.4-SNAPSHOT/20150921-14:09:17
+
+* fixed Ec2SecurityGroups: error when egress/ingress null
+
 ## 0.2.3/20150921-14:08:51
 
 * aws-must dependency '>=0.0.14'
