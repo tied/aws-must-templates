@@ -31,22 +31,22 @@ describe current_test do
 
   describe "ping '#{instance.value}'" do
 
-    let( :public_dns_name ) {  ec2_named_resource(instance.value).public_dns_name }
+    describe ec2_named_resource(instance.value) do
 
-    it "instance defines 'public_dns_name'" do
-      expect( public_dns_name ).not_to eql( nil )
+      let( :public_dns_name ) { subject.public_dns_name }
+      its( :public_dns_name ) { should_not eql nil }
+
+
+      it "#reponds within #{timeout} seconds with #{testcount} test counts" do 
+        # -W:  Time to wait for a response, in seconds
+        # -c:  Stop after sending count ECHO_REQUEST packets. With deadline
+        # -option, ping waits for count ECHO_REPLY packets, until the
+        # -timeout expires
+
+        cmd = "ping #{public_dns_name} -W 20 -c 3"
+        # puts cmd `#{cmd}` 
+        raise "Error in '#{cmd}' " unless $? == 0 end
     end
-
-
-    it "#reponds within #{timeout} seconds with #{testcount} test counts" do 
-      # -W:  Time to wait for a response, in seconds
-      # -c:  Stop after sending count ECHO_REQUEST packets. With deadline
-      # -option, ping waits for count ECHO_REPLY packets, until the
-      # -timeout expires
-
-      cmd = "ping #{public_dns_name} -W 20 -c 3"
-      # puts cmd `#{cmd}` 
-      raise "Error in '#{cmd}' " unless $? == 0 end
   end
 
 end
