@@ -9,7 +9,7 @@ In dev branch
 
 Ensure that no check-outs
 
-	rake rt:fast-delivery
+	rake dev:fast-delivery
 
 
 In master branch
