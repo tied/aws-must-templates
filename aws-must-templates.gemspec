@@ -36,7 +36,7 @@ EOF
   s.add_runtime_dependency 'rake', '~>10.4'
   s.add_runtime_dependency 'rspec', '~>3.3'
   s.add_runtime_dependency 'serverspec',  '~> 2.21'
-  s.add_runtime_dependency 'aws-ssh-resolver', '~>0.0', '=>0.0.3'
+  s.add_runtime_dependency 'aws-ssh-resolver', '~>0.0', '>=0.0.3'
 
 
 end
