@@ -85,6 +85,10 @@ module Serverspec
         describe_instance_attribute("instanceType").instance_type.value
       end
 
+      def public_dns_name
+        describe_instance.public_dns_name
+      end
+      
       def public_ip_address
         describe_instance.public_ip_address
       end

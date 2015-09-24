@@ -1,3 +1,9 @@
+## 0.2.4/20150924-12:03:58
+
+* fixed Ec2SecurityGroups: error when egress/ingress null
+* RespondsToPing: Hostname not used
+* added dependency for 'aws-ssh-resolver'
+
 ## 0.2.3/20150921-14:08:51
 
 * aws-must dependency '>=0.0.14'

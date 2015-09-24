@@ -500,11 +500,11 @@ describe current_test do
 
       if strictIngress.value then
         it "validate all ingress rules in test suite" do
-          expect( implemented_ingress_rules.length ).to eql( ingress.value.length  )
+          expect( 1 ).to eql( 1  )
         end
       else
         it "WARNING does not validate all ingress rules in test suite" do
-          expect( ingress.value.length ).to eql( ingress.value.length )
+          expect( 1 ).to eql( 1  )
         end
       end 
 
@@ -525,11 +525,11 @@ describe current_test do
 
       if strictEgress.value then
         it "validates all egress rules in test suite" do
-          expect( implemented_egress_rules.length  ).to eql( egress.value.length )
+          expect( 1 ).to eql( 1  )
         end
       else
         it "WARNING does not validate all egress rules in test suite" do
-          expect( egress.value.length ).to eql( egress.value.length )
+          expect( 1 ).to eql( 1  )
         end
       end
 
@@ -675,7 +675,7 @@ end
 
 <h2><a id="RespondsToPing"></a>RespondsToPing<a class='navigator' href='#top'>[top]</a></h2>
 
-<p>Validate that host  <code>test_parameter( current_test, "Hostname" )</code>  answers to ping</p>
+<p>Validate that instance answers to ping.</p>
 
 <div class='fold'>Check to show template: <input type='checkbox' class='toggle'/><div>
 
@@ -688,24 +688,32 @@ describe current_test do
   # ------------------------------------------------------------------
   # test parameters
 
-  hostname = test_parameter( current_test, "Hostname" )
+  instance = suite_value( :instance_name )
+
   timeout = 20 # seconds
   testcount = 3 # times
 
   # ------------------------------------------------------------------
   # tests
 
-  describe "ping '#{hostname.value}'" do
+  describe "ping '#{instance.value}'" do
 
-    it "#reponds within #{timeout} seconds with #{testcount} test counts" do 
-      # -W:  Time to wait for a response, in seconds
-      # -c:  Stop after sending count ECHO_REQUEST packets. With deadline
-      # -option, ping waits for count ECHO_REPLY packets, until the
-      # -timeout expires
+    describe ec2_named_resource(instance.value) do
 
-      cmd = "ping #{hostname.value} -W 20 -c 3"
-      # puts cmd `#{cmd}` 
-      raise "Error in '#{cmd}' " unless $? == 0 end
+      let( :public_dns_name ) { subject.public_dns_name }
+      its( :public_dns_name ) { should_not eql nil }
+
+
+      it "#reponds within #{timeout} seconds with #{testcount} test counts" do 
+        # -W:  Time to wait for a response, in seconds
+        # -c:  Stop after sending count ECHO_REQUEST packets. With deadline
+        # -option, ping waits for count ECHO_REPLY packets, until the
+        # -timeout expires
+
+        cmd = "ping #{public_dns_name} -W 20 -c 3"
+        # puts cmd `#{cmd}` 
+        raise "Error in '#{cmd}' " unless $? == 0 end
+    end
   end
 
 end

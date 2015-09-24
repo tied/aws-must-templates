@@ -287,7 +287,7 @@ namespace "dev" do |ns|
   task "full-delivery" => [ "suite:all", "dev:fast-delivery" ]
 
   desc "Finalize (in master branchs after merge)"
-  task :finalize => [ "rt:push", "dev:push", "dev:upload-gist" ]
+  task :finalize => [ "rt:push", "dev:push", "dev:upload-gists" ]
 
   # ------------------------------------------------------------------
   # gists 
