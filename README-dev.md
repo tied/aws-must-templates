@@ -9,5 +9,19 @@ In dev branch
 
 Ensure that no check-outs
 
+	rake rt:fast-delivery
+
+
+In master branch
+
+* merge release (see [RELEASES](RELEASES.md)
+
+
+push to gem and githubg
+
+	rake dev:finalize
+
+
+
 
 	
