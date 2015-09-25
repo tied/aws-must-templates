@@ -9,11 +9,15 @@ CloudFormation JSON from a YAML configuration, and a
 for [validating correctness](#TEST_CASES) of CloudFormation stacks
 provisioned.
 
-See blog posts
-[part1](https://jarjuk.wordpress.com/2015/08/18/announcing-aws-must-templates-part1)
-and
-[part2](https://jarjuk.wordpress.com/2015/09/01/announcing-aws-must-templates-part2)
-for background information on this tool.
+See blog posts 
+
+*
+  [Announcing aws-must-templates](https://jarjuk.wordpress.com/2015/08/18/announcing-aws-must-templates-part1)
+  for more information on ClouFormation JSON generation
+  
+*
+  [Nat Instance on AWS](https://jarjuk.wordpress.com/2015/09/21/nat-instance-on-aws/)
+  for more information on Test Runner
 
 
 ## The Problem

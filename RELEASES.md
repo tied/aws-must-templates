@@ -1,4 +1,8 @@
 ## 0.2.5-SNAPSHOT/20150924-12:04:29
+
+* added pointer for [Nat Instance on AWS](https://jarjuk.wordpress.com/2015/09/21/nat-instance-on-aws/)
+  for more information on Test Runner
+
 ## 0.2.4/20150924-12:03:58
 
 * fixed Ec2SecurityGroups: error when egress/ingress null
